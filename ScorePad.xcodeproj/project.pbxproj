@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D8A564A32936E25300671E8C /* Auction.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A22936E25300671E8C /* Auction.swift */; };
+		D8A564A52936EB7700671E8C /* ContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A42936EB7700671E8C /* ContractTests.swift */; };
+		D8A564A72936EB8500671E8C /* ScoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A62936EB8500671E8C /* ScoreTests.swift */; };
+		D8A564AA2937B5A100671E8C /* ScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A92937B5A100671E8C /* ScoreView.swift */; };
+		D8A564AD293910D800671E8C /* RubberHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564AC293910D800671E8C /* RubberHeader.swift */; };
 		D8BD5A4A2935257700B86AA6 /* ScorePadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A492935257700B86AA6 /* ScorePadApp.swift */; };
 		D8BD5A4C2935257700B86AA6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A4B2935257700B86AA6 /* ContentView.swift */; };
 		D8BD5A4E2935257900B86AA6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8BD5A4D2935257900B86AA6 /* Assets.xcassets */; };
@@ -14,6 +19,13 @@
 		D8BD5A5C2935257900B86AA6 /* ScorePadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A5B2935257900B86AA6 /* ScorePadTests.swift */; };
 		D8BD5A662935257900B86AA6 /* ScorePadUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A652935257900B86AA6 /* ScorePadUITests.swift */; };
 		D8BD5A682935257900B86AA6 /* ScorePadUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A672935257900B86AA6 /* ScorePadUITestsLaunchTests.swift */; };
+		D8BD5A752935263000B86AA6 /* Rubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A742935263000B86AA6 /* Rubber.swift */; };
+		D8BD5A8429357C2300B86AA6 /* Contract.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8329357C2300B86AA6 /* Contract.swift */; };
+		D8BD5A8629357C4800B86AA6 /* Call.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8529357C4800B86AA6 /* Call.swift */; };
+		D8BD5A8829357C6800B86AA6 /* Score.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8729357C6800B86AA6 /* Score.swift */; };
+		D8BD5A8A29357CA200B86AA6 /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8929357CA200B86AA6 /* Position.swift */; };
+		D8BD5A8C29357D5200B86AA6 /* AuctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */; };
+		D8BD5A9029358E6A00B86AA6 /* RubberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +46,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D8A564A22936E25300671E8C /* Auction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auction.swift; sourceTree = "<group>"; };
+		D8A564A42936EB7700671E8C /* ContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractTests.swift; sourceTree = "<group>"; };
+		D8A564A62936EB8500671E8C /* ScoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreTests.swift; sourceTree = "<group>"; };
+		D8A564A92937B5A100671E8C /* ScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreView.swift; sourceTree = "<group>"; };
+		D8A564AC293910D800671E8C /* RubberHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberHeader.swift; sourceTree = "<group>"; };
 		D8BD5A462935257700B86AA6 /* ScorePad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScorePad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD5A492935257700B86AA6 /* ScorePadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadApp.swift; sourceTree = "<group>"; };
 		D8BD5A4B2935257700B86AA6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -45,6 +62,13 @@
 		D8BD5A612935257900B86AA6 /* ScorePadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScorePadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD5A652935257900B86AA6 /* ScorePadUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadUITests.swift; sourceTree = "<group>"; };
 		D8BD5A672935257900B86AA6 /* ScorePadUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		D8BD5A742935263000B86AA6 /* Rubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rubber.swift; sourceTree = "<group>"; };
+		D8BD5A8329357C2300B86AA6 /* Contract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contract.swift; sourceTree = "<group>"; };
+		D8BD5A8529357C4800B86AA6 /* Call.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Call.swift; sourceTree = "<group>"; };
+		D8BD5A8729357C6800B86AA6 /* Score.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Score.swift; sourceTree = "<group>"; };
+		D8BD5A8929357CA200B86AA6 /* Position.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
+		D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuctionTests.swift; sourceTree = "<group>"; };
+		D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +96,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D8A564A82936EC0600671E8C /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				D8BD5A742935263000B86AA6 /* Rubber.swift */,
+				D8A564A22936E25300671E8C /* Auction.swift */,
+				D8BD5A8329357C2300B86AA6 /* Contract.swift */,
+				D8BD5A8529357C4800B86AA6 /* Call.swift */,
+				D8BD5A8729357C6800B86AA6 /* Score.swift */,
+				D8BD5A8929357CA200B86AA6 /* Position.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		D8BD5A3D2935257700B86AA6 = {
 			isa = PBXGroup;
 			children = (
@@ -97,9 +134,13 @@
 			children = (
 				D8BD5A492935257700B86AA6 /* ScorePadApp.swift */,
 				D8BD5A4B2935257700B86AA6 /* ContentView.swift */,
+				D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */,
+				D8A564AC293910D800671E8C /* RubberHeader.swift */,
+				D8A564A92937B5A100671E8C /* ScoreView.swift */,
 				D8BD5A4D2935257900B86AA6 /* Assets.xcassets */,
 				D8BD5A4F2935257900B86AA6 /* ScorePad.entitlements */,
 				D8BD5A502935257900B86AA6 /* Preview Content */,
+				D8A564A82936EC0600671E8C /* Model */,
 			);
 			path = ScorePad;
 			sourceTree = "<group>";
@@ -116,6 +157,9 @@
 			isa = PBXGroup;
 			children = (
 				D8BD5A5B2935257900B86AA6 /* ScorePadTests.swift */,
+				D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */,
+				D8A564A42936EB7700671E8C /* ContractTests.swift */,
+				D8A564A62936EB8500671E8C /* ScoreTests.swift */,
 			);
 			path = ScorePadTests;
 			sourceTree = "<group>";
@@ -259,8 +303,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8BD5A9029358E6A00B86AA6 /* RubberView.swift in Sources */,
+				D8BD5A8A29357CA200B86AA6 /* Position.swift in Sources */,
 				D8BD5A4C2935257700B86AA6 /* ContentView.swift in Sources */,
 				D8BD5A4A2935257700B86AA6 /* ScorePadApp.swift in Sources */,
+				D8BD5A8629357C4800B86AA6 /* Call.swift in Sources */,
+				D8A564AD293910D800671E8C /* RubberHeader.swift in Sources */,
+				D8BD5A752935263000B86AA6 /* Rubber.swift in Sources */,
+				D8BD5A8829357C6800B86AA6 /* Score.swift in Sources */,
+				D8A564A32936E25300671E8C /* Auction.swift in Sources */,
+				D8BD5A8429357C2300B86AA6 /* Contract.swift in Sources */,
+				D8A564AA2937B5A100671E8C /* ScoreView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,7 +321,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8BD5A8C29357D5200B86AA6 /* AuctionTests.swift in Sources */,
 				D8BD5A5C2935257900B86AA6 /* ScorePadTests.swift in Sources */,
+				D8A564A72936EB8500671E8C /* ScoreTests.swift in Sources */,
+				D8A564A52936EB7700671E8C /* ContractTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
