@@ -8,20 +8,35 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedRubberId: Rubber.ID?
+    let rubbers = [Rubber.mock, Rubber.mock, Rubber.mock]
+    
     var body: some View {
-        NavigationView {
-            Rubber.mock
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            print("New contract")
-                        }, label: {
-                            Label("Add", systemImage: "plus")
-                        })
-                    }
-                }
-
+        NavigationSplitView {
+            List(rubbers, selection: $selectedRubberId) { item in
+                RubberHeader()
+                    .environmentObject(item)
+            }
+        } detail: {
+            if let selectedRubberId,
+               let rubber = rubbers.first(where: { $0.id == selectedRubberId }) {
+                RubberView(rubber: rubber)
+            } else {
+                EmptyView()
+            }
         }
+//        NavigationView {
+//            let rubber = Rubber(
+//                players: [
+//                    Player(name: "Nathan", position: .south),
+//                    Player(name: "Larisa", position: .north),
+//                    Player(name: "Sharon", position: .west),
+//                    Player(name: "Caty", position: .east)
+//                ]
+//            )
+//            RubberView(rubber: rubber)
+//        }
+//        .navigationViewStyle(.automatic)
 
     }
 }

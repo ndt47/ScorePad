@@ -18,12 +18,12 @@ enum Team {
         }
     }
     
-    var positions: (Position, Position) {
+    var positions: [Position] {
         switch self {
         case .we:
-            return (.north, .south)
+            return [.north, .south]
         case .they:
-            return (.east, .west)
+            return [.east, .west]
         }
     }
 }
@@ -53,9 +53,12 @@ enum Game: Identifiable {
     case rubber(Team, ClosedRange<Int>)
 }
 
-extension Sequence where Element == Game {
+extension Array where Element == Game {
     var vulnerableTeams: Set<Team> {
-        Set(compactMap { game in
+        guard let last = self.last else { return .init() }
+        if case .rubber = last { return .init() }
+        
+        return Set(compactMap { game in
             if case let .complete(team, _) = game {
                 return team
             }
@@ -64,22 +67,56 @@ extension Sequence where Element == Game {
     }
 }
 
-struct Rubber {
-    var history: [Contract] = []
+class Rubber: ObservableObject, Identifiable {
+    let id: UUID = UUID()
+    let dateCreated = Date()
+    var lastModified = Date()
     var players: [Player] = []
+    let startingDealer: Position
+    @Published var history: [AuctionResult] = []
+
+    init(players: [Player] = [], dealer: Position = .north, history: [AuctionResult] = []) {
+        self.players = players
+        self.startingDealer = dealer
+        self.history = history
+    }
     
-    func isVulnerable(_ declarer: Position) -> Bool {
-        games.vulnerableTeams.contains(declarer.team)
+    var currentDealer: Position {
+        guard let lastResult = history.last else  {
+            return startingDealer
+        }
+        return lastResult.dealer.next
+    }
+    
+    var isFinished: Bool {
+        guard let last = self.games.last else { return false }
+        if case .rubber = last { return true }
+        return false
+    }
+    
+    func isVulnerable(_ team: Team) -> Bool {
+        games.vulnerableTeams.contains(team)
     }
     
     func player(at position: Position) -> String? {
         players.first(where: { $0.position == position})?.name
     }
     
-    mutating func addContract(_ contract: Contract) {
+    func addContract(_ contract: Contract) {
         var contract = contract
-        contract.vulnerable = isVulnerable(contract.declarer)
-        history.append(contract)
+        contract.vulnerable = isVulnerable(contract.declarer.team)
+        history.append(.contract(contract.auction, contract))
+        lastModified = Date()
+    }
+    
+    func addMissDeal(_ dealer: Position) {
+        history.append(.missDeal(dealer))
+        lastModified = Date()
+    }
+    
+    func addPassHand(_ auction: Auction) {
+        history.append(.pass(auction))
+        lastModified = Date()
     }
     
     var games: [Game] {
@@ -89,15 +126,16 @@ struct Rubber {
         var start = 0
         var we = 0
         var they = 0
-        for (index, contract) in history.enumerated() {
+        for (index, hand) in history.enumerated() {
+            guard case let .contract(_, contract) = hand else { continue }
             guard case let .bid(value, contract) = contract.scores.first(where: { $0.scoresUnderTheLine }) else { continue }
             if case .we = contract.declarer.team {
                 we += value
             } else {
                 they += value
             }
-            if we > 100 || they > 100 {
-                let game: Game = .complete(we > 100 ? .we : .they, start...index)
+            if we >= 100 || they >= 100 {
+                let game: Game = .complete(we >= 100 ? .we : .they, start...index)
                 result[gameIndex] = game
                 we = 0
                 they = 0
@@ -140,7 +178,7 @@ struct Rubber {
         let games = games
         var scores = history.scores
         if case let .rubber(team, _) = games.last {
-            scores.append(.rubber(games.count == 2 ? 750 : 500, team))
+            scores.append(.rubber(games.count == 2 ? 700 : 500, team))
         }
         return scores
     }
@@ -152,13 +190,23 @@ struct Rubber {
     func scoresForGame(_ game: Game) -> [Score] {
         switch game {
         case let .complete(_, range), let .rubber(_, range):
-            return history[range].scores
+            return Array(history[range]).scores
         case let .partial(range), let .none(range):
-            return history[range].scores
+            return Array(history[range]).scores
         }
     }
     
     func points(for team: Team) -> Points {
         scores.points(for: team)
+    }
+}
+
+extension Rubber: Hashable {
+    static func == (lhs: Rubber, rhs: Rubber) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        id.hash(into: &hasher)
     }
 }

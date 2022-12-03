@@ -7,6 +7,15 @@
 
 import Foundation
 
+protocol ScoreProviding {
+    var scores: [Score] { get }
+}
+
+protocol PointsCalculating {
+    var points: (we: Points, they: Points) { get }
+    func points(for team: Team) -> Points
+}
+
 enum Score: Identifiable {
     var id: UUID { .init() }
     
@@ -68,7 +77,7 @@ extension Suit {
     }
 }
 
-extension Contract {
+extension Contract: ScoreProviding {
     var overtrickValue: Int {
         if redoubled {
             return vulnerable ? 400 : 200
@@ -120,10 +129,10 @@ extension Contract {
         }
         // Honors (not required to make the bid)
         switch (honors) {
-        case let .declarer(value):
-            scores.append(.honors(value, declarer.team, self))
-        case let .defender(value):
-            scores.append(.honors(value, declarer.team.opponent, self))
+        case .declarer100, .declarer150:
+            scores.append(.honors(honors.points, declarer.team, self))
+        case .defender100, .defender150:
+            scores.append(.honors(honors.points, declarer.team.opponent, self))
         default: break
         }
         return scores
@@ -157,35 +166,29 @@ struct Points {
     }
 }
 
-protocol PointsCalculating {
-    var points: (we: Points, they: Points) { get }
-    func points(for team: Team) -> Points
-}
-
-
-extension Collection where Element == Contract {
+extension Array: ScoreProviding, PointsCalculating where Element: ScoreProviding {
     var scores: [Score] {
-        reduce([]) { partialResult, contract in
-            partialResult + contract.scores
+        reduce([]) { partialResult, element in
+            partialResult + element.scores
         }
     }
-    
+
     var points: (we: Points, they: Points) {
-        reduce((Points(), Points())) { partial, contract in
-            let points = contract.scores.points
+        reduce((Points(), Points())) { partial, element in
+            let points = element.scores.points
             return (we: partial.we + points.we,
                     they: partial.they + points.they)
         }
     }
     
     func points(for team: Team) -> Points {
-        reduce(Points()) { partial, contract in
-            partial + contract.scores.points(for: team)
+        reduce(Points()) { partial, element in
+            partial + element.scores.points(for: team)
         }
     }
 }
 
-extension Collection where Element == Score {
+extension Array where Element == Score {
     var points: (we: Points, they: Points) {
        reduce((Points(), Points())) { partial, score in
            var points = partial

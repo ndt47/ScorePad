@@ -7,8 +7,10 @@
 
 import Foundation
 
-enum Suit: Comparable {
-    case clubs
+enum Suit: Int, CaseIterable, Comparable, Strideable {
+    typealias Stride = RawValue
+    
+    case clubs = 0
     case diamonds
     case hearts
     case spades
@@ -39,10 +41,27 @@ enum Suit: Comparable {
             }
         }
     }
+    
+    var next: Suit? {
+        Suit(rawValue: self.rawValue + 1)
+    }
+    
+    func distance(to other: Suit) -> Int {
+        other.rawValue - self.rawValue
+    }
+    
+    func advanced(by n: Int) -> Suit {
+        let inc = (n % Suit.notrump.rawValue)
+        return Suit(rawValue: self.rawValue + inc) ?? .clubs.advanced(by: inc - 1)
+    }
 }
 
-struct Call {
+struct Call: Identifiable {
+    var id: UUID = UUID()
+    var date: Date = Date()
+    
     enum Call {
+        case pending
         case pass
         case bid(Int, Suit)
         case double

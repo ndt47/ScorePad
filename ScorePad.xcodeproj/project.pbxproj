@@ -12,6 +12,11 @@
 		D8A564A72936EB8500671E8C /* ScoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A62936EB8500671E8C /* ScoreTests.swift */; };
 		D8A564AA2937B5A100671E8C /* ScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A92937B5A100671E8C /* ScoreView.swift */; };
 		D8A564AD293910D800671E8C /* RubberHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564AC293910D800671E8C /* RubberHeader.swift */; };
+		D8A564D729394D8F00671E8C /* AuctionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564D629394D8F00671E8C /* AuctionView.swift */; };
+		D8A564D929394E8100671E8C /* EnvironmentValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564D829394E8100671E8C /* EnvironmentValues.swift */; };
+		D8A564DC293A5A8100671E8C /* BiddingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564DB293A5A8100671E8C /* BiddingView.swift */; };
+		D8A564DE293A5AF700671E8C /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564DD293A5AF700671E8C /* CallView.swift */; };
+		D8A564E0293A882800671E8C /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564DF293A882800671E8C /* Result.swift */; };
 		D8BD5A4A2935257700B86AA6 /* ScorePadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A492935257700B86AA6 /* ScorePadApp.swift */; };
 		D8BD5A4C2935257700B86AA6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A4B2935257700B86AA6 /* ContentView.swift */; };
 		D8BD5A4E2935257900B86AA6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8BD5A4D2935257900B86AA6 /* Assets.xcassets */; };
@@ -51,6 +56,11 @@
 		D8A564A62936EB8500671E8C /* ScoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreTests.swift; sourceTree = "<group>"; };
 		D8A564A92937B5A100671E8C /* ScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreView.swift; sourceTree = "<group>"; };
 		D8A564AC293910D800671E8C /* RubberHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberHeader.swift; sourceTree = "<group>"; };
+		D8A564D629394D8F00671E8C /* AuctionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuctionView.swift; sourceTree = "<group>"; };
+		D8A564D829394E8100671E8C /* EnvironmentValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentValues.swift; sourceTree = "<group>"; };
+		D8A564DB293A5A8100671E8C /* BiddingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiddingView.swift; sourceTree = "<group>"; };
+		D8A564DD293A5AF700671E8C /* CallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallView.swift; sourceTree = "<group>"; };
+		D8A564DF293A882800671E8C /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		D8BD5A462935257700B86AA6 /* ScorePad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScorePad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD5A492935257700B86AA6 /* ScorePadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadApp.swift; sourceTree = "<group>"; };
 		D8BD5A4B2935257700B86AA6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -132,11 +142,16 @@
 		D8BD5A482935257700B86AA6 /* ScorePad */ = {
 			isa = PBXGroup;
 			children = (
+				D8A564D829394E8100671E8C /* EnvironmentValues.swift */,
 				D8BD5A492935257700B86AA6 /* ScorePadApp.swift */,
 				D8BD5A4B2935257700B86AA6 /* ContentView.swift */,
 				D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */,
 				D8A564AC293910D800671E8C /* RubberHeader.swift */,
 				D8A564A92937B5A100671E8C /* ScoreView.swift */,
+				D8A564D629394D8F00671E8C /* AuctionView.swift */,
+				D8A564DB293A5A8100671E8C /* BiddingView.swift */,
+				D8A564DD293A5AF700671E8C /* CallView.swift */,
+				D8A564DF293A882800671E8C /* Result.swift */,
 				D8BD5A4D2935257900B86AA6 /* Assets.xcassets */,
 				D8BD5A4F2935257900B86AA6 /* ScorePad.entitlements */,
 				D8BD5A502935257900B86AA6 /* Preview Content */,
@@ -306,11 +321,16 @@
 				D8BD5A9029358E6A00B86AA6 /* RubberView.swift in Sources */,
 				D8BD5A8A29357CA200B86AA6 /* Position.swift in Sources */,
 				D8BD5A4C2935257700B86AA6 /* ContentView.swift in Sources */,
+				D8A564DE293A5AF700671E8C /* CallView.swift in Sources */,
 				D8BD5A4A2935257700B86AA6 /* ScorePadApp.swift in Sources */,
+				D8A564DC293A5A8100671E8C /* BiddingView.swift in Sources */,
+				D8A564E0293A882800671E8C /* Result.swift in Sources */,
 				D8BD5A8629357C4800B86AA6 /* Call.swift in Sources */,
 				D8A564AD293910D800671E8C /* RubberHeader.swift in Sources */,
 				D8BD5A752935263000B86AA6 /* Rubber.swift in Sources */,
 				D8BD5A8829357C6800B86AA6 /* Score.swift in Sources */,
+				D8A564D729394D8F00671E8C /* AuctionView.swift in Sources */,
+				D8A564D929394E8100671E8C /* EnvironmentValues.swift in Sources */,
 				D8A564A32936E25300671E8C /* Auction.swift in Sources */,
 				D8BD5A8429357C2300B86AA6 /* Contract.swift in Sources */,
 				D8A564AA2937B5A100671E8C /* ScoreView.swift in Sources */,
@@ -483,8 +503,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -521,8 +541,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";

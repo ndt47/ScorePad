@@ -7,10 +7,38 @@
 
 import Foundation
 
-struct Auction {
-    var dealer: Position = .north
-    var calls: [Call] = []
-    var currentPosition: Position = .north
+enum AuctionResult: ScoreProviding {
+    case missDeal(Position)
+    case pass(Auction)
+    case contract(Auction, Contract)
+    
+    var dealer: Position {
+        switch self {
+        case let .missDeal(dealer):
+            return dealer
+        case let .pass(auction), let .contract(auction, _):
+            return auction.dealer
+        }
+    }
+    
+    var scores: [Score] {
+        switch self {
+        case .missDeal, .pass: return []
+        case let .contract(_, contract): return contract.scores
+        }
+    }
+}
+
+class Auction: ObservableObject {
+    let dealer: Position
+    @Published var calls: [Call]
+    @Published var currentBidder: Position
+    
+    init(dealer: Position = .north, calls: [Call] = []) {
+        self.calls = calls
+        self.dealer = dealer
+        self.currentBidder = dealer
+    }
 }
 
 extension Auction {
@@ -25,7 +53,7 @@ extension Auction {
     var doubled: Bool {
         guard let lastCall = calls.excludingPasses().last else { return false }
         switch lastCall.call {
-        case .double, .redouble: return true
+        case .double: return true
         default: return false
         }
     }
@@ -47,35 +75,66 @@ extension Auction {
         else if let first = suffix.popFirst(), !first.isPass, suffix.allPasses() { return true }
         return false
     }
+    
+    func canDouble(by position: Position) -> Bool {
+        guard let lastCall = calls.excludingPasses().last,
+              case .bid = lastCall.call,
+              lastCall.position.team != position.team else { return false }
+        return true
+    }
+    
+    func canRedouble(by position: Position) -> Bool {
+        guard let lastCall = calls.excludingPasses().last,
+              case .double = lastCall.call,
+              lastCall.position.team != position.team else { return false }
+        return true
+    }
 }
 
 extension Auction {
-    mutating func pass() throws {
-        try addCall(.init(position: currentPosition, call: .pass))
+    func pass() {
+        do {
+            try addCall(.init(position: currentBidder, call: .pass))
+        } catch {}
     }
     
-    mutating func bid(level: Int, suit: Suit) throws {
-        try addCall(.init(position: currentPosition, call: .bid(level, suit)))
+    func bid(level: Int, suit: Suit) {
+        do {
+            try addCall(.init(position: currentBidder, call: .bid(level, suit)))
+        } catch {}
     }
     
-    mutating func double() throws {
-        try addCall(.init(position: currentPosition, call: .double))
+    func double() {
+        do {
+            try addCall(.init(position: currentBidder, call: .double))
+        } catch {}
     }
     
-    mutating func redouble() throws {
-        try addCall(.init(position: currentPosition, call: .redouble))
+    func redouble() {
+        do {
+            try addCall(.init(position: currentBidder, call: .redouble))
+        } catch {}
+    }
+    
+    func close() {
+        do {
+            while !closed {
+                try addCall(.init(position: currentBidder, call: .pass))
+            }
+        } catch {}
     }
 }
 
 fileprivate extension Auction {
     enum CallError: Error {
+        case pendingCall
         case invalidBid
         case invalidDouble
         case invalidRedouble
         case biddingClosed
     }
     
-    mutating func appendPasses(from start: Position, through end: Position) {
+    func appendPasses(from start: Position, through end: Position) {
         var current = start;
         while current != end.next {
             calls.append(Call(position: current, call: .pass))
@@ -83,20 +142,22 @@ fileprivate extension Auction {
         }
     }
     
-    mutating func addCall(_ call: Call) throws {
+    func addCall(_ call: Call) throws {
         let lastCaller = calls.last?.position ?? dealer
         if lastCaller != call.position.previous {
             // Append passes up to the current position
             appendPasses(from: lastCaller, through: call.position.previous)
         }
         switch call.call {
+        case .pending:
+            throw CallError.pendingCall
         case .pass: break // no validation needed, can always pass
         case let .bid(level, suit):
             if let lastLevel = lastBid?.level, let lastSuit = lastBid?.suit {
                 guard 0 < level, level <= 7 else {
                     throw CallError.invalidBid
                 }
-                guard level > lastLevel || (level == lastLevel && suit > lastSuit) else {
+                guard level > lastLevel || suit > lastSuit else {
                     throw CallError.invalidBid
                 }
             }
@@ -112,7 +173,7 @@ fileprivate extension Auction {
         }
         
         calls.append(call)
-        currentPosition = call.position.next
+        currentBidder = call.position.next
     }
     
     func countTrailingPasses() -> Int {

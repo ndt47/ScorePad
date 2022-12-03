@@ -7,13 +7,21 @@
 
 import Foundation
 
-struct Contract {
-    enum Honors: Equatable {
-        case none
-        case declarer(Int)
-        case defender(Int)
-    }
+enum Honors: CaseIterable, Hashable {
+    case none
+    case declarer100, declarer150
+    case defender100, defender150
     
+    var points: Int {
+        switch self {
+        case .none: return 0
+        case .declarer100, .defender100: return 100
+        case .declarer150, .defender150: return 150
+        }
+    }
+}
+
+struct Contract {    
     var auction: Auction
     var level: Int
     var suit: Suit

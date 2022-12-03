@@ -2,7 +2,7 @@ import SwiftUI
 
 struct RubberHeader: View {
     var body: some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .firstTextBaseline) {
             TeamView(team: .we)
             TeamView(team: .they)
         }
@@ -11,20 +11,13 @@ struct RubberHeader: View {
 
 struct TeamView: View {
     var team: Team
-    @Environment(\.currentRubber) var rubber
+    @EnvironmentObject var rubber: Rubber
 
     var title: String {
         if case .we = team {
             return "We"
         }
         return "They"
-    }
-    var subtitle: String {
-        let positions = team.positions
-        guard let first = rubber.player(at: positions.0), let last = rubber.player(at: positions.1) else {
-            return "\(positions.0.label) & \(positions.1.label)"
-        }
-        return "\(first) & \(last)"
     }
     var points: Int {
         let points = rubber.points(for: team)
@@ -33,17 +26,31 @@ struct TeamView: View {
     
     var body: some View {
         VStack {
-            Text(title)
-                .font(.title2)
-                .bold()
-            Text(subtitle)
-                .font(.subheadline)
-            Text("\(points.formatted(.number.grouping(.never)))")
-                .font(.title3)
-                .fontDesign(.monospaced)
-                .bold()
+            HStack {
+                VStack(alignment: .trailing) {
+                    Text(title)
+                        .font(.title2)
+                        .bold()
+                    Text("\(points.formatted(.number.grouping(.never)))")
+                        .font(.title3)
+                        .fontDesign(.monospaced)
+                        .foregroundColor(.gray)
+                        .bold()
+                }
+                Divider()
+                    .frame(height: 40)
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(team.positions, id: \.self) {
+                        PlayerView($0)
+                    }
+               }
+            }
+            Text(rubber.isVulnerable(team) ? "VULNERABLE" : "")
+                .font(.caption)
+                .foregroundColor(.red)
         }
         .frame(maxWidth: .infinity)
+        .rubber(rubber)
     }
 }
         
@@ -51,9 +58,9 @@ struct RubberHeader_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             RubberHeader()
-                .environment(\.currentRubber, Rubber())
+                .environmentObject(Rubber())
             RubberHeader()
-                .environment(\.currentRubber, .mock)
+                .environmentObject(Rubber.mock)
         }
     }
 }

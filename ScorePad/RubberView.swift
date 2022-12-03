@@ -1,17 +1,11 @@
 import SwiftUI
 
-private struct CurrentRubberKey: EnvironmentKey {
-  static let defaultValue = Rubber()
-}
 
-extension EnvironmentValues {
-  var currentRubber: Rubber {
-    get { self[CurrentRubberKey.self] }
-    set { self[CurrentRubberKey.self] = newValue }
-  }
-}
-
-extension Rubber: View {
+struct RubberView: View {
+    @State private var creatingAuction = false
+    @StateObject var rubber: Rubber
+    @State private var pushedContract: Contract?
+    
     var body: some View {
         ZStack {
             Rule(.vertical)
@@ -25,24 +19,39 @@ extension Rubber: View {
                 Spacer()
             }
         }
-            .environment(\.currentRubber, self)
+        .rubber(rubber)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    creatingAuction = true
+                }, label: {
+                    Label("Add", systemImage: "plus")
+                })
+                .disabled(rubber.isFinished)
+            }
+        }
+        .sheet(isPresented: $creatingAuction) {
+            AuctionView(rubber: rubber, auction: Auction(dealer: rubber.currentDealer))
+        }
+        .environment(\.presentContract, { contract in
+        })
     }
 }
 
 struct OverTheLine: View {
-    @Environment(\.currentRubber) var rubber
+    @EnvironmentObject var rubber: Rubber
     var body: some View {
         HStack(alignment: .bottom) {
-            let scores = rubber.scores.overTheLine().reversed()
-            ScoreList(scores: scores.forTeam(.we))
-            ScoreList(scores: scores.forTeam(.they))
+            let scores = rubber.scores.overTheLine()
+            ScoreList(scores: scores.forTeam(.we).reversed())
+            ScoreList(scores: scores.forTeam(.they).reversed())
         }
     }
 }
 
 struct RubberView_Previews: PreviewProvider {
     static var previews: some View {
-        Rubber.mock
+        RubberView(rubber: .mock)
     }
 }
 
@@ -86,23 +95,26 @@ struct Rule: View {
 extension Rubber {
     static var mock: Rubber {
         Rubber(
-            history: [
-                Contract(level: 3, suit: .hearts, declarer: .north, tricksTaken: 11), // made
-                Contract(level: 2, suit: .hearts, declarer: .west, tricksTaken: 9), // made
-                Contract(level: 2, suit: .spades, declarer: .east, tricksTaken: 7), // under
-                Contract(level: 3, suit: .hearts, declarer: .south, tricksTaken: 8), // under
-                Contract(level: 3, suit: .clubs, declarer: .west, tricksTaken: 8), // under
-                Contract(level: 2, suit: .hearts, declarer: .west, tricksTaken: 6), // under
-                Contract(level: 2, suit: .hearts, declarer: .east, tricksTaken: 9), // made, game
-                Contract(level: 2, suit: .notrump, declarer: .east, tricksTaken: 8, vulnerable: true), // made
-                Contract(level: 3, suit: .spades, declarer: .north, tricksTaken: 9), // made
-                Contract(level: 1, suit: .notrump, declarer: .east, tricksTaken: 9, vulnerable: true), // made, game
-            ],
             players: [
                 Player(name: "Caty", position: .west),
                 Player(name: "Nathan", position: .south),
                 Player(name: "Sharon", position: .east),
                 Player(name: "Larisa", position: .north)
+            ],
+            history: [
+                .missDeal(.north),
+                .contract(Auction(), Contract(level: 3, suit: .hearts, declarer: .north, tricksTaken: 11)), // made
+                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .west, tricksTaken: 9)), // made
+                .contract(Auction(),Contract(level: 2, suit: .spades, declarer: .east, tricksTaken: 7)), // under
+                .pass(Auction()),
+                .contract(Auction(),Contract(level: 3, suit: .hearts, declarer: .south, tricksTaken: 8)), // under
+                .contract(Auction(),Contract(level: 3, suit: .clubs, declarer: .west, tricksTaken: 8)), // under
+                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .west, tricksTaken: 6)), // under
+                .pass(Auction()),
+                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .east, tricksTaken: 9)), // made, game
+                .contract(Auction(),Contract(level: 2, suit: .notrump, declarer: .east, tricksTaken: 8, vulnerable: true)), // made
+                .contract(Auction(),Contract(level: 3, suit: .spades, declarer: .north, tricksTaken: 9)), // made
+                .contract(Auction(),Contract(level: 1, suit: .notrump, declarer: .east, tricksTaken: 9, vulnerable: true)), // made, game
             ]
         )
     }
@@ -119,12 +131,12 @@ struct ScoreList: View {
                         print("Show \(String(describing: score.contract))")
                     }
             }
-        }
+        }.frame(maxWidth: .infinity)
     }
 }
 
 struct UnderTheLine: View {
-    @Environment(\.currentRubber) var rubber
+    @EnvironmentObject var rubber: Rubber
     var body: some View {
         ForEach(rubber.games) { game in
             GameView(game: game)
@@ -134,7 +146,7 @@ struct UnderTheLine: View {
 
 struct GameView: View {
     var game: Game
-    @Environment(\.currentRubber) var rubber
+    @EnvironmentObject var rubber: Rubber
 
     var body: some View {
         VStack(spacing: 4) {

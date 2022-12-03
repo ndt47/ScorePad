@@ -10,29 +10,45 @@ import SwiftUI
 extension Score: View {
     var body: some View {
         HStack {
-            Text("\(value.formatted(.number.grouping(.never)))")
-                .frame(minWidth: 40, alignment: .trailing)
-                .fontDesign(.monospaced)
-                .bold()
-            Spacer()
-            if let contract = contract {
-                HStack {
-                    Text("\(contract.level)")
-                    contract.suit
-                        .padding(EdgeInsets(top: 0, leading: -6, bottom: 0, trailing: -2))
-                    Text("\(contract.result.formatted(.number.sign(strategy: .always())))")
-                        .foregroundColor(.gray)
-                        .fontDesign(.monospaced)
-                }
-            } else if case .rubber = self {
+            switch self {
+            case let .bid(_, contract), let .over(_, contract), let .under(_, contract), let .slam(_, contract):
+                ContractView(contract)
+            case .honors:
+                Text("HONORS")
+                    .font(.caption)
+                    .bold()
+                    .foregroundColor(.gray)
+            case .rubber:
                 Text("RUBBER")
                     .font(.caption)
                     .bold()
                     .foregroundColor(.gray)
+
             }
+            Spacer()
+            Text("\(value.formatted(.number.grouping(.never)))")
+//                .frame(minWidth: 40, alignment: .trailing)
+                .fontDesign(.monospaced)
+                .bold()
         }
         .padding(.horizontal)
         .frame(maxWidth: .infinity, minHeight: 24)
+    }
+}
+
+struct ContractView: View {
+    var contract: Contract
+    @EnvironmentObject var rubber: Rubber
+    
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            BidView(.bid(contract.level, contract.suit))
+            Result(contract.result)
+        }
+    }
+    
+    init(_ contract: Contract) {
+        self.contract = contract
     }
 }
 
