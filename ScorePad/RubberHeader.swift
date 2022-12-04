@@ -59,6 +59,7 @@ struct RubberHeader_Previews: PreviewProvider {
         VStack {
             RubberHeader()
                 .environmentObject(Rubber())
+            Divider()
             RubberHeader()
                 .environmentObject(Rubber.mock)
         }

@@ -114,7 +114,7 @@ extension Rubber {
                 .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .east, tricksTaken: 9)), // made, game
                 .contract(Auction(),Contract(level: 2, suit: .notrump, declarer: .east, tricksTaken: 8, vulnerable: true)), // made
                 .contract(Auction(),Contract(level: 3, suit: .spades, declarer: .north, tricksTaken: 9)), // made
-                .contract(Auction(),Contract(level: 1, suit: .notrump, declarer: .east, tricksTaken: 9, vulnerable: true)), // made, game
+//                .contract(Auction(),Contract(level: 1, suit: .notrump, declarer: .east, tricksTaken: 9, vulnerable: true)), // made, game
             ]
         )
     }

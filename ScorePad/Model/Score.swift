@@ -233,7 +233,11 @@ extension Array where Element == Score {
     }
     
     func forTeam(_ team: Team) -> [Score] {
-        filter { $0.team == team }
+        filter {
+            if case .under = $0 {
+                return $0.team.opponent == team
+            }
+            return $0.team == team }
     }
     
     func underTheLine() -> [Score] {
