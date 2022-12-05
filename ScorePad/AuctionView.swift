@@ -19,6 +19,7 @@ struct AuctionView: View {
 
     @State var honors: Honors = .none
     @State var tricksTaken: Int = 0
+    @State var editingContract: Contract?
 
     enum Action {
         case save
@@ -44,7 +45,7 @@ struct AuctionView: View {
             }
         }
     }
-    
+        
     var body: some View {
         NavigationView {
             VStack(alignment: .leading) {
@@ -56,33 +57,47 @@ struct AuctionView: View {
                     BiddingView()
                 }
                 
-                Text("Calls")
-                    .font(.title3)
-                    .foregroundColor(.gray)
+                HStack {
+                    Text("Calls")
+                        .font(.title3)
+                        .foregroundColor(.gray)
+                    Spacer()
+                    Button {
+                        auction.undoLast()
+                    } label: {
+                        Label("Undo Last", systemImage: "arrow.uturn.backward.circle")
+                    }
+                    .disabled(!auction.canRemoveLast)
+                }
                 Rule(.horizontal)
                     .frame(height: 2)
                     .foregroundColor(.gray)
-                ScrollView {
+                List {
                     if !auction.closed {
-                        CallView(call: .init(position: auction.currentBidder, call: .pending))
+                        CallView(call: .init(position: auction.bidder, call: .pending))
                     }
                     ForEach(auction.calls.reversed()) { call in
                         CallView(call: call)
                     }
                 }
-                Spacer()
-                if auction.closed {
+                    .listStyle(.plain)
+                if auction.closed && !auction.isPassHand {
                     TricksView(tricksTaken: $tricksTaken, honors: $honors)
                 }
             }
+            .navigationTitle(editingContract != nil ? "Edit Contract" : "New Auction")
+            .navigationBarTitleDisplayMode(.inline)
             .rubber(rubber)
             .padding()
             .environmentObject(auction)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        // TODO: Implement save
-                        save()
+                        if editingContract != nil {
+                            update()
+                        } else {
+                            save()
+                        }
                     }, label: {
                         Label(Action.save.label, systemImage: Action.save.systemImage)
                     })
@@ -98,16 +113,26 @@ struct AuctionView: View {
                     })
                     .labelStyle(.titleOnly)
                 }
-
             }
         }
     }
     
-    func save() {
-        if let contract = Contract(auction: auction, honors: honors, tricksTaken: tricksTaken) {
-            rubber.addContract(contract)
+    func update() {
+        guard let existing = editingContract else { return }
+        if let contract = Contract(auction: auction, honors: honors, tricksTaken: tricksTaken, vulnerable: existing.vulnerable) {
+            rubber.replaceContract(existing, with: .contract(auction, contract))
         } else {
-            rubber.addPassHand(auction)
+            rubber.replaceContract(existing, with: .pass(auction))
+        }
+        dismiss()
+    }
+    
+    func save() {
+        let vulnerable = auction.declarer != nil ? rubber.isVulnerable(auction.declarer!.team) : false
+        if let contract = Contract(auction: auction, honors: honors, tricksTaken: tricksTaken, vulnerable: vulnerable) {
+            rubber.addAuctionResult(.contract(auction, contract))
+        } else {
+            rubber.addAuctionResult(.pass(auction))
         }
         dismiss()
     }
@@ -165,19 +190,6 @@ struct TricksView: View {
         }
     }
 }
-
-//struct TricksView_Previews: PreviewProvider {
-//    @State var tricks: Int = 0
-//    @State var honors: Honors = .none
-//
-//    static var previews: some View {
-//        TricksView(tricksTaken: $tricks, honors: $honors)
-//            .padding()
-//            .rubber(.mock)
-//            .dealer(Rubber.mock.currentDealer)
-//            .environmentObject(Auction.mock)
-//    }
-//}
 
 struct AuctionSummaryView: View {
     @Environment(\.rubber) var rubber

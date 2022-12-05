@@ -27,7 +27,6 @@ extension Score: View {
             }
             Spacer()
             Text("\(value.formatted(.number.grouping(.never)))")
-//                .frame(minWidth: 40, alignment: .trailing)
                 .fontDesign(.monospaced)
                 .bold()
         }

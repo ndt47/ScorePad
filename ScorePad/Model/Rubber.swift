@@ -39,7 +39,7 @@ extension Team {
     }
 }
 
-struct Player {
+struct Player: Codable {
     var name: String
     var position: Position
 }
@@ -67,18 +67,50 @@ extension Array where Element == Game {
     }
 }
 
-class Rubber: ObservableObject, Identifiable {
-    let id: UUID = UUID()
-    let dateCreated = Date()
-    var lastModified = Date()
-    var players: [Player] = []
+class Rubber: ObservableObject, Identifiable, Codable {
+    let id: UUID
+    let dateCreated: Date
+    var lastModified: Date
+    var players: [Player]
     let startingDealer: Position
-    @Published var history: [AuctionResult] = []
-
+    @Published var history: [AuctionResult]
+    
     init(players: [Player] = [], dealer: Position = .north, history: [AuctionResult] = []) {
+        self.id = UUID()
+        self.dateCreated = .now
+        self.lastModified = .now
         self.players = players
         self.startingDealer = dealer
         self.history = history
+    }
+    
+    enum CodingKeys: CodingKey {
+        case id
+        case dateCreated
+        case lastModified
+        case players
+        case startingDealer
+        case history
+    }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        dateCreated = try container.decode(Date.self, forKey: .dateCreated)
+        lastModified = try container.decode(Date.self, forKey: .lastModified)
+        players = try container.decode(Array<Player>.self, forKey: .players)
+        startingDealer = try container.decode(Position.self, forKey: .startingDealer)
+        history = try container.decode(Array<AuctionResult>.self, forKey: .history)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(dateCreated, forKey: .dateCreated)
+        try container.encode(lastModified, forKey: .lastModified)
+        try container.encode(players, forKey: .players)
+        try container.encode(startingDealer, forKey: .startingDealer)
+        try container.encode(history, forKey: .history)
     }
     
     var currentDealer: Position {
@@ -102,31 +134,55 @@ class Rubber: ObservableObject, Identifiable {
         players.first(where: { $0.position == position})?.name
     }
     
-    func addContract(_ contract: Contract) {
-        var contract = contract
-        contract.vulnerable = isVulnerable(contract.declarer.team)
-        history.append(.contract(contract.auction, contract))
-        lastModified = Date()
+    func addAuctionResult(_ result: AuctionResult) {
+        history.append(result)
+        lastModified = .now
     }
     
-    func addMissDeal(_ dealer: Position) {
-        history.append(.missDeal(dealer))
-        lastModified = Date()
+    func replaceContract(_ doomed: Contract, with result: AuctionResult) {
+        guard let index = history.firstIndex(where: {
+            guard case let .contract(_, contract) = $0 else { return false }
+            return contract.id == doomed.id
+        }) else { return }
+        
+        history.replaceSubrange(index...index, with: [result])
+        _adjustContracts(from: index)
     }
     
-    func addPassHand(_ auction: Auction) {
-        history.append(.pass(auction))
-        lastModified = Date()
+    private func _adjustContracts(from index: Int) {
+        guard index < history.endIndex else { return }
+        
+        var madeChanges = false
+        let replacements = history.suffix(from: index).enumerated().map { index, result in
+            guard case let .contract(a, c) = result else { return result }
+        
+            let games = history.prefix(upTo: index).games
+            let isVulnerable = games.vulnerableTeams.contains(c.declarer.team)
+            
+            guard isVulnerable != c.vulnerable else { return result }
+            var newContract = c
+            newContract.vulnerable = isVulnerable
+            madeChanges = true
+            return .contract(a, newContract)
+        }
+        
+        
+        if madeChanges {
+            let replaceRange = index..<history.endIndex
+            history.replaceSubrange(replaceRange, with: replacements)
+        }
     }
-    
+}
+
+extension Collection where Element == AuctionResult, Index == Int {
     var games: [Game] {
-        guard !history.isEmpty else { return []}
+        guard !self.isEmpty else { return []}
         var result: [Game] = [.none(0...)]
         var gameIndex = 0
         var start = 0
         var we = 0
         var they = 0
-        for (index, hand) in history.enumerated() {
+        for (index, hand) in self.enumerated() {
             guard case let .contract(_, contract) = hand else { continue }
             guard case let .bid(value, contract) = contract.scores.first(where: { $0.scoresUnderTheLine }) else { continue }
             if case .we = contract.declarer.team {
@@ -142,7 +198,7 @@ class Rubber: ObservableObject, Identifiable {
                 gameIndex += 1
                 start = index + 1
                 // Add the indicator that we have nothing on to the following game
-                if start < history.endIndex {
+                if start < self.endIndex {
                     result.append(.none(start...))
                 }
 
@@ -170,12 +226,18 @@ class Rubber: ObservableObject, Identifiable {
                 }
             }
         }
-        print("\(result)")
         return result
+    }
+}
+
+extension Rubber {
+    
+    var games: [Game] {
+        history.games
     }
 
     var scores: [Score] {
-        let games = games
+        let games = history.games
         var scores = history.scores
         if case let .rubber(team, _) = games.last {
             scores.append(.rubber(games.count == 2 ? 700 : 500, team))
@@ -210,3 +272,32 @@ extension Rubber: Hashable {
         id.hash(into: &hasher)
     }
 }
+
+extension Rubber {
+    static var mock: Rubber {
+        Rubber(
+            players: [
+                Player(name: "Caty", position: .west),
+                Player(name: "Nathan", position: .south),
+                Player(name: "Sharon", position: .east),
+                Player(name: "Larisa", position: .north)
+            ],
+            history: [
+                .missDeal(.north),
+                .contract(Auction(), Contract(level: 3, suit: .hearts, declarer: .north, tricksTaken: 11)), // made
+                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .west, tricksTaken: 9)), // made
+                .contract(Auction(),Contract(level: 2, suit: .spades, declarer: .east, tricksTaken: 7)), // under
+                .pass(Auction()),
+                .contract(Auction(),Contract(level: 3, suit: .hearts, declarer: .south, tricksTaken: 8)), // under
+                .contract(Auction(),Contract(level: 3, suit: .clubs, declarer: .west, tricksTaken: 8)), // under
+                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .west, tricksTaken: 6)), // under
+                .pass(Auction()),
+                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .east, tricksTaken: 9)), // made, game
+                .contract(Auction(),Contract(level: 2, suit: .notrump, declarer: .east, tricksTaken: 8, vulnerable: true)), // made
+                .contract(Auction(),Contract(level: 3, suit: .spades, declarer: .north, tricksTaken: 9)), // made
+//                .contract(Auction(),Contract(level: 1, suit: .notrump, declarer: .east, tricksTaken: 9, vulnerable: true)), // made, game
+            ]
+        )
+    }
+}
+

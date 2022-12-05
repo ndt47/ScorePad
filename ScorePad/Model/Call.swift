@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Suit: Int, CaseIterable, Comparable, Strideable {
+enum Suit: Int, CaseIterable, Comparable, Strideable, Codable {
     typealias Stride = RawValue
     
     case clubs = 0
@@ -56,11 +56,8 @@ enum Suit: Int, CaseIterable, Comparable, Strideable {
     }
 }
 
-struct Call: Identifiable {
-    var id: UUID = UUID()
-    var date: Date = Date()
-    
-    enum Call {
+struct Call: Identifiable, Codable {
+    enum Call: Codable {
         case pending
         case pass
         case bid(Int, Suit)
@@ -68,6 +65,8 @@ struct Call: Identifiable {
         case redouble
     }
 
+    var id: UUID = UUID()
+    var date: Date = Date()
     var position: Position
     var call: Self.Call
 

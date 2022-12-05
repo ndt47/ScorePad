@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Honors: CaseIterable, Hashable {
+enum Honors: CaseIterable, Hashable, Codable {
     case none
     case declarer100, declarer150
     case defender100, defender150
@@ -21,7 +21,8 @@ enum Honors: CaseIterable, Hashable {
     }
 }
 
-struct Contract {    
+struct Contract: Codable, Identifiable {
+    var id: UUID
     var auction: Auction
     var level: Int
     var suit: Suit
@@ -39,12 +40,16 @@ struct Contract {
         return tricksTaken - 6 - level
     }
     
-    init?(auction: Auction, honors: Honors = .none, tricksTaken: Int = 0) {
+    init?(auction: Auction,
+          honors: Honors = .none,
+          tricksTaken: Int = 0,
+          vulnerable: Bool = false) {
         guard let level = auction.level,
               let suit = auction.suit,
               let declarer = auction.declarer else {
             return nil
         }
+        self.id = UUID()
         self.auction = auction
         self.level = level
         self.suit = suit
@@ -53,6 +58,7 @@ struct Contract {
         self.redoubled = auction.redoubled
         self.honors = honors
         self.tricksTaken = tricksTaken
+        self.vulnerable = vulnerable
     }
     
     init(level: Int,
@@ -63,6 +69,7 @@ struct Contract {
          honors: Honors = .none,
          tricksTaken: Int,
          vulnerable: Bool = false) {
+        self.id = UUID()
         self.auction = Auction()
         self.level = level
         self.suit = suit
@@ -71,6 +78,7 @@ struct Contract {
         self.redoubled = auction.redoubled
         self.honors = honors
         self.tricksTaken = tricksTaken
+        self.vulnerable = vulnerable
     }
 }
 

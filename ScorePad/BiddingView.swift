@@ -107,7 +107,7 @@ struct BiddingView: View {
                     Label(Action.double.label, systemImage: Action.double.systemImage)
                 }
                 .labelStyle(.titleOnly)
-                .disabled(!auction.canDouble(by: auction.currentBidder))
+                .disabled(!auction.canDouble(by: auction.bidder))
                 
                 Button {
                     auction.redouble()
@@ -115,7 +115,7 @@ struct BiddingView: View {
                     Label(Action.redouble.label, systemImage: Action.redouble.systemImage)
                 }
                 .labelStyle(.titleOnly)
-                .disabled(!auction.canRedouble(by: auction.currentBidder))
+                .disabled(!auction.canRedouble(by: auction.bidder))
                 
                 Button {
                     auction.close()

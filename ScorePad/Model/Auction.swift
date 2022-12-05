@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AuctionResult: ScoreProviding {
+enum AuctionResult: ScoreProviding, Codable {
     case missDeal(Position)
     case pass(Auction)
     case contract(Auction, Contract)
@@ -29,15 +29,35 @@ enum AuctionResult: ScoreProviding {
     }
 }
 
-class Auction: ObservableObject {
+class Auction: ObservableObject, Codable {
     let dealer: Position
+    @Published var bidder: Position
     @Published var calls: [Call]
-    @Published var currentBidder: Position
     
     init(dealer: Position = .north, calls: [Call] = []) {
         self.calls = calls
         self.dealer = dealer
-        self.currentBidder = dealer
+        self.bidder = dealer
+    }
+    
+    enum CodingKeys: CodingKey {
+        case dealer
+        case bidder
+        case calls
+    }
+
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        dealer = try container.decode(Position.self, forKey: .dealer)
+        bidder = try container.decode(Position.self, forKey: .bidder)
+        calls = try container.decode(Array<Call>.self, forKey: .calls)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(dealer, forKey: .dealer)
+        try container.encode(bidder, forKey: .bidder)
+        try container.encode(calls, forKey: .calls)
     }
 }
 
@@ -76,6 +96,10 @@ extension Auction {
         return false
     }
     
+    var isPassHand: Bool {
+        calls.allPasses()
+    }
+    
     func canDouble(by position: Position) -> Bool {
         guard let lastCall = calls.excludingPasses().last,
               case .bid = lastCall.call,
@@ -89,38 +113,62 @@ extension Auction {
               lastCall.position.team != position.team else { return false }
         return true
     }
+    
+    var canRemoveLast: Bool {
+        calls.count > 0
+    }
 }
 
 extension Auction {
     func pass() {
+        guard !closed else { return }
         do {
-            try addCall(.init(position: currentBidder, call: .pass))
-        } catch {}
+            try addCall(.init(position: bidder, call: .pass))
+        } catch {
+            print(String(describing: error))
+        }
     }
     
     func bid(level: Int, suit: Suit) {
+        guard !closed else { return }
         do {
-            try addCall(.init(position: currentBidder, call: .bid(level, suit)))
-        } catch {}
+            try addCall(.init(position: bidder, call: .bid(level, suit)))
+        } catch {
+            print(String(describing: error))
+        }
     }
     
     func double() {
+        guard !closed else { return }
         do {
-            try addCall(.init(position: currentBidder, call: .double))
-        } catch {}
+            try addCall(.init(position: bidder, call: .double))
+        } catch {
+            print(String(describing: error))
+        }
     }
     
     func redouble() {
+        guard !closed else { return }
         do {
-            try addCall(.init(position: currentBidder, call: .redouble))
-        } catch {}
+            try addCall(.init(position: bidder, call: .redouble))
+        } catch {
+            print(String(describing: error))
+        }
     }
     
     func close() {
         do {
             while !closed {
-                try addCall(.init(position: currentBidder, call: .pass))
+                try addCall(.init(position: bidder, call: .pass))
             }
+        } catch {
+            print(String(describing: error))
+        }
+    }
+    
+    func undoLast() {
+        do {
+            try removeLastCall()
         } catch {}
     }
 }
@@ -132,6 +180,7 @@ fileprivate extension Auction {
         case invalidDouble
         case invalidRedouble
         case biddingClosed
+        case cannotRemove
     }
     
     func appendPasses(from start: Position, through end: Position) {
@@ -143,6 +192,8 @@ fileprivate extension Auction {
     }
     
     func addCall(_ call: Call) throws {
+        guard !closed else { throw CallError.biddingClosed }
+        
         let lastCaller = calls.last?.position ?? dealer
         if lastCaller != call.position.previous {
             // Append passes up to the current position
@@ -173,7 +224,14 @@ fileprivate extension Auction {
         }
         
         calls.append(call)
-        currentBidder = call.position.next
+        bidder = call.position.next
+    }
+    
+    func removeLastCall() throws {
+        guard !calls.isEmpty else { throw CallError.cannotRemove }
+        if let call = calls.popLast() {
+            bidder = call.position
+        }
     }
     
     func countTrailingPasses() -> Int {

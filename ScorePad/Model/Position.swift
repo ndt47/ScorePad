@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Position: Int, Comparable {
+enum Position: Int, CaseIterable, Comparable, Codable {
     case north = 0
     case east = 1
     case south = 2

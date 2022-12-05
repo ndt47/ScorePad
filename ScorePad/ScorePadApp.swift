@@ -11,7 +11,7 @@ import SwiftUI
 struct ScorePadApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RubberList(store: Store())
         }
     }
 }

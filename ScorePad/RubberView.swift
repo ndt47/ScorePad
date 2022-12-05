@@ -2,9 +2,9 @@ import SwiftUI
 
 
 struct RubberView: View {
-    @State private var creatingAuction = false
     @StateObject var rubber: Rubber
-    @State private var pushedContract: Contract?
+    @State private var creatingAuction = false
+    @State private var detailContract: Contract?
     
     var body: some View {
         ZStack {
@@ -18,8 +18,10 @@ struct RubberView: View {
                 UnderTheLine()
                 Spacer()
             }
+            .environment(\.presentContract, { contract in
+                detailContract = contract
+            })
         }
-        .rubber(rubber)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
@@ -32,9 +34,44 @@ struct RubberView: View {
         }
         .sheet(isPresented: $creatingAuction) {
             AuctionView(rubber: rubber, auction: Auction(dealer: rubber.currentDealer))
+                .navigationTitle("New Auction")
+                .navigationBarTitleDisplayMode(.inline)
         }
-        .environment(\.presentContract, { contract in
-        })
+        .sheet(item: $detailContract) { contract in
+            AuctionView(rubber: rubber,
+                        auction: contract.auction,
+                        honors: contract.honors,
+                        tricksTaken: contract.tricksTaken,
+                        editingContract: contract)
+            .navigationTitle("Edit Contract")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .rubber(rubber)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("")
+    }
+}
+
+struct RubberView_Previews: PreviewProvider {
+    static var previews: some View {
+        RubberView(rubber: .mock)
+    }
+}
+
+struct ScoreList: View {
+    var scores: [Score]
+    @Environment(\.presentContract) var present
+
+    var body: some View {
+        VStack {
+            ForEach (scores) { score in
+                score
+                    .onTapGesture {
+                        guard let contract = score.contract else { return }
+                        present(contract)
+                    }
+            }
+        }.frame(maxWidth: .infinity)
     }
 }
 
@@ -46,92 +83,6 @@ struct OverTheLine: View {
             ScoreList(scores: scores.forTeam(.we).reversed())
             ScoreList(scores: scores.forTeam(.they).reversed())
         }
-    }
-}
-
-struct RubberView_Previews: PreviewProvider {
-    static var previews: some View {
-        RubberView(rubber: .mock)
-    }
-}
-
-struct Rule: View {
-    enum Orientation {
-        case horizontal
-        case vertical
-    }
-    let orientation: Orientation
-    
-    init(_ orientation: Orientation) {
-        self.orientation = orientation
-    }
-    
-    var body: some View {
-        GeometryReader { geometry in
-            let size = geometry.size
-            Path() { path in
-                var origin = CGPoint(x: 0, y: 0)
-                var end = CGPoint(x: size.width, y: size.height)
-                switch orientation {
-                case .horizontal:
-                    origin.y = floor(size.height / 2.0 - 1.0)
-                    end.x = size.width
-                    end.y = floor(size.height / 2.0 - 1.0)
-                case .vertical:
-                    origin.x = floor(size.width / 2.0 - 1.0)
-                    end.x = origin.x
-                    end.y = size.height
-                }
-
-                path.move(to: origin)
-                path.addLine(to: end)
-            }
-            .strokedPath(StrokeStyle(lineWidth:2.0))
-        }
-    }
-}
-
-
-extension Rubber {
-    static var mock: Rubber {
-        Rubber(
-            players: [
-                Player(name: "Caty", position: .west),
-                Player(name: "Nathan", position: .south),
-                Player(name: "Sharon", position: .east),
-                Player(name: "Larisa", position: .north)
-            ],
-            history: [
-                .missDeal(.north),
-                .contract(Auction(), Contract(level: 3, suit: .hearts, declarer: .north, tricksTaken: 11)), // made
-                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .west, tricksTaken: 9)), // made
-                .contract(Auction(),Contract(level: 2, suit: .spades, declarer: .east, tricksTaken: 7)), // under
-                .pass(Auction()),
-                .contract(Auction(),Contract(level: 3, suit: .hearts, declarer: .south, tricksTaken: 8)), // under
-                .contract(Auction(),Contract(level: 3, suit: .clubs, declarer: .west, tricksTaken: 8)), // under
-                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .west, tricksTaken: 6)), // under
-                .pass(Auction()),
-                .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .east, tricksTaken: 9)), // made, game
-                .contract(Auction(),Contract(level: 2, suit: .notrump, declarer: .east, tricksTaken: 8, vulnerable: true)), // made
-                .contract(Auction(),Contract(level: 3, suit: .spades, declarer: .north, tricksTaken: 9)), // made
-//                .contract(Auction(),Contract(level: 1, suit: .notrump, declarer: .east, tricksTaken: 9, vulnerable: true)), // made, game
-            ]
-        )
-    }
-}
-
-struct ScoreList: View {
-    var scores: [Score]
-    var body: some View {
-        VStack {
-            ForEach (scores) { score in
-                score
-                    .onTapGesture {
-                        // TODO: Show contract detail
-                        print("Show \(String(describing: score.contract))")
-                    }
-            }
-        }.frame(maxWidth: .infinity)
     }
 }
 
