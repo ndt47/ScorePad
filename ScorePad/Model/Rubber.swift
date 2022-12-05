@@ -174,6 +174,18 @@ class Rubber: ObservableObject, Identifiable, Codable {
     }
 }
 
+extension Rubber: CustomStringConvertible {
+    var description: String {
+        "Rubber<[\(id)] created: \(dateCreated.formatted(date: .numeric, time: .shortened)); \(players); dealer: \(currentDealer); last hand: \(String(describing:(history.last)))>"
+    }
+}
+
+extension Player: CustomStringConvertible {
+    var description: String {
+        "\(position): \(name)"
+    }
+}
+
 extension Collection where Element == AuctionResult, Index == Int {
     var games: [Game] {
         guard !self.isEmpty else { return []}

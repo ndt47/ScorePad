@@ -12,7 +12,7 @@ extension Score: View {
         HStack {
             switch self {
             case let .bid(_, contract), let .over(_, contract), let .under(_, contract), let .slam(_, contract):
-                ContractView(contract)
+                ContractView(contract: contract)
             case .honors:
                 Text("HONORS")
                     .font(.caption)
@@ -36,18 +36,14 @@ extension Score: View {
 }
 
 struct ContractView: View {
-    var contract: Contract
     @EnvironmentObject var rubber: Rubber
+    var contract: Contract
     
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             BidView(.bid(contract.level, contract.suit))
             Result(contract.result)
         }
-    }
-    
-    init(_ contract: Contract) {
-        self.contract = contract
     }
 }
 

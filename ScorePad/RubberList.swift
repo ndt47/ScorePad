@@ -1,10 +1,13 @@
 import SwiftUI
 
 struct RubberList: View {
-    @StateObject var store: Store
+    @EnvironmentObject var store: Store
     @State private var selectedRubberId: Rubber.ID?
     @State private var creatingRubber = false
-    @State var currentRubber: Rubber? = nil
+    var currentRubber: Rubber? {
+        guard let id = selectedRubberId, let rubber = store.rubber(with: id) else { return nil }
+        return rubber
+    }
     
     var body: some View {
         NavigationSplitView {
@@ -27,13 +30,7 @@ struct RubberList: View {
                 }
                 if store.rubbers.isEmpty {
                     creatingRubber = true
-                }
-                if Self.isIPhone {
-                    selectedRubberId = nil
-                } else if selectedRubberId == nil {
-                    selectedRubberId = store.rubbers.first?.id
-                }
-                if !store.rubbers.isEmpty {
+                } else {
                     Task {
                         do {
                             try await store.save()
@@ -42,13 +39,12 @@ struct RubberList: View {
                         }
                     }
                 }
-            }
-            .onChange(of: selectedRubberId) { _ in
-                if let id = selectedRubberId {
-                    currentRubber = store.rubber(with: id)
-                } else {
-                    currentRubber = nil
+                if Self.isIPhone {
+                    selectedRubberId = nil
+                } else if selectedRubberId == nil {
+                    selectedRubberId = store.rubbers.first?.id
                 }
+
             }
             .navigationTitle("Rubbers")
             .toolbar {
@@ -62,17 +58,16 @@ struct RubberList: View {
                 }
             }
             .navigationSplitViewStyle(.balanced)
-            .navigationSplitViewColumnWidth(min: 280, ideal: 400, max: 500)
             .sheet(isPresented: $creatingRubber) {
                 NewRubber(store: store)
             }
         } detail: {
             ZStack {
-                if let selectedRubberId,
-                   let rubber = store.rubber(with: selectedRubberId) {
+                if let rubber = currentRubber {
                     RubberView(rubber: rubber)
+                        .environmentObject(rubber)
                 } else {
-                    EmptyView()
+                    Text("Select a rubber")
                 }
             }
         }
@@ -103,7 +98,6 @@ struct RubberCell: View {
                 .font(.caption)
         }
         .environmentObject(rubber)
-
     }
 }
 

@@ -33,20 +33,19 @@ struct RubberView: View {
             }
         }
         .sheet(isPresented: $creatingAuction) {
-            AuctionView(rubber: rubber, auction: Auction(dealer: rubber.currentDealer))
+            AuctionView(auction: Auction(dealer: rubber.currentDealer))
                 .navigationTitle("New Auction")
                 .navigationBarTitleDisplayMode(.inline)
         }
         .sheet(item: $detailContract) { contract in
-            AuctionView(rubber: rubber,
-                        auction: contract.auction,
+            AuctionView(auction: contract.auction,
                         honors: contract.honors,
                         tricksTaken: contract.tricksTaken,
                         editingContract: contract)
             .navigationTitle("Edit Contract")
             .navigationBarTitleDisplayMode(.inline)
         }
-        .rubber(rubber)
+        .environmentObject(rubber)
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("")
     }
@@ -96,8 +95,8 @@ struct UnderTheLine: View {
 }
 
 struct GameView: View {
-    var game: Game
     @EnvironmentObject var rubber: Rubber
+    var game: Game
 
     var body: some View {
         VStack(spacing: 4) {

@@ -248,3 +248,19 @@ fileprivate extension Auction {
     }
 }
 
+extension Auction {
+    static var mock = Auction(calls: [
+        Call(position: .north, call: .pass),
+        Call(position: .east, call: .pass),
+        Call(position: .south, call: .bid(1, .diamonds)),
+        Call(position: .west, call: .double),
+        Call(position: .north, call: .bid(1, .spades)),
+        Call(position: .east, call: .pass),
+        Call(position: .south, call: .bid(2, .spades)),
+        Call(position: .west, call: .pass),
+        Call(position: .north, call: .bid(4, .spades)),
+        Call(position: .east, call: .pass),
+//        Call(position: .south, call: .pass),
+//        Call(position: .west, call: .pass),
+    ])
+}

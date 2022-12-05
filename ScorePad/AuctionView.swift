@@ -13,7 +13,7 @@ extension Honors {
 }
 
 struct AuctionView: View {
-    @StateObject var rubber: Rubber
+    @EnvironmentObject var rubber: Rubber
     @StateObject var auction: Auction
     @Environment(\.dismiss) var dismiss
 
@@ -74,22 +74,23 @@ struct AuctionView: View {
                     .foregroundColor(.gray)
                 List {
                     if !auction.closed {
-                        CallView(call: .init(position: auction.bidder, call: .pending))
+                        CallView(rubber: rubber, call: .init(position: auction.bidder, call: .pending))
                     }
                     ForEach(auction.calls.reversed()) { call in
-                        CallView(call: call)
+                        CallView(rubber: rubber, call: call)
                     }
                 }
                     .listStyle(.plain)
                 if auction.closed && !auction.isPassHand {
-                    TricksView(tricksTaken: $tricksTaken, honors: $honors)
+                    TricksView(tricksTaken: $tricksTaken,
+                        honors: $honors
+                    )
                 }
             }
             .navigationTitle(editingContract != nil ? "Edit Contract" : "New Auction")
             .navigationBarTitleDisplayMode(.inline)
             .rubber(rubber)
             .padding()
-            .environmentObject(auction)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -115,6 +116,7 @@ struct AuctionView: View {
                 }
             }
         }
+        .environmentObject(auction)
     }
     
     func update() {
@@ -144,9 +146,10 @@ struct AuctionView: View {
 
 
 struct TricksView: View {
+    @EnvironmentObject var rubber: Rubber
+    @EnvironmentObject var auction: Auction
     @Binding var tricksTaken: Int
     @Binding var honors: Honors
-    @EnvironmentObject var auction: Auction
 
     var result: Int {
         guard let level = auction.level else { return 0 }
@@ -160,7 +163,10 @@ struct TricksView: View {
                     .font(.title3)
                     .foregroundColor(.gray)
                 Spacer()
-                AuctionSummaryView(result: result)
+                AuctionSummaryView(
+                    rubber: rubber,
+                    auction: auction,
+                    result: result)
             }
             Rule(.horizontal)
                 .frame(height: 2.0)
@@ -192,8 +198,8 @@ struct TricksView: View {
 }
 
 struct AuctionSummaryView: View {
-    @Environment(\.rubber) var rubber
-    @EnvironmentObject var auction: Auction
+    var rubber: Rubber
+    @State var auction: Auction
     var result: Int
 
     var player: String {
@@ -228,9 +234,8 @@ struct AuctionSummaryView: View {
 
 
 struct Seats: View {
-    @Environment(\.rubber) var rubber
-    @Environment(\.dealer) var dealer
-    @EnvironmentObject var auction: Auction
+    var rubber: Rubber
+    @State var auction: Auction
 
     func lastCall(for position: Position) -> Call.Call? {
         auction.calls.last { $0.position == position }?.call
@@ -239,7 +244,7 @@ struct Seats: View {
     var body: some View {
         VStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline) {
-                Seat(.north)
+                Seat(rubber: rubber, position: .north)
                 if let call = lastCall(for: .north) {
                     BidView(call)
                 } else {
@@ -248,7 +253,7 @@ struct Seats: View {
             }
             HStack(alignment: .firstTextBaseline) {
                 HStack(alignment: .firstTextBaseline) {
-                    Seat(.west)
+                    Seat(rubber: rubber, position: .west)
                     if let call = lastCall(for: .west) {
                         BidView(call)
                     } else {
@@ -262,11 +267,11 @@ struct Seats: View {
                     } else {
                         EmptyView()
                     }
-                    Seat(.east)
+                    Seat(rubber: rubber, position: .east)
                 }
             }
             HStack(alignment: .firstTextBaseline) {
-                Seat(.south)
+                Seat(rubber: rubber, position: .south)
                 if let call = lastCall(for: .south) {
                     BidView(call)
                 } else {
@@ -279,9 +284,8 @@ struct Seats: View {
 }
 
 struct Seat: View {
+    var rubber: Rubber
     var position: Position
-    @Environment(\.rubber) var rubber
-    @Environment(\.dealer) var dealer
 
     enum Stat {
         case dealer, vulnerable, none
@@ -316,7 +320,7 @@ struct Seat: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            PlayerView(position)
+            PlayerView(rubber: rubber, position: position)
             ForEach(stats, id: \.self) { stat in
                 Text(stat.label)
                     .font(.caption)
@@ -324,20 +328,19 @@ struct Seat: View {
             }
         }
     }
-    
-    init(_ position: Position) {
-        self.position = position
-    }
 }
 
 struct PlayerView: View {
+    @State var rubber: Rubber
     var position: Position
-    @EnvironmentObject var rubber: Rubber
     
     var body: some View {
         let player = rubber.player(at: position) ?? position.label
         HStack(alignment: .firstTextBaseline) {
             Text(player)
+                .lineLimit(1)
+                .allowsTightening(true)
+
             if !rubber.isFinished &&
                 rubber.currentDealer == position {
                 Image(systemName: "star.fill")
@@ -347,33 +350,11 @@ struct PlayerView: View {
             }
         }
     }
-    
-    init(_ position: Position) {
-        self.position = position
-    }
 }
 
 struct AuctionView_Previews: PreviewProvider {
     static var previews: some View {
-        let rubber = Rubber.mock
-        AuctionView(rubber: .mock, auction: .mock)
-            .dealer(rubber.currentDealer)
+        AuctionView(auction: .mock)
+            .environmentObject(Rubber.mock)
     }
-}
-
-extension Auction {
-    static var mock = Auction(calls: [
-        Call(position: .north, call: .pass),
-        Call(position: .east, call: .pass),
-        Call(position: .south, call: .bid(1, .diamonds)),
-        Call(position: .west, call: .double),
-        Call(position: .north, call: .bid(1, .spades)),
-        Call(position: .east, call: .pass),
-        Call(position: .south, call: .bid(2, .spades)),
-        Call(position: .west, call: .pass),
-        Call(position: .north, call: .bid(4, .spades)),
-        Call(position: .east, call: .pass),
-//        Call(position: .south, call: .pass),
-//        Call(position: .west, call: .pass),
-    ])
 }

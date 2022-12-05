@@ -1,17 +1,18 @@
 import SwiftUI
 
 struct RubberHeader: View {
+    @EnvironmentObject var rubber: Rubber
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            TeamView(team: .we)
-            TeamView(team: .they)
+            TeamView(rubber: rubber, team: .we)
+            TeamView(rubber: rubber, team: .they)
         }
     }
 }
 
 struct TeamView: View {
+    var rubber: Rubber
     var team: Team
-    @EnvironmentObject var rubber: Rubber
 
     var title: String {
         if case .we = team {
@@ -25,25 +26,43 @@ struct TeamView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(alignment: .center) {
             HStack {
                 VStack(alignment: .trailing) {
-                    Text(title)
-                        .font(.title2)
-                        .bold()
-                    Text("\(points.formatted(.number.grouping(.never)))")
-                        .font(.title3)
-                        .fontDesign(.monospaced)
-                        .foregroundColor(.gray)
-                        .bold()
+                    HStack {
+                        Spacer()
+                        Text(title)
+                            .font(.title2)
+                            .bold()
+                            .lineLimit(1)
+                            .allowsTightening(true)
+
+                    }.frame(maxWidth: .infinity)
+                    HStack {
+                        Spacer()
+                        Text("\(points.formatted(.number.grouping(.never)))")
+                            .font(.title3)
+                            .fontDesign(.monospaced)
+                            .foregroundColor(.gray)
+                            .bold()
+                            .lineLimit(1)
+                   }.frame(maxWidth: .infinity)
+
                 }
+                .frame(alignment: .trailing)
+                .frame(maxWidth: .infinity)
+
                 Divider()
                     .frame(height: 40)
+                
                 VStack(alignment: .leading, spacing: 2) {
-                    ForEach(team.positions, id: \.self) {
-                        PlayerView($0)
+                    ForEach(team.positions, id: \.self) { p in
+                        HStack {
+                            PlayerView(rubber: rubber, position: p)
+                            Spacer()
+                        }.frame(maxWidth: .infinity)
                     }
-               }
+                }.frame(maxWidth: .infinity).frame(alignment: .leading)
             }
             Text(rubber.isVulnerable(team) ? "VULNERABLE" : "")
                 .font(.caption)
@@ -53,15 +72,15 @@ struct TeamView: View {
         .rubber(rubber)
     }
 }
-        
+
 struct RubberHeader_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             RubberHeader()
-                .environmentObject(Rubber())
+                .environmentObject(Rubber.mock)
             Divider()
             RubberHeader()
-                .environmentObject(Rubber.mock)
+                .environmentObject(Rubber())
         }
     }
 }
