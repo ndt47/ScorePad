@@ -86,17 +86,22 @@ struct OverTheLine: View {
         GeometryReader { geo in
             ScrollViewReader { scroll in
                 ScrollView {
-                    let scores = rubber.scores.overTheLine()
-                    let we = scores.forTeam(.we)
-                    let they = scores.forTeam(.they)
-                    Spacer()
-                        .frame(minHeight: geo.size.height)
-                        .id(topID)
-                    HStack(alignment: .bottom) {
-                        ScoreList(scores: we.reversed())
-                        ScoreList(scores: they.reversed())
+                    ZStack {
+                        let scores = rubber.scores.overTheLine()
+                        let we = scores.forTeam(.we)
+                        let they = scores.forTeam(.they)
+                        Spacer()
+                            .frame(minHeight: geo.size.height)
+                            .id(topID)
+                        VStack {
+                            Spacer()
+                            HStack(alignment: .bottom) {
+                                ScoreList(scores: we.reversed())
+                                ScoreList(scores: they.reversed())
+                            }
+                        }
+                        .id(bottomID)
                     }
-                    .id(bottomID)
                 }
                 .onAppear {
                     scroll.scrollTo(bottomID, anchor: .bottom)
