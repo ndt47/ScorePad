@@ -72,17 +72,36 @@ struct ScoreList: View {
                         present(contract)
                     }
             }
-        }.frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
 struct OverTheLine: View {
     @EnvironmentObject var rubber: Rubber
+    @Namespace var topID
+    @Namespace var bottomID
+    
     var body: some View {
-        HStack(alignment: .bottom) {
-            let scores = rubber.scores.overTheLine()
-            ScoreList(scores: scores.forTeam(.we).reversed())
-            ScoreList(scores: scores.forTeam(.they).reversed())
+        GeometryReader { geo in
+            ScrollViewReader { scroll in
+                ScrollView {
+                    let scores = rubber.scores.overTheLine()
+                    let we = scores.forTeam(.we)
+                    let they = scores.forTeam(.they)
+                    Spacer()
+                        .frame(minHeight: geo.size.height)
+                        .id(topID)
+                    HStack(alignment: .bottom) {
+                        ScoreList(scores: we.reversed())
+                        ScoreList(scores: they.reversed())
+                    }
+                    .id(bottomID)
+                }
+                .onAppear {
+                    scroll.scrollTo(bottomID, anchor: .bottom)
+                }
+            }
         }
     }
 }
@@ -90,8 +109,10 @@ struct OverTheLine: View {
 struct UnderTheLine: View {
     @EnvironmentObject var rubber: Rubber
     var body: some View {
-        ForEach(rubber.games) { game in
-            GameView(game: game)
+        ScrollView {
+            ForEach(rubber.games) { game in
+                GameView(game: game)
+            }
         }
     }
 }

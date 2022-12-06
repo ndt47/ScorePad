@@ -26,12 +26,13 @@ extension Score: View {
 
             }
             Spacer()
+                .allowsHitTesting(true)
             Text("\(value.formatted(.number.grouping(.never)))")
                 .fontDesign(.monospaced)
                 .bold()
         }
         .padding(.horizontal)
-        .frame(maxWidth: .infinity, minHeight: 24)
+        .frame(maxWidth: .infinity, minHeight: 18)
     }
 }
 
