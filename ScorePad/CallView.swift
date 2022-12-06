@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct CallView: View {
-    var rubber: Rubber
+    @EnvironmentObject var rubber: Rubber
     let call: Call
     
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            PlayerView(rubber: rubber, position: call.position)
+            PlayerView(position: call.position)
             Spacer()
             BidView(call.call)
         }
@@ -28,8 +28,10 @@ struct BidView: View {
         HStack(alignment: .firstTextBaseline, spacing: 3) {
             switch call {
             case let .bid(level, suit):
-                Text("\(level)")
-                suit
+                HStack(alignment: .center, spacing: 3) {
+                    Text("\(level)")
+                    suit
+                }
             case .pending:
                 Text("PENDING")
                     .font(.caption)
@@ -63,9 +65,10 @@ struct CallView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             ForEach (Auction.mock.calls) { call in
-                CallView(rubber: .mock, call: call)
+                CallView(call: call)
             }
         }
         .padding()
+        .rubber(.mock)
     }
 }

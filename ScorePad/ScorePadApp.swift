@@ -12,8 +12,7 @@ struct ScorePadApp: App {
     let store = Store()
     var body: some Scene {
         WindowGroup {
-            RubberList()
-                .environmentObject(store)
+            RubberList(store: store)
         }
     }
 }

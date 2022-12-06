@@ -164,6 +164,10 @@ struct Points {
             above += value
         }
     }
+    
+    var total: Int {
+        above + below
+    }
 }
 
 extension Array: ScoreProviding, PointsCalculating where Element: ScoreProviding {

@@ -8,10 +8,18 @@
 import Foundation
 
 class Store: ObservableObject {
-    @Published var rubbers: [Rubber]
+    @Published var rubbers: [Rubber] = []
+    @Published var loaded = false
+    let url: URL?
     
-    init(rubbers: [Rubber] = []) {
+    init(url: URL = Store.defaultURL) {
+        self.url = url
+    }
+    
+    init(rubbers: [Rubber]) {
+        self.url = nil
         self.rubbers = rubbers
+        self.loaded = true
     }
     
     func addRubber(_ rubber: Rubber) {
@@ -33,26 +41,33 @@ class Store: ObservableObject {
         rubbers.first { $0.id == id }
     }
     
-    static func defaultURL() throws -> URL {
-        try FileManager.default.url(for: .documentDirectory,
-                                       in: .userDomainMask,
-                                       appropriateFor: nil,
-                                       create: false)
+    static var defaultURL: URL {
+        try! FileManager.default.url(for: .documentDirectory,
+                                     in: .userDomainMask,
+                                     appropriateFor: nil,
+                                     create: false)
             .appendingPathComponent("rubbers.scorepad")
     }
     
     func save() async throws {
-        let url = try Self.defaultURL()
+        guard let url = self.url else { return }
         let data = try JSONEncoder().encode(rubbers)
         try data.write(to: url, options: [.atomic, .completeFileProtectionUnlessOpen])
     }
     
     func load() throws {
-        let url = try Self.defaultURL()
+        guard let url = self.url else { return }
         let data = try Data(contentsOf: url, options: [.mappedIfSafe])
         let rubbers = try JSONDecoder().decode([Rubber].self, from: data)
         
         self.rubbers = rubbers
+        self.loaded = true
+    }
+    
+    func loadIfNecessary() throws {
+        if !loaded {
+            try load()
+        }
     }
 }
 

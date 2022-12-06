@@ -13,6 +13,7 @@ extension Honors {
 }
 
 struct AuctionView: View {
+    @EnvironmentObject var store: Store
     @EnvironmentObject var rubber: Rubber
     @StateObject var auction: Auction
     @Environment(\.dismiss) var dismiss
@@ -74,10 +75,10 @@ struct AuctionView: View {
                     .foregroundColor(.gray)
                 List {
                     if !auction.closed {
-                        CallView(rubber: rubber, call: .init(position: auction.bidder, call: .pending))
+                        CallView(call: .init(position: auction.bidder, call: .pending))
                     }
                     ForEach(auction.calls.reversed()) { call in
-                        CallView(rubber: rubber, call: call)
+                        CallView(call: call)
                     }
                 }
                     .listStyle(.plain)
@@ -136,6 +137,13 @@ struct AuctionView: View {
         } else {
             rubber.addAuctionResult(.pass(auction))
         }
+        Task {
+            do {
+                try await store.save()
+            } catch {
+                print(String(describing: error))
+            }
+        }
         dismiss()
     }
     
@@ -163,10 +171,7 @@ struct TricksView: View {
                     .font(.title3)
                     .foregroundColor(.gray)
                 Spacer()
-                AuctionSummaryView(
-                    rubber: rubber,
-                    auction: auction,
-                    result: result)
+                AuctionSummaryView(result: result)
             }
             Rule(.horizontal)
                 .frame(height: 2.0)
@@ -198,8 +203,8 @@ struct TricksView: View {
 }
 
 struct AuctionSummaryView: View {
-    var rubber: Rubber
-    @State var auction: Auction
+    @EnvironmentObject var rubber: Rubber
+    @EnvironmentObject var auction: Auction
     var result: Int
 
     var player: String {
@@ -224,8 +229,6 @@ struct AuctionSummaryView: View {
                     .foregroundColor(.gray)
                     .font(.caption)
             }
-//            Spacer()
-//            Result(result, .long)
         }.eraseToAnyView()
     }
 }
@@ -234,8 +237,8 @@ struct AuctionSummaryView: View {
 
 
 struct Seats: View {
-    var rubber: Rubber
-    @State var auction: Auction
+    @EnvironmentObject var rubber: Rubber
+    @EnvironmentObject var auction: Auction
 
     func lastCall(for position: Position) -> Call.Call? {
         auction.calls.last { $0.position == position }?.call
@@ -244,7 +247,7 @@ struct Seats: View {
     var body: some View {
         VStack(alignment: .center) {
             HStack(alignment: .firstTextBaseline) {
-                Seat(rubber: rubber, position: .north)
+                Seat(.north)
                 if let call = lastCall(for: .north) {
                     BidView(call)
                 } else {
@@ -253,7 +256,7 @@ struct Seats: View {
             }
             HStack(alignment: .firstTextBaseline) {
                 HStack(alignment: .firstTextBaseline) {
-                    Seat(rubber: rubber, position: .west)
+                    Seat(.west)
                     if let call = lastCall(for: .west) {
                         BidView(call)
                     } else {
@@ -267,11 +270,11 @@ struct Seats: View {
                     } else {
                         EmptyView()
                     }
-                    Seat(rubber: rubber, position: .east)
+                    Seat(.east)
                 }
             }
             HStack(alignment: .firstTextBaseline) {
-                Seat(rubber: rubber, position: .south)
+                Seat(.south)
                 if let call = lastCall(for: .south) {
                     BidView(call)
                 } else {
@@ -284,9 +287,13 @@ struct Seats: View {
 }
 
 struct Seat: View {
-    var rubber: Rubber
+    @EnvironmentObject var rubber: Rubber
     var position: Position
 
+    init(_ position: Position) {
+        self.position = position
+    }
+    
     enum Stat {
         case dealer, vulnerable, none
         
@@ -320,7 +327,7 @@ struct Seat: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            PlayerView(rubber: rubber, position: position)
+            PlayerView(position: position)
             ForEach(stats, id: \.self) { stat in
                 Text(stat.label)
                     .font(.caption)
@@ -331,22 +338,21 @@ struct Seat: View {
 }
 
 struct PlayerView: View {
-    @State var rubber: Rubber
+    @EnvironmentObject var rubber: Rubber
     var position: Position
     
     var body: some View {
         let player = rubber.player(at: position) ?? position.label
         HStack(alignment: .firstTextBaseline) {
             Text(player)
-                .lineLimit(1)
                 .allowsTightening(true)
+                .fontWeight(.light)
 
             if !rubber.isFinished &&
                 rubber.currentDealer == position {
                 Image(systemName: "star.fill")
-                    .resizable()
                     .foregroundColor(.orange)
-                    .frame(width: 12, height: 12)
+                    .font(.caption)
             }
         }
     }

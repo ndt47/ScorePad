@@ -19,8 +19,7 @@ struct Result: View {
         switch value {
         case 0:
             Image(systemName: "checkmark")
-                .resizable()
-                .frame(width: 12, height: 12)
+                .font(.caption)
                 .foregroundColor(.green)
         default:
             if case .abbreviated = appearance {

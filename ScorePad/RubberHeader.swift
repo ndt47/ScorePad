@@ -4,14 +4,14 @@ struct RubberHeader: View {
     @EnvironmentObject var rubber: Rubber
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            TeamView(rubber: rubber, team: .we)
-            TeamView(rubber: rubber, team: .they)
+            TeamView(team: .we)
+            TeamView(team: .they)
         }
     }
 }
 
 struct TeamView: View {
-    var rubber: Rubber
+    @EnvironmentObject var rubber: Rubber
     var team: Team
 
     var title: String {
@@ -33,10 +33,8 @@ struct TeamView: View {
                         Spacer()
                         Text(title)
                             .font(.title2)
-                            .bold()
-                            .lineLimit(1)
+                            .fontWeight(.heavy)
                             .allowsTightening(true)
-
                     }.frame(maxWidth: .infinity)
                     HStack {
                         Spacer()
@@ -44,8 +42,6 @@ struct TeamView: View {
                             .font(.title3)
                             .fontDesign(.monospaced)
                             .foregroundColor(.gray)
-                            .bold()
-                            .lineLimit(1)
                    }.frame(maxWidth: .infinity)
 
                 }
@@ -58,7 +54,7 @@ struct TeamView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(team.positions, id: \.self) { p in
                         HStack {
-                            PlayerView(rubber: rubber, position: p)
+                            PlayerView(position: p)
                             Spacer()
                         }.frame(maxWidth: .infinity)
                     }

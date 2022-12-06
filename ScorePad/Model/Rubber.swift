@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Team {
+enum Team: CaseIterable {
     case we // north and south
     case they // east and west
     
@@ -124,6 +124,23 @@ class Rubber: ObservableObject, Identifiable, Codable {
         guard let last = self.games.last else { return false }
         if case .rubber = last { return true }
         return false
+    }
+    
+    var winningTeam: Team? {
+        guard let last = self.games.last else { return nil }
+        guard case .rubber = last else { return nil }
+        
+        let wePoints = points(for: .we).total
+        let theyPoints = points(for: .they).total
+
+        if wePoints > theyPoints {
+            return .we
+        }
+        if theyPoints > wePoints {
+            return .they
+        }
+        return nil
+
     }
     
     func isVulnerable(_ team: Team) -> Bool {
@@ -307,7 +324,7 @@ extension Rubber {
                 .contract(Auction(),Contract(level: 2, suit: .hearts, declarer: .east, tricksTaken: 9)), // made, game
                 .contract(Auction(),Contract(level: 2, suit: .notrump, declarer: .east, tricksTaken: 8, vulnerable: true)), // made
                 .contract(Auction(),Contract(level: 3, suit: .spades, declarer: .north, tricksTaken: 9)), // made
-//                .contract(Auction(),Contract(level: 1, suit: .notrump, declarer: .east, tricksTaken: 9, vulnerable: true)), // made, game
+                .contract(Auction(),Contract(level: 1, suit: .notrump, declarer: .east, tricksTaken: 9, vulnerable: true)), // made, game
             ]
         )
     }

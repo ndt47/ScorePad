@@ -52,26 +52,21 @@ extension Suit: View {
         switch self {
         case .clubs:
             return Image(systemName: "suit.club.fill")
-                .resizable()
-                .frame(width: 12, height: 12, alignment: .center)
-                .foregroundColor(.black)
+                .font(.caption)
                 .eraseToAnyView()
         case .diamonds:
             return Image(systemName: "suit.diamond.fill")
-                .resizable()
-                .frame(width: 12, height: 12, alignment: .center)
+                .font(.caption)
                 .foregroundColor(.red)
                 .eraseToAnyView()
         case .hearts:
             return Image(systemName: "suit.heart.fill")
-                .resizable()
-                .frame(width: 12, height: 12, alignment: .center)
+                .font(.caption)
                 .foregroundColor(.red)
                 .eraseToAnyView()
         case .spades:
             return Image(systemName: "suit.spade.fill")
-                .resizable()
-                .frame(width: 12, height: 12, alignment: .center)
+                .font(.caption)
                 .foregroundColor(.black)
                 .eraseToAnyView()
         case .notrump:
@@ -79,7 +74,7 @@ extension Suit: View {
                 .foregroundColor(.black)
                 .fontDesign(.rounded)
                 .font(.caption)
-                .bold()
+                .fontWeight(.bold)
                 .eraseToAnyView()
         }
     }

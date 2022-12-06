@@ -36,6 +36,7 @@ struct RubberView: View {
             AuctionView(auction: Auction(dealer: rubber.currentDealer))
                 .navigationTitle("New Auction")
                 .navigationBarTitleDisplayMode(.inline)
+        
         }
         .sheet(item: $detailContract) { contract in
             AuctionView(auction: contract.auction,
@@ -65,6 +66,7 @@ struct ScoreList: View {
         VStack {
             ForEach (scores) { score in
                 score
+                    .allowsHitTesting(true)
                     .onTapGesture {
                         guard let contract = score.contract else { return }
                         present(contract)
