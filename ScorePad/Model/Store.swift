@@ -58,9 +58,14 @@ class Store: ObservableObject {
     func load() throws {
         guard let url = self.url else { return }
         let data = try Data(contentsOf: url, options: [.mappedIfSafe])
-        let rubbers = try JSONDecoder().decode([Rubber].self, from: data)
         
-        self.rubbers = rubbers
+        do {
+            let rubbers = try JSONDecoder().decode([Rubber].self, from: data)
+            self.rubbers = rubbers
+        } catch {
+            print("Deleting data file: \(url) due to \(String(describing: error))")
+            try FileManager.default.removeItem(at: url)
+        }
         self.loaded = true
     }
     

@@ -68,7 +68,7 @@ extension Array where Element == Game {
 }
 
 class Rubber: ObservableObject, Identifiable, Codable {
-    let id: UUID
+    let id: String
     let dateCreated: Date
     var lastModified: Date
     var players: [Player]
@@ -76,7 +76,7 @@ class Rubber: ObservableObject, Identifiable, Codable {
     @Published var history: [AuctionResult]
     
     init(players: [Player] = [], dealer: Position = .north, history: [AuctionResult] = []) {
-        self.id = UUID()
+        self.id = UUID().uuidString
         self.dateCreated = .now
         self.lastModified = .now
         self.players = players
@@ -95,7 +95,7 @@ class Rubber: ObservableObject, Identifiable, Codable {
     
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(UUID.self, forKey: .id)
+        id = try container.decode(String.self, forKey: .id)
         dateCreated = try container.decode(Date.self, forKey: .dateCreated)
         lastModified = try container.decode(Date.self, forKey: .lastModified)
         players = try container.decode(Array<Player>.self, forKey: .players)
