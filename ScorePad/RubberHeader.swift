@@ -65,7 +65,6 @@ struct TeamView: View {
                 .foregroundColor(.red)
         }
         .frame(maxWidth: .infinity)
-        .rubber(rubber)
     }
 }
 

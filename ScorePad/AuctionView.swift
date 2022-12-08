@@ -54,44 +54,45 @@ struct AuctionView: View {
                 Rule(.horizontal)
                     .foregroundColor(.black)
                     .frame(height: 2)
-                if !auction.closed {
-                    BiddingView()
-                }
                 
-                HStack {
-                    Text("Calls")
-                        .font(.title3)
-                        .foregroundColor(.gray)
-                    Spacer()
-                    Button {
-                        auction.undoLast()
-                    } label: {
-                        Label("Undo Last", systemImage: "arrow.uturn.backward.circle")
-                    }
-                    .disabled(!auction.canRemoveLast)
-                }
-                Rule(.horizontal)
-                    .frame(height: 2)
-                    .foregroundColor(.gray)
-                List {
+                VStack(alignment: .leading) {
                     if !auction.closed {
-                        CallView(call: .init(position: auction.bidder, call: .pending))
+                        BiddingView()
                     }
-                    ForEach(auction.calls.reversed()) { call in
-                        CallView(call: call)
+                    HStack {
+                        Text("Calls")
+                            .font(.title3)
+                            .foregroundColor(.gray)
+                        Spacer()
+                        Button {
+                            auction.undoLast()
+                        } label: {
+                            Label("Undo Last", systemImage: "arrow.uturn.backward.circle")
+                        }
+                        .disabled(!auction.canRemoveLast)
+                    }            .padding()
+
+                    Rule(.horizontal)
+                        .frame(height: 2)
+                        .foregroundColor(.gray)
+                    List {
+                        if !auction.closed {
+                            CallView(call: .init(position: auction.bidder, call: .pending))
+                        }
+                        ForEach(auction.calls.reversed()) { call in
+                            CallView(call: call)
+                        }
                     }
-                }
-                    .listStyle(.plain)
-                if auction.closed && !auction.isPassHand {
-                    TricksView(tricksTaken: $tricksTaken,
-                        honors: $honors
-                    )
+                        .listStyle(.plain)
+                    if auction.closed && !auction.isPassHand {
+                        TricksView(tricksTaken: $tricksTaken,
+                            honors: $honors
+                        )
+                    }
                 }
             }
             .navigationTitle(editingContract != nil ? "Edit Contract" : "New Auction")
             .navigationBarTitleDisplayMode(.inline)
-            .rubber(rubber)
-            .padding()
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
