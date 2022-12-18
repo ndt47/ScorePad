@@ -52,8 +52,8 @@ struct NewRubber: View {
                         Text(Team.they.label)
                             .font(.title2)
                             .bold()
-                        TextField(Position.east.label, text: $west)
-                        TextField(Position.west.label, text: $east)
+                        TextField(Position.east.label, text: $east)
+                        TextField(Position.west.label, text: $west)
                     }
                 }
                 HStack {
