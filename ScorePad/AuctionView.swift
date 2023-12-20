@@ -13,7 +13,7 @@ extension Honors {
 }
 
 struct AuctionView: View {
-    @EnvironmentObject var store: Store
+    @Environment(\.modelContext) private var modelContext
     @EnvironmentObject var rubber: Rubber
     @StateObject var auction: Auction
     @Environment(\.dismiss) var dismiss
@@ -92,8 +92,11 @@ struct AuctionView: View {
                 }
             }
             .navigationTitle(editingContract != nil ? "Edit Contract" : "New Auction")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         if editingContract != nil {
@@ -107,6 +110,22 @@ struct AuctionView: View {
                     .labelStyle(.titleOnly)
                     .disabled(!auction.closed)
                 }
+                #else
+                ToolbarItem {
+                    Button(action: {
+                        if editingContract != nil {
+                            update()
+                        } else {
+                            save()
+                        }
+                    }, label: {
+                        Label(Action.save.label, systemImage: Action.save.systemImage)
+                    })
+                    .labelStyle(.titleOnly)
+                    .disabled(!auction.closed)
+                }
+                #endif
+                #if os(iOS)
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         // TODO: Implement cancel, prompt for misdeal or delete depending on auction state
@@ -116,6 +135,18 @@ struct AuctionView: View {
                     })
                     .labelStyle(.titleOnly)
                 }
+                #else
+                ToolbarItem {
+                    Button(action: {
+                        // TODO: Implement cancel, prompt for misdeal or delete depending on auction state
+                        cancel()
+                    }, label: {
+                        Label(Action.cancel.label, systemImage: Action.cancel.systemImage)
+                    })
+                    .labelStyle(.titleOnly)
+                }
+                #endif
+                
             }
         }
         .environmentObject(auction)
@@ -123,6 +154,7 @@ struct AuctionView: View {
     
     func update() {
         guard let existing = editingContract else { return }
+        
         if let contract = Contract(auction: auction, honors: honors, tricksTaken: tricksTaken, vulnerable: existing.vulnerable) {
             rubber.replaceContract(existing, with: .contract(auction, contract))
         } else {
@@ -132,18 +164,13 @@ struct AuctionView: View {
     }
     
     func save() {
+        modelContext.insert(auction)
+        
         let vulnerable = auction.declarer != nil ? rubber.isVulnerable(auction.declarer!.team) : false
         if let contract = Contract(auction: auction, honors: honors, tricksTaken: tricksTaken, vulnerable: vulnerable) {
             rubber.addAuctionResult(.contract(auction, contract))
         } else {
             rubber.addAuctionResult(.pass(auction))
-        }
-        Task {
-            do {
-                try await store.save()
-            } catch {
-                print(String(describing: error))
-            }
         }
         dismiss()
     }

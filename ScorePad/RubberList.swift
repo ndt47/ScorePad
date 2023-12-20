@@ -1,59 +1,39 @@
 import SwiftUI
+import SwiftData
 
 struct RubberList: View {
-    @StateObject var store: Store
-    @SceneStorage("RubberList.selectedRubberId") private var selectedRubberId: Rubber.ID?
-    @State private var creatingRubber = false
-    @Environment(\.scenePhase) private var scenePhase
-
-    var rubbers: [Rubber] {
-        store.rubbers.sorted(by: { $0.dateCreated > $1.dateCreated })
-    }
+    @Environment(\.modelContext) private var modelContext
+    @Query(FetchDescriptor(sortBy: [SortDescriptor(\Rubber.dateCreated, order: .reverse)]))
+    private var rubbers: [Rubber]
     
-    var currentRubber: Rubber? {
-        guard let id = selectedRubberId, let rubber = store.rubber(with: id) else { return nil }
-        return rubber
-    }
+    @State private var creatingRubber = false
+    @State private var selection: Rubber.ID?
     
     var body: some View {
         NavigationSplitView {
-            List(selection: $selectedRubberId) {
-                ForEach(rubbers) { item in
-                    let selected = selectedRubberId == item.id
-                    NavigationLink(value: item) {
+            List(selection: $selection) {
+                ForEach(rubbers, id: \.id) { item in
+                    NavigationLink {
+                        RubberView(rubber: item)
+                    } label: {
                         RubberListCell(rubber: item)
                     }
-                    .selected(selected)
                 }
                 .onDelete {
-                    store.deleteRubbers(at: $0)
-                    Task {
-                        try await store.save()
-                    }
+                    deleteRubbers(offsets: $0)
                 }
             }
             .listStyle(.plain)
-            .navigationDestination(for: Rubber.self) { rubber in
-                RubberView(rubber: rubber)
-                    .environmentObject(rubber)
-            }
             .navigationTitle("Rubbers")
             .onAppear {
-                do {
-                    try store.loadIfNecessary()
-                } catch {
-                    print(String(describing: error))
-                }
                 if rubbers.isEmpty {
                     creatingRubber = true
-                }
-
-                if Self.isIPhone {
-                    selectedRubberId = nil
+                } else {
+                    selection = rubbers.first?.id
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem {
                     Button(action: {
                         creatingRubber = true
                     }, label: {
@@ -62,18 +42,9 @@ struct RubberList: View {
                     .labelStyle(.titleOnly)
                 }
             }
-            .sheet(isPresented: $creatingRubber) {
-                NewRubber(store: store)
-                    .presentationDetents([.medium])
-                    .edgesIgnoringSafeArea(.all)
-            }
-
         } detail: {
             ZStack {
-                if let rubber = currentRubber {
-                    RubberView(rubber: rubber)
-                        .environmentObject(rubber)
-                } else if rubbers.isEmpty {
+                if rubbers.isEmpty {
                     Button {
                         creatingRubber = true
                     } label: {
@@ -81,6 +52,8 @@ struct RubberList: View {
                             .labelStyle(.titleOnly)
                             .font(.largeTitle)
                     }
+                } else if let selection, let rubber = rubbers.first(where: { $0.id == selection }) {
+                    RubberView(rubber: rubber)
                 } else {
                     Text("Select a rubber")
                         .font(.largeTitle)
@@ -88,20 +61,24 @@ struct RubberList: View {
             }
         }
         .navigationSplitViewStyle(.balanced)
-        .onChange(of: scenePhase) { newScenePhase in
-            if newScenePhase == .background {
-                Task {
-                    try await store.save()
-                }
+        .sheet(isPresented: $creatingRubber) {
+            NewRubber()
+                .presentationDetents([.medium])
+                .edgesIgnoringSafeArea(.all)
+        }
+    }
+    
+    private func deleteRubbers(offsets: IndexSet) {
+        withAnimation {
+            for index in offsets {
+                modelContext.delete(rubbers[index])
             }
         }
-        .environmentObject(store)
-
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        RubberList(store: .mock)
+        RubberList()
     }
 }

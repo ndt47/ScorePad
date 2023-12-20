@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D83E487B293D0A3200E37BCE /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487A293D0A3200E37BCE /* Store.swift */; };
 		D83E487D293D1D5900E37BCE /* NewRubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487C293D1D5900E37BCE /* NewRubber.swift */; };
 		D83E487F293D4B7600E37BCE /* Rule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487E293D4B7600E37BCE /* Rule.swift */; };
 		D83E4881293D99B800E37BCE /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E4880293D99B800E37BCE /* Utilities.swift */; };
@@ -23,6 +22,12 @@
 		D8A564DC293A5A8100671E8C /* BiddingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564DB293A5A8100671E8C /* BiddingView.swift */; };
 		D8A564DE293A5AF700671E8C /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564DD293A5AF700671E8C /* CallView.swift */; };
 		D8A564E0293A882800671E8C /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564DF293A882800671E8C /* Result.swift */; };
+		D8AD71E92B3385A3000DBA88 /* Team.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD71E82B3385A3000DBA88 /* Team.swift */; };
+		D8AD71EB2B3385DB000DBA88 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD71EA2B3385DB000DBA88 /* Player.swift */; };
+		D8AD71ED2B338602000DBA88 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD71EC2B338602000DBA88 /* Game.swift */; };
+		D8AD71EF2B338678000DBA88 /* AuctionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD71EE2B338678000DBA88 /* AuctionResult.swift */; };
+		D8AD71F12B33875F000DBA88 /* Suit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD71F02B33875F000DBA88 /* Suit.swift */; };
+		D8AD71F32B33878D000DBA88 /* Bid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD71F22B33878D000DBA88 /* Bid.swift */; };
 		D8BD5A4A2935257700B86AA6 /* ScorePadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A492935257700B86AA6 /* ScorePadApp.swift */; };
 		D8BD5A4C2935257700B86AA6 /* RubberList.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A4B2935257700B86AA6 /* RubberList.swift */; };
 		D8BD5A4E2935257900B86AA6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8BD5A4D2935257900B86AA6 /* Assets.xcassets */; };
@@ -58,7 +63,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D83E487A293D0A3200E37BCE /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		D83E487C293D1D5900E37BCE /* NewRubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRubber.swift; sourceTree = "<group>"; };
 		D83E487E293D4B7600E37BCE /* Rule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rule.swift; sourceTree = "<group>"; };
 		D83E4880293D99B800E37BCE /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -74,6 +78,12 @@
 		D8A564DB293A5A8100671E8C /* BiddingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiddingView.swift; sourceTree = "<group>"; };
 		D8A564DD293A5AF700671E8C /* CallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallView.swift; sourceTree = "<group>"; };
 		D8A564DF293A882800671E8C /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		D8AD71E82B3385A3000DBA88 /* Team.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Team.swift; sourceTree = "<group>"; };
+		D8AD71EA2B3385DB000DBA88 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		D8AD71EC2B338602000DBA88 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		D8AD71EE2B338678000DBA88 /* AuctionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuctionResult.swift; sourceTree = "<group>"; };
+		D8AD71F02B33875F000DBA88 /* Suit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suit.swift; sourceTree = "<group>"; };
+		D8AD71F22B33878D000DBA88 /* Bid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bid.swift; sourceTree = "<group>"; };
 		D8BD5A462935257700B86AA6 /* ScorePad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScorePad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD5A492935257700B86AA6 /* ScorePadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadApp.swift; sourceTree = "<group>"; };
 		D8BD5A4B2935257700B86AA6 /* RubberList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberList.swift; sourceTree = "<group>"; };
@@ -125,11 +135,16 @@
 			children = (
 				D8BD5A742935263000B86AA6 /* Rubber.swift */,
 				D8A564A22936E25300671E8C /* Auction.swift */,
+				D8AD71EE2B338678000DBA88 /* AuctionResult.swift */,
 				D8BD5A8329357C2300B86AA6 /* Contract.swift */,
 				D8BD5A8529357C4800B86AA6 /* Call.swift */,
 				D8BD5A8729357C6800B86AA6 /* Score.swift */,
 				D8BD5A8929357CA200B86AA6 /* Position.swift */,
-				D83E487A293D0A3200E37BCE /* Store.swift */,
+				D8AD71E82B3385A3000DBA88 /* Team.swift */,
+				D8AD71EA2B3385DB000DBA88 /* Player.swift */,
+				D8AD71EC2B338602000DBA88 /* Game.swift */,
+				D8AD71F02B33875F000DBA88 /* Suit.swift */,
+				D8AD71F22B33878D000DBA88 /* Bid.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -344,6 +359,7 @@
 				D8BD5A8A29357CA200B86AA6 /* Position.swift in Sources */,
 				D8BD5A4C2935257700B86AA6 /* RubberList.swift in Sources */,
 				D8A564DE293A5AF700671E8C /* CallView.swift in Sources */,
+				D8AD71EB2B3385DB000DBA88 /* Player.swift in Sources */,
 				D83E4884293E9D9400E37BCE /* DefaultsKey.swift in Sources */,
 				D83E487D293D1D5900E37BCE /* NewRubber.swift in Sources */,
 				D8BD5A4A2935257700B86AA6 /* ScorePadApp.swift in Sources */,
@@ -353,12 +369,16 @@
 				D8BD5A8629357C4800B86AA6 /* Call.swift in Sources */,
 				D8A564AD293910D800671E8C /* RubberHeader.swift in Sources */,
 				D8BD5A752935263000B86AA6 /* Rubber.swift in Sources */,
-				D83E487B293D0A3200E37BCE /* Store.swift in Sources */,
 				D8BD5A8829357C6800B86AA6 /* Score.swift in Sources */,
+				D8AD71F12B33875F000DBA88 /* Suit.swift in Sources */,
+				D8AD71ED2B338602000DBA88 /* Game.swift in Sources */,
 				D8A564D729394D8F00671E8C /* AuctionView.swift in Sources */,
+				D8AD71F32B33878D000DBA88 /* Bid.swift in Sources */,
 				D8A564D929394E8100671E8C /* EnvironmentValues.swift in Sources */,
 				D83E4886293EC1B700E37BCE /* RubberListCell.swift in Sources */,
+				D8AD71EF2B338678000DBA88 /* AuctionResult.swift in Sources */,
 				D8A564A32936E25300671E8C /* Auction.swift in Sources */,
+				D8AD71E92B3385A3000DBA88 /* Team.swift in Sources */,
 				D8BD5A8429357C2300B86AA6 /* Contract.swift in Sources */,
 				D83E4881293D99B800E37BCE /* Utilities.swift in Sources */,
 				D8A564AA2937B5A100671E8C /* ScoreView.swift in Sources */,
@@ -533,11 +553,11 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
-				MARKETING_VERSION = 1.02;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nathan47.ScorePad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -571,11 +591,11 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
-				MARKETING_VERSION = 1.02;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nathan47.ScorePad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;

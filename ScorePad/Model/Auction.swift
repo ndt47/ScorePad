@@ -6,33 +6,13 @@
 //
 
 import Foundation
+import SwiftData
 
-enum AuctionResult: ScoreProviding, Codable {
-    case missDeal(Position)
-    case pass(Auction)
-    case contract(Auction, Contract)
-    
-    var dealer: Position {
-        switch self {
-        case let .missDeal(dealer):
-            return dealer
-        case let .pass(auction), let .contract(auction, _):
-            return auction.dealer
-        }
-    }
-    
-    var scores: [Score] {
-        switch self {
-        case .missDeal, .pass: return []
-        case let .contract(_, contract): return contract.scores
-        }
-    }
-}
-
-class Auction: ObservableObject, Codable {
+@Model
+final class Auction: ObservableObject, Codable {
     let dealer: Position
-    @Published var bidder: Position
-    @Published var calls: [Call]
+    var bidder: Position
+    var calls: [Call]
     
     init(dealer: Position = .north, calls: [Call] = []) {
         self.calls = calls

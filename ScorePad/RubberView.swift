@@ -23,7 +23,9 @@ struct RubberView: View {
             })
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            #if os(iOS)
+            ToolbarItem(placement: .navigationBarTrailing)
+            {
                 Button(action: {
                     creatingAuction = true
                 }, label: {
@@ -31,11 +33,24 @@ struct RubberView: View {
                 })
                 .disabled(rubber.isFinished)
             }
+            #else
+            ToolbarItem
+            {
+                Button(action: {
+                    creatingAuction = true
+                }, label: {
+                    Label("Add", systemImage: "plus")
+                })
+                .disabled(rubber.isFinished)
+            }
+            #endif
         }
         .sheet(isPresented: $creatingAuction) {
             AuctionView(auction: Auction(dealer: rubber.currentDealer))
                 .navigationTitle("New Auction")
+                #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
+                #endif
                 .interactiveDismissDisabled()
         }
         .sheet(item: $detailContract) { contract in
@@ -44,10 +59,14 @@ struct RubberView: View {
                         tricksTaken: contract.tricksTaken,
                         editingContract: contract)
                 .navigationTitle("Edit Contract")
+            #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
+            #endif
         }
         .environmentObject(rubber)
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .navigationTitle("")
     }
 }

@@ -2,10 +2,18 @@ import SwiftUI
 
 extension View {
     static var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        #if os(iOS)
+        return UIDevice.current.userInterfaceIdiom == .pad
+        #else
+        return true
+        #endif
     }
     
     static var isIPhone: Bool {
-        UIDevice.current.userInterfaceIdiom == .phone
+        #if os(iOS)
+        return UIDevice.current.userInterfaceIdiom == .phone
+        #else
+        return true
+        #endif
     }
 }

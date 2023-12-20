@@ -6,77 +6,19 @@
 //
 
 import Foundation
+import SwiftData
 
-enum Team: CaseIterable {
-    case we // north and south
-    case they // east and west
-    
-    var opponent: Team {
-        switch self {
-        case .we: return .they
-        case .they: return .we
-        }
-    }
-    
-    var positions: [Position] {
-        switch self {
-        case .we:
-            return [.north, .south]
-        case .they:
-            return [.east, .west]
-        }
-    }
-}
-
-extension Team {
-    var label: String {
-        switch self {
-        case .we:
-            return "We"
-        case .they:
-            return "They"
-        }
-    }
-}
-
-struct Player: Codable {
-    var name: String
-    var position: Position
-}
-
-enum Game: Identifiable {
-    var id: UUID { .init() }
-    
-    case none(PartialRangeFrom<Int>)
-    case partial(PartialRangeFrom<Int>)
-    case complete(Team, ClosedRange<Int>)
-    case rubber(Team, ClosedRange<Int>)
-}
-
-extension Array where Element == Game {
-    var vulnerableTeams: Set<Team> {
-        guard let last = self.last else { return .init() }
-        if case .rubber = last { return .init() }
-        
-        return Set(compactMap { game in
-            if case let .complete(team, _) = game {
-                return team
-            }
-            return nil
-        })
-    }
-}
-
-class Rubber: ObservableObject, Identifiable, Codable {
-    let id: String
+@Model
+final class Rubber: ObservableObject, Identifiable, Codable {
+    @Attribute(.unique) let id: UUID
     let dateCreated: Date
     var lastModified: Date
     var players: [Player]
     let startingDealer: Position
-    @Published var history: [AuctionResult]
+    var history: [AuctionResult]
     
     init(players: [Player] = [], dealer: Position = .north, history: [AuctionResult] = []) {
-        self.id = UUID().uuidString
+        self.id = UUID()
         self.dateCreated = .now
         self.lastModified = .now
         self.players = players
@@ -95,7 +37,7 @@ class Rubber: ObservableObject, Identifiable, Codable {
     
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
+        id = try container.decode(UUID.self, forKey: .id)
         dateCreated = try container.decode(Date.self, forKey: .dateCreated)
         lastModified = try container.decode(Date.self, forKey: .lastModified)
         players = try container.decode(Array<Player>.self, forKey: .players)

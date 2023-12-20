@@ -7,147 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F5E7D7A6-11C2-4BD2-9E39-F2BDC3FBF8FA"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ScorePad/RubberList.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "72"
-            endingLineNumber = "72"
-            landmarkName = "rubbers"
-            landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "F5E7D7A6-11C2-4BD2-9E39-F2BDC3FBF8FA - cf327d90c6b22848"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 () -&gt; SwiftUI.ZStack&lt;SwiftUI._ConditionalContent&lt;ScorePad.RubberView, SwiftUI.Text&gt;&gt; in ScorePad.RubberList.body.getter : some"
-                  moduleName = "ScorePad"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathan/Desktop/ScorePad/ScorePad/RubberList.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "65"
-                  endingLineNumber = "65"
-                  offsetFromSymbolStart = "240">
-               </Location>
-               <Location
-                  uuid = "F5E7D7A6-11C2-4BD2-9E39-F2BDC3FBF8FA - af937fbad7c3c56c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; SwiftUI._ConditionalContent&lt;ScorePad.RubberView, SwiftUI.Text&gt; in closure #2 () -&gt; SwiftUI.ZStack&lt;SwiftUI._ConditionalContent&lt;ScorePad.RubberView, SwiftUI.Text&gt;&gt; in ScorePad.RubberList.body.getter : some"
-                  moduleName = "ScorePad"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathan/Desktop/ScorePad/ScorePad/RubberList.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "66"
-                  endingLineNumber = "66"
-                  offsetFromSymbolStart = "456">
-               </Location>
-               <Location
-                  uuid = "F5E7D7A6-11C2-4BD2-9E39-F2BDC3FBF8FA - 7b30aa413a14f27b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 () -&gt; SwiftUI.ZStack&lt;SwiftUI._ConditionalContent&lt;&lt;&lt;opaque return type of SwiftUI.View.environmentObject&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Combine.ObservableObject&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, SwiftUI.Text&gt;&gt; in ScorePad.RubberList.body.getter : some"
-                  moduleName = "ScorePad"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathan/Desktop/ScorePad/ScorePad/RubberList.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "65"
-                  endingLineNumber = "65"
-                  offsetFromSymbolStart = "240">
-               </Location>
-               <Location
-                  uuid = "F5E7D7A6-11C2-4BD2-9E39-F2BDC3FBF8FA - a8a2883fa0f4148e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; SwiftUI._ConditionalContent&lt;&lt;&lt;opaque return type of SwiftUI.View.environmentObject&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Combine.ObservableObject&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, SwiftUI.Text&gt; in closure #2 () -&gt; SwiftUI.ZStack&lt;SwiftUI._ConditionalContent&lt;&lt;&lt;opaque return type of SwiftUI.View.environmentObject&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Combine.ObservableObject&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, SwiftUI.Text&gt;&gt; in ScorePad.RubberList.body.getter : some"
-                  moduleName = "ScorePad"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathan/Desktop/ScorePad/ScorePad/RubberList.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "66"
-                  endingLineNumber = "66"
-                  offsetFromSymbolStart = "508">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "6177435F-42F0-49B8-8E5D-2093E005150C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ScorePad/RubberList.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "14"
-            endingLineNumber = "14"
-            landmarkName = "rubbers"
-            landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "6177435F-42F0-49B8-8E5D-2093E005150C - 4c0fcb38c61c4f0a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ScorePad.RubberList.currentRubber.getter : Swift.Optional&lt;ScorePad.Rubber&gt;"
-                  moduleName = "ScorePad"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathan/Desktop/ScorePad/ScorePad/RubberList.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "8"
-                  endingLineNumber = "8"
-                  offsetFromSymbolStart = "320">
-               </Location>
-               <Location
-                  uuid = "6177435F-42F0-49B8-8E5D-2093E005150C - 4c0fcb38c61c4f0a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ScorePad.RubberList.currentRubber.getter : Swift.Optional&lt;ScorePad.Rubber&gt;"
-                  moduleName = "ScorePad"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathan/Desktop/ScorePad/ScorePad/RubberList.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "8"
-                  endingLineNumber = "8"
-                  offsetFromSymbolStart = "580">
-               </Location>
-               <Location
-                  uuid = "6177435F-42F0-49B8-8E5D-2093E005150C - 4c0fcb38c61c4f0a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ScorePad.RubberList.currentRubber.getter : Swift.Optional&lt;ScorePad.Rubber&gt;"
-                  moduleName = "ScorePad"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/nathan/Desktop/ScorePad/ScorePad/RubberList.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "8"
-                  endingLineNumber = "8"
-                  offsetFromSymbolStart = "656">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "2DCD60AC-724E-473A-B2B5-C2863EF9FAF5"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -155,8 +14,8 @@
             filePath = "ScorePad/RubberView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "89"
-            endingLineNumber = "89"
+            startingLineNumber = "108"
+            endingLineNumber = "108"
             landmarkName = "body"
             landmarkType = "24">
             <Locations>

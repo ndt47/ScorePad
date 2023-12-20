@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct NewRubber: View {
-    var store: Store
+    @Environment(\.modelContext) private var modelContext
+
     @State var dealer: Position = .north
     @State var north: String = ""
     @State var east: String = ""
@@ -84,6 +86,7 @@ struct NewRubber: View {
             .padding()
             .navigationTitle("New Rubber")
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         save()
@@ -92,6 +95,18 @@ struct NewRubber: View {
                     })
                     .labelStyle(.titleOnly)
                 }
+                #else
+                ToolbarItem {
+                    Button(action: {
+                        save()
+                    }, label: {
+                        Label(Action.save.label, systemImage: Action.save.systemImage)
+                    })
+                    .labelStyle(.titleOnly)
+                }
+
+                #endif
+                #if os(iOS)
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         cancel()
@@ -100,6 +115,17 @@ struct NewRubber: View {
                     })
                     .labelStyle(.titleOnly)
                 }
+
+                #else
+                ToolbarItem {
+                    Button(action: {
+                        cancel()
+                    }, label: {
+                        Label(Action.cancel.label, systemImage: Action.cancel.systemImage)
+                    })
+                    .labelStyle(.titleOnly)
+                }
+                #endif
             }
         }
     }
@@ -129,15 +155,7 @@ struct NewRubber: View {
     
     func save() {
         let rubber = Rubber(players: players, dealer: dealer)
-        store.addRubber(rubber)
-        Task {
-            do {
-                try await store.save()
-            }
-            catch {
-                print(String(describing: error))
-            }
-        }
+        modelContext.insert(rubber)
         dismiss()
     }
     
@@ -148,6 +166,6 @@ struct NewRubber: View {
 
 struct NewRubber_Previews: PreviewProvider {
     static var previews: some View {
-        NewRubber(store: .mock)
+        NewRubber()
     }
 }
