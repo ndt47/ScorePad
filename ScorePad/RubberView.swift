@@ -36,15 +36,15 @@ struct RubberView: View {
             AuctionView(auction: Auction(dealer: rubber.currentDealer))
                 .navigationTitle("New Auction")
                 .navigationBarTitleDisplayMode(.inline)
-        
+                .interactiveDismissDisabled()
         }
         .sheet(item: $detailContract) { contract in
             AuctionView(auction: contract.auction,
                         honors: contract.honors,
                         tricksTaken: contract.tricksTaken,
                         editingContract: contract)
-            .navigationTitle("Edit Contract")
-            .navigationBarTitleDisplayMode(.inline)
+                .navigationTitle("Edit Contract")
+                .navigationBarTitleDisplayMode(.inline)
         }
         .environmentObject(rubber)
         .navigationBarTitleDisplayMode(.inline)

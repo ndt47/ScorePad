@@ -42,7 +42,7 @@ struct ContractView: View {
     
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            BidView(.bid(contract.level, contract.suit))
+            BidView(.bid(Bid(contract.level, contract.suit)))
             Result(contract.result)
         }
     }

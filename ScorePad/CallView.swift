@@ -27,10 +27,10 @@ struct BidView: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 3) {
             switch call {
-            case let .bid(level, suit):
+            case let .bid(b):
                 HStack(alignment: .center, spacing: 3) {
-                    Text("\(level)")
-                    suit
+                    Text("\(b.level)")
+                    b.suit
                 }
             case .pending:
                 Text("PENDING")

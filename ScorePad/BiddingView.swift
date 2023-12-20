@@ -9,9 +9,8 @@ import SwiftUI
 
 struct BiddingView: View {
     @EnvironmentObject var auction: Auction
-    @State var selectedLevel: Int = 1
-    @State var selectedSuit: Suit = .clubs
-    
+    @State var selectedBidID: Int = Bid(1, .clubs).id
+
     enum Action: CaseIterable {
         case pass
         case bid
@@ -40,6 +39,10 @@ struct BiddingView: View {
         }
     }
     
+    var minimumBid: Bid {
+        Bid(minimumLevel, minimumSuit)
+    }
+    
     var minimumLevel: Int {
         guard let level = auction.level else { return 1 }
         
@@ -52,20 +55,22 @@ struct BiddingView: View {
     var minimumSuit: Suit {
         guard let suit = auction.suit, suit < .notrump else { return .clubs }
         // New level, so
-        if selectedLevel > minimumLevel {
-            return .clubs
-        } else if let next = suit.next {
+        if let next = suit.next {
             return next
+        } else { 
+            return .clubs
         }
         return suit
     }
     
     var body: some View {
         HStack(alignment: .center) {
-            Picker(selection: $selectedLevel) {
-                let levels = Array(1...7)
-                ForEach(levels, id: \.self) { level in
-                    Text(String(level))
+            Picker(selection: $selectedBidID) {
+                ForEach(Bid.allBids.filter( { $0 >= minimumBid }), id: \.id) { b in
+                    HStack {
+                        Text(String(b.level))
+                        b.suit
+                    }
                 }
             }
             label: {
@@ -74,58 +79,59 @@ struct BiddingView: View {
             .pickerStyle(.inline)
             .disabled(auction.closed)
             
-            Picker(selection: $selectedSuit) {
-                ForEach(Suit.allCases, id: \.self) { suit in
-                    suit
-                }
-            }
-            label: {
-                Text("Suit")
-            }
-            .pickerStyle(.inline)
-            .disabled(auction.closed)
-            
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 8) {
                 Button {
                     auction.pass()
                 } label: {
                     Label(Action.pass.label, systemImage: Action.pass.systemImage)
+                        .frame(maxWidth:.infinity)
                 }
                 .labelStyle(.titleOnly)
+                .buttonStyle(.bordered)
                 
                 Button {
-                    auction.bid(level: selectedLevel, suit: selectedSuit)
+                    auction.bid(Bid(id: selectedBidID
+                                   ))
+                    selectedBidID = minimumBid.id
                 } label: {
                     Label(Action.bid.label, systemImage: Action.bid.systemImage)
+                        .frame(maxWidth:.infinity)
                 }
-                .disabled(selectedLevel < minimumLevel || selectedSuit < minimumSuit)
+                .disabled(selectedBidID < minimumBid.value)
                 .labelStyle(.titleOnly)
-                
+                .buttonStyle(.borderedProminent)
+
                 Button {
                     auction.double()
                 } label: {
                     Label(Action.double.label, systemImage: Action.double.systemImage)
+                        .frame(maxWidth:.infinity)
                 }
                 .labelStyle(.titleOnly)
                 .disabled(!auction.canDouble(by: auction.bidder))
-                
+                .buttonStyle(.bordered)
+
                 Button {
                     auction.redouble()
                 } label: {
                     Label(Action.redouble.label, systemImage: Action.redouble.systemImage)
+                        .frame(maxWidth:.infinity)
                 }
                 .labelStyle(.titleOnly)
                 .disabled(!auction.canRedouble(by: auction.bidder))
-                
+                .buttonStyle(.bordered)
+
                 Button {
                     auction.close()
                 } label: {
                     Label(Action.close.label, systemImage: Action.close.systemImage)
+                        .frame(maxWidth:.infinity)
                 }
                 .labelStyle(.titleOnly)
+                .buttonStyle(.bordered)
             }
             .disabled(auction.closed)
-        }
+        }.padding()
     }
 }
 

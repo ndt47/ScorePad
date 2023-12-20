@@ -129,10 +129,10 @@ extension Auction {
         }
     }
     
-    func bid(level: Int, suit: Suit) {
+    func bid(_ bid: Bid) {
         guard !closed else { return }
         do {
-            try addCall(.init(position: bidder, call: .bid(level, suit)))
+            try addCall(.init(position: bidder, call: .bid(bid)))
         } catch {
             print(String(describing: error))
         }
@@ -203,12 +203,12 @@ fileprivate extension Auction {
         case .pending:
             throw CallError.pendingCall
         case .pass: break // no validation needed, can always pass
-        case let .bid(level, suit):
+        case let .bid(bid):
             if let lastLevel = lastBid?.level, let lastSuit = lastBid?.suit {
-                guard 0 < level, level <= 7 else {
+                guard 0 < bid.level, bid.level <= 7 else {
                     throw CallError.invalidBid
                 }
-                guard level > lastLevel || suit > lastSuit else {
+                guard bid.level > lastLevel || bid.suit > lastSuit else {
                     throw CallError.invalidBid
                 }
             }
@@ -252,13 +252,13 @@ extension Auction {
     static var mock = Auction(calls: [
         Call(position: .north, call: .pass),
         Call(position: .east, call: .pass),
-        Call(position: .south, call: .bid(1, .diamonds)),
+        Call(position: .south, call: .bid(Bid(1, .diamonds))),
         Call(position: .west, call: .double),
-        Call(position: .north, call: .bid(1, .spades)),
+        Call(position: .north, call: .bid(Bid(1, .spades))),
         Call(position: .east, call: .pass),
-        Call(position: .south, call: .bid(2, .spades)),
+        Call(position: .south, call: .bid(Bid(2, .spades))),
         Call(position: .west, call: .pass),
-        Call(position: .north, call: .bid(4, .spades)),
+        Call(position: .north, call: .bid(Bid(4, .spades))),
         Call(position: .east, call: .pass),
 //        Call(position: .south, call: .pass),
 //        Call(position: .west, call: .pass),

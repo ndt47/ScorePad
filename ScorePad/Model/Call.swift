@@ -56,11 +56,55 @@ enum Suit: Int, CaseIterable, Comparable, Strideable, Codable {
     }
 }
 
+struct Bid: Identifiable, Hashable, Codable, Comparable {
+    var id: Int { value }
+    
+    static func < (lhs: Bid, rhs: Bid) -> Bool {
+        lhs.value < rhs.value
+    }
+    
+    var level: Int
+    var suit: Suit
+    
+    internal var value: Int { (level * Suit.allCases.count) + suit.rawValue }
+    
+    static var allBids: [Self] {
+        var bids: [Self] = .init()
+        for level in 1...7 {
+            for suit in Suit.allCases {
+                bids.append(Bid(level, suit))
+            }
+        }
+        return bids
+    }
+    
+    init(_ level: Int, _ suit: Suit) {
+        self.level = level
+        self.suit = suit
+    }
+    
+    init(level: Int, suit: Suit) {
+        self.level = level
+        self.suit = suit
+    }
+    
+    init(id: ID) {
+        var count = Suit.allCases.count
+        self.level = id / count
+        self.suit = Suit(rawValue: id % count)!
+    }
+
+    func hash(into hasher: inout Hasher) {
+        level.hash(into: &hasher)
+        suit.hash(into: &hasher)
+    }
+}
+
 struct Call: Identifiable, Codable {
     enum Call: Codable {
         case pending
         case pass
-        case bid(Int, Suit)
+        case bid(Bid)
         case double
         case redouble
     }
@@ -72,16 +116,16 @@ struct Call: Identifiable, Codable {
 
     var suit: Suit? {
         switch self.call {
-        case let .bid(_, suit):
-            return suit
+        case let .bid(b):
+            return b.suit
         default:
             return nil
         }
     }
     var level: Int? {
         switch self.call {
-        case let .bid(level, _):
-            return level
+        case let .bid(b):
+            return b.level
         default:
             return nil
         }

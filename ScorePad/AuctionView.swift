@@ -168,16 +168,8 @@ struct TricksView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .firstTextBaseline, spacing: 0) {
-                Text("Tricks")
-                    .font(.title3)
-                    .foregroundColor(.gray)
-                Spacer()
                 AuctionSummaryView(result: result)
-            }
-            Rule(.horizontal)
-                .frame(height: 2.0)
-                .foregroundColor(.gray)
-            HStack(alignment: .firstTextBaseline) {
+                Spacer()
                 Picker(selection: $honors) {
                     ForEach(Honors.allCases, id: \.self) { honor in
                         Text(honor.label)
@@ -187,18 +179,32 @@ struct TricksView: View {
                     Text("Honors")
                 }
                 .pickerStyle(.menu)
+            }
+            .padding(.horizontal)
+            
+            Rule(.horizontal)
+                .frame(height: 2.0)
+                .foregroundColor(.gray)
+            
+            HStack(alignment: .firstTextBaseline) {
+                Text("Tricks")
+                    .font(.title3)
+                    .foregroundColor(.gray)
                 Spacer()
                 Result(result, .long)
             }
+            .padding(.horizontal)
+
             Picker(selection: $tricksTaken) {
                 ForEach(Array(0...13), id: \.self) { value in
-                    Text(String(value))
+                    Text("\(value) trick")
                 }
             }
             label: {
                 EmptyView()
             }
-            .pickerStyle(.segmented)
+            .pickerStyle(.inline)
+            .padding(.horizontal)
         }
     }
 }
@@ -219,7 +225,7 @@ struct AuctionSummaryView: View {
         }
         return HStack(alignment: .firstTextBaseline) {
             Text("\(player) is playing")
-            BidView(.bid(level, suit))
+            BidView(.bid(Bid(level, suit)))
             if auction.redoubled {
                 Text("REDOUBLED")
                     .foregroundColor(.gray)
