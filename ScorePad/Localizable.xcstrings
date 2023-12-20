@@ -1,0 +1,138 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "%@" : {
+
+    },
+    "%@  %llu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@  %2$llu"
+          }
+        }
+      }
+    },
+    "%@ & %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ & %2$@"
+          }
+        }
+      }
+    },
+    "%@ is playing" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld trick" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "needs_review",
+                  "value" : "%lld trick"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld tricks"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Add" : {
+
+    },
+    "Calls" : {
+
+    },
+    "Create rubber" : {
+
+    },
+    "Dealer" : {
+
+    },
+    "Dealer:" : {
+
+    },
+    "DOUBLE" : {
+
+    },
+    "DOUBLED" : {
+
+    },
+    "Edit Contract" : {
+
+    },
+    "Honors" : {
+
+    },
+    "HONORS" : {
+
+    },
+    "Last played" : {
+
+    },
+    "Level" : {
+
+    },
+    "New Auction" : {
+
+    },
+    "New Rubber" : {
+
+    },
+    "NT" : {
+
+    },
+    "PASS" : {
+
+    },
+    "PENDING" : {
+
+    },
+    "Random Dealer" : {
+
+    },
+    "REDOUBLE" : {
+
+    },
+    "REDOUBLED" : {
+
+    },
+    "RUBBER" : {
+
+    },
+    "Rubbers" : {
+
+    },
+    "Select a rubber" : {
+
+    },
+    "Tricks" : {
+
+    },
+    "Undo Last" : {
+
+    },
+    "VULNERABLE" : {
+
+    }
+  },
+  "version" : "1.0"
+}

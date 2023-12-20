@@ -2,10 +2,15 @@ import SwiftUI
 
 struct RubberHeader: View {
     @EnvironmentObject var rubber: Rubber
+    @State var showingPartial: Bool = false
+    
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            TeamView(team: .we)
-            TeamView(team: .they)
+            TeamView(team: .we, showingPartial: showingPartial)
+            TeamView(team: .they, showingPartial: showingPartial)
+        }
+        .onTapGesture {
+            showingPartial = !showingPartial
         }
     }
 }
@@ -13,6 +18,7 @@ struct RubberHeader: View {
 struct TeamView: View {
     @EnvironmentObject var rubber: Rubber
     var team: Team
+    var showingPartial: Bool = false
 
     var title: String {
         if case .we = team {
@@ -21,8 +27,11 @@ struct TeamView: View {
         return "They"
     }
     var points: Int {
-        let points = rubber.points(for: team)
-        return points.above + points.below
+        if showingPartial {
+            return rubber.partialScore(for: team)
+        } else {
+            return rubber.points(for: team).total
+        }
     }
     
     var body: some View {
@@ -41,7 +50,7 @@ struct TeamView: View {
                         Text("\(points.formatted(.number.grouping(.never)))")
                             .font(.title3)
                             .fontDesign(.monospaced)
-                            .foregroundColor(.gray)
+                            .foregroundColor(showingPartial ? .red : .gray)
                    }.frame(maxWidth: .infinity)
 
                 }

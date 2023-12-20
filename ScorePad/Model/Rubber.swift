@@ -290,6 +290,16 @@ extension Rubber {
     func points(for team: Team) -> Points {
         scores.points(for: team)
     }
+    
+    func partialScore(for team: Team) -> Int {
+        guard let game = games.last else { return 0 }
+        guard case .partial = game else { return 0 }
+    
+        let scores = scoresForGame(game)
+        let points = scores.points(for: team)
+        
+        return points.below
+    }
 }
 
 extension Rubber: Hashable {
