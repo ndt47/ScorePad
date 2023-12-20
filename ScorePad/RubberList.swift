@@ -6,6 +6,10 @@ struct RubberList: View {
     @State private var creatingRubber = false
     @Environment(\.scenePhase) private var scenePhase
 
+    var rubbers: [Rubber] {
+        store.rubbers.sorted(by: { $0.dateCreated > $1.dateCreated })
+    }
+    
     var currentRubber: Rubber? {
         guard let id = selectedRubberId, let rubber = store.rubber(with: id) else { return nil }
         return rubber
@@ -14,7 +18,7 @@ struct RubberList: View {
     var body: some View {
         NavigationSplitView {
             List(selection: $selectedRubberId) {
-                ForEach(store.rubbers) { item in
+                ForEach(rubbers) { item in
                     let selected = selectedRubberId == item.id
                     NavigationLink(value: item) {
                         RubberListCell(rubber: item)
@@ -40,7 +44,7 @@ struct RubberList: View {
                 } catch {
                     print(String(describing: error))
                 }
-                if store.rubbers.isEmpty {
+                if rubbers.isEmpty {
                     creatingRubber = true
                 }
 
@@ -69,7 +73,7 @@ struct RubberList: View {
                 if let rubber = currentRubber {
                     RubberView(rubber: rubber)
                         .environmentObject(rubber)
-                } else if store.rubbers.isEmpty {
+                } else if rubbers.isEmpty {
                     Button {
                         creatingRubber = true
                     } label: {

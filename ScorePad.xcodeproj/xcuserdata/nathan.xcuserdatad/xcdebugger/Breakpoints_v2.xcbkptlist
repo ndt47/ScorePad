@@ -14,9 +14,9 @@
             filePath = "ScorePad/RubberList.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "68"
-            endingLineNumber = "68"
-            landmarkName = "body"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
+            landmarkName = "rubbers"
             landmarkType = "24">
             <Locations>
                <Location
@@ -92,9 +92,9 @@
             filePath = "ScorePad/RubberList.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "10"
-            endingLineNumber = "10"
-            landmarkName = "currentRubber"
+            startingLineNumber = "14"
+            endingLineNumber = "14"
+            landmarkName = "rubbers"
             landmarkType = "24">
             <Locations>
                <Location
