@@ -379,6 +379,7 @@ struct PlayerView: View {
         let player = rubber.player(at: position) ?? position.label
         HStack(alignment: .firstTextBaseline) {
             Text(player)
+                .lineLimit(1)
                 .allowsTightening(true)
                 .fontWeight(.light)
                 .truncationMode(.tail)
