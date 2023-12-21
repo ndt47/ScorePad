@@ -10,12 +10,12 @@ import SwiftData
 
 @Model
 final class Rubber: ObservableObject, Identifiable, Codable {
-    @Attribute(.unique) let id: UUID
-    let dateCreated: Date
-    var lastModified: Date
-    var players: [Player]
-    let startingDealer: Position
-    var history: [AuctionResult]
+    let id: UUID = UUID()
+    let dateCreated: Date = Date.now
+    var lastModified: Date = Date.now
+    var players: [Player] = []
+    var startingDealer: Position = Position.north
+    var history: [AuctionResult] = []
     
     init(players: [Player] = [], dealer: Position = .north, history: [AuctionResult] = []) {
         self.id = UUID()

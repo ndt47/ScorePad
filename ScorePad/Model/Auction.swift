@@ -10,9 +10,9 @@ import SwiftData
 
 @Model
 final class Auction: ObservableObject, Codable {
-    let dealer: Position
-    var bidder: Position
-    var calls: [Call]
+    var dealer: Position = Position.north
+    var bidder: Position = Position.north
+    var calls: [Call] = []
     
     init(dealer: Position = .north, calls: [Call] = []) {
         self.calls = calls

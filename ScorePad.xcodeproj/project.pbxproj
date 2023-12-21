@@ -84,6 +84,7 @@
 		D8AD71EE2B338678000DBA88 /* AuctionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuctionResult.swift; sourceTree = "<group>"; };
 		D8AD71F02B33875F000DBA88 /* Suit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suit.swift; sourceTree = "<group>"; };
 		D8AD71F22B33878D000DBA88 /* Bid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bid.swift; sourceTree = "<group>"; };
+		D8AD722E2B33D0AE000DBA88 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D8BD5A462935257700B86AA6 /* ScorePad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScorePad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BD5A492935257700B86AA6 /* ScorePadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadApp.swift; sourceTree = "<group>"; };
 		D8BD5A4B2935257700B86AA6 /* RubberList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberList.swift; sourceTree = "<group>"; };
@@ -172,6 +173,7 @@
 		D8BD5A482935257700B86AA6 /* ScorePad */ = {
 			isa = PBXGroup;
 			children = (
+				D8AD722E2B33D0AE000DBA88 /* Info.plist */,
 				D83E4883293E9D9400E37BCE /* DefaultsKey.swift */,
 				D8A564D829394E8100671E8C /* EnvironmentValues.swift */,
 				D83E4880293D99B800E37BCE /* Utilities.swift */,
@@ -537,12 +539,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ScorePad/ScorePad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"ScorePad/Preview Content\"";
 				DEVELOPMENT_TEAM = DLUJT5TTQE;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScorePad/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -575,12 +578,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ScorePad/ScorePad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"ScorePad/Preview Content\"";
 				DEVELOPMENT_TEAM = DLUJT5TTQE;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScorePad/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
