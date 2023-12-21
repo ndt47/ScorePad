@@ -60,7 +60,6 @@ struct BiddingView: View {
         } else { 
             return .clubs
         }
-        return suit
     }
     
     var body: some View {
@@ -78,6 +77,9 @@ struct BiddingView: View {
             }
             .pickerStyle(.inline)
             .disabled(auction.closed)
+            .onAppear {
+                selectedBidID = minimumBid.id
+            }
             
             VStack(alignment: .leading, spacing: 8) {
                 Button {

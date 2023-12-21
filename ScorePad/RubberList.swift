@@ -43,22 +43,7 @@ struct RubberList: View {
                 }
             }
         } detail: {
-            ZStack {
-                if rubbers.isEmpty {
-                    Button {
-                        creatingRubber = true
-                    } label: {
-                        Label("Create rubber", image: "pencil")
-                            .labelStyle(.titleOnly)
-                            .font(.largeTitle)
-                    }
-                } else if let selection, let rubber = rubbers.first(where: { $0.id == selection }) {
-                    RubberView(rubber: rubber)
-                } else {
-                    Text("Select a rubber")
-                        .font(.largeTitle)
-                }
-            }
+            RubberView(rubber: rubbers.first(where: { $0.id == selection }))
         }
         .navigationSplitViewStyle(.balanced)
         .sheet(isPresented: $creatingRubber) {

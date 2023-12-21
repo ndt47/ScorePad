@@ -2,72 +2,77 @@ import SwiftUI
 
 
 struct RubberView: View {
-    @StateObject var rubber: Rubber
+    @State var rubber: Rubber?
     @State private var creatingAuction = false
     @State private var detailContract: Contract?
     
     var body: some View {
-        ZStack {
-            Rule(.vertical)
-            VStack(spacing: 4) {
-                RubberHeader()
-                Spacer()
-                OverTheLine()
-                Rule(.horizontal)
-                    .frame(height: 2)
-                UnderTheLine()
-                Spacer()
-            }
-            .environment(\.presentContract, { contract in
-                detailContract = contract
-            })
-        }
-        .toolbar {
-            #if os(iOS)
-            ToolbarItem(placement: .navigationBarTrailing)
-            {
-                Button(action: {
-                    creatingAuction = true
-                }, label: {
-                    Label("Add", systemImage: "plus")
+        if let rubber {
+            ZStack {
+                Rule(.vertical)
+                VStack(spacing: 4) {
+                    RubberHeader()
+                    Spacer()
+                    OverTheLine()
+                    Rule(.horizontal)
+                        .frame(height: 2)
+                    UnderTheLine()
+                    Spacer()
+                }
+                .environment(\.presentContract, { contract in
+                    detailContract = contract
                 })
-                .disabled(rubber.isFinished)
             }
-            #else
-            ToolbarItem
-            {
-                Button(action: {
-                    creatingAuction = true
-                }, label: {
-                    Label("Add", systemImage: "plus")
-                })
-                .disabled(rubber.isFinished)
+            .toolbar {
+#if os(iOS)
+                ToolbarItem(placement: .navigationBarTrailing)
+                {
+                    createButton
+                        .disabled(rubber.isFinished)
+                }
+#else
+                ToolbarItem
+                {
+                    createButton
+                        .disabled(rubber.isFinished)
+                }
+#endif
             }
-            #endif
-        }
-        .sheet(isPresented: $creatingAuction) {
-            AuctionView(auction: Auction(dealer: rubber.currentDealer))
-                .navigationTitle("New Auction")
-                #if os(iOS)
-                .navigationBarTitleDisplayMode(.inline)
-                #endif
-                .interactiveDismissDisabled()
-        }
-        .sheet(item: $detailContract) { contract in
-            AuctionView(auction: contract.auction,
-                        honors: contract.honors,
-                        tricksTaken: contract.tricksTaken,
-                        editingContract: contract)
+            .sheet(isPresented: $creatingAuction) {
+                AuctionView(auction: Auction(dealer: rubber.currentDealer))
+                    .navigationTitle("New Auction")
+#if os(iOS)
+                    .navigationBarTitleDisplayMode(.inline)
+#endif
+                    .interactiveDismissDisabled()
+            }
+            .sheet(item: $detailContract) { contract in
+                AuctionView(auction: contract.auction,
+                            honors: contract.honors,
+                            tricksTaken: contract.tricksTaken,
+                            editingContract: contract)
                 .navigationTitle("Edit Contract")
-            #if os(iOS)
+#if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
-            #endif
+#endif
+            }
+#if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+#endif
+            .navigationTitle("")
+            .environmentObject(rubber)
+        } else {
+            Text("Select a rubber")
+                .font(.largeTitle)
         }
-        .environmentObject(rubber)
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
-        .navigationTitle("")
+    }
+    
+    var createButton: some View {
+        Button(action: {
+            creatingAuction = true
+        }, label: {
+            Label("Add", systemImage: "plus")
+        })
     }
 }
 

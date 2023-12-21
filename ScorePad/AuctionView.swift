@@ -15,7 +15,7 @@ extension Honors {
 struct AuctionView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject var rubber: Rubber
-    @StateObject var auction: Auction
+    @State var auction: Auction
     @Environment(\.dismiss) var dismiss
 
     @State var honors: Honors = .none

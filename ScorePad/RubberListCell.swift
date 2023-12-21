@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RubberListCell: View {
-    @StateObject var rubber: Rubber
+    @State var rubber: Rubber
     @Environment(\.selected) var selected
     
     var body: some View {
