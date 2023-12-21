@@ -6,21 +6,47 @@ struct RubberList: View {
     @Query(FetchDescriptor(sortBy: [SortDescriptor(\Rubber.dateCreated, order: .reverse)]))
     private var rubbers: [Rubber]
     
+    private var openRubbers: [Rubber] {
+        rubbers.filter({ !$0.isFinished })
+    }
+    
+    private var completedRubbers: [Rubber] {
+        rubbers.filter(\.isFinished)
+    }
+    
     @State private var creatingRubber = false
     @State private var selection: Rubber.ID?
     
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
-                ForEach(rubbers, id: \.id) { item in
-                    NavigationLink {
-                        RubberView(rubber: item)
-                    } label: {
-                        RubberListCell(rubber: item)
+                if !openRubbers.isEmpty {
+                    Section("Open Rubbers") {
+                        ForEach(openRubbers, id: \.id) { rubber in
+                            NavigationLink {
+                                RubberView(rubber: rubber)
+                            } label: {
+                                RubberListCell(rubber: rubber)
+                            }
+                        }
+                        .onDelete {
+                            deleteRubbers(offsets: $0)
+                        }
                     }
                 }
-                .onDelete {
-                    deleteRubbers(offsets: $0)
+                if !completedRubbers.isEmpty {
+                    Section("Completed Rubbers") {
+                        ForEach(completedRubbers, id: \.id) { rubber in
+                            NavigationLink {
+                                RubberView(rubber: rubber)
+                            } label: {
+                                RubberListCell(rubber: rubber)
+                            }
+                        }
+                        .onDelete {
+                            deleteRubbers(offsets: $0)
+                        }
+                    }
                 }
             }
             .listStyle(.plain)
