@@ -381,6 +381,7 @@ struct PlayerView: View {
             Text(player)
                 .allowsTightening(true)
                 .fontWeight(.light)
+                .truncationMode(.tail)
 
             if !rubber.isFinished &&
                 rubber.currentDealer == position {
