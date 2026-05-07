@@ -30,8 +30,8 @@ struct RubberList: View {
                             RubberListCell(rubber: rubber)
                                 .tag(rubber.id)
                         }
-                        .onDelete {
-                            deleteRubbers(offsets: $0)
+                        .onDelete { offsets in
+                            deleteRubbers(from: openRubbers, offsets: offsets)
                         }
                     }
                 }
@@ -41,8 +41,8 @@ struct RubberList: View {
                             RubberListCell(rubber: rubber)
                                 .tag(rubber.id)
                         }
-                        .onDelete {
-                            deleteRubbers(offsets: $0)
+                        .onDelete { offsets in
+                            deleteRubbers(from: completedRubbers, offsets: offsets)
                         }
                     }
                 }
@@ -75,10 +75,10 @@ struct RubberList: View {
         }
     }
     
-    private func deleteRubbers(offsets: IndexSet) {
+    private func deleteRubbers(from source: [Rubber], offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                modelContext.delete(rubbers[index])
+                modelContext.delete(source[index])
             }
         }
     }
