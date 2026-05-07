@@ -204,13 +204,16 @@ struct TricksView: View {
             HStack(alignment: .firstTextBaseline, spacing: 0) {
                 AuctionSummaryView(result: result)
                 Spacer()
+                Text("Honors")
+                    .font(.title3)
+                    .foregroundColor(.gray)
                 Picker(selection: $honors) {
                     ForEach(Honors.allCases, id: \.self) { honor in
                         Text(honor.label)
                     }
                 }
                 label: {
-                    Text("Honors")
+                    EmptyView()
                 }
                 .pickerStyle(.menu)
             }
