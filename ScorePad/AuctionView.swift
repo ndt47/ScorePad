@@ -83,7 +83,8 @@ struct AuctionView: View {
                             CallView(call: call)
                         }
                     }
-                        .listStyle(.plain)
+                    .listStyle(.plain)
+                    .frame(maxHeight: .infinity)
                     if auction.closed && !auction.isPassHand {
                         TricksView(tricksTaken: $tricksTaken,
                             honors: $honors
@@ -191,7 +192,13 @@ struct TricksView: View {
         guard let level = auction.level else { return 0 }
         return tricksTaken - 6 - level
     }
-    
+
+    var previewContract: Contract? {
+        guard let declarer = auction.declarer else { return nil }
+        let vulnerable = rubber.isVulnerable(declarer.team)
+        return Contract(auction: auction, honors: honors, tricksTaken: tricksTaken, vulnerable: vulnerable)
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .firstTextBaseline, spacing: 0) {
@@ -208,11 +215,11 @@ struct TricksView: View {
                 .pickerStyle(.menu)
             }
             .padding(.horizontal)
-            
+
             Rule(.horizontal)
                 .frame(height: 2.0)
                 .foregroundColor(.gray)
-            
+
             HStack(alignment: .firstTextBaseline) {
                 Text("Tricks")
                     .font(.title3)
@@ -232,7 +239,38 @@ struct TricksView: View {
             }
             .pickerStyle(.inline)
             .padding(.horizontal)
+
+            if let contract = previewContract {
+                ScorePreviewView(contract: contract)
+            }
         }
+    }
+}
+
+struct ScorePreviewView: View {
+    var contract: Contract
+
+    private var scores: [Score] { contract.scores }
+
+    var body: some View {
+        VStack(spacing: 4) {
+            ZStack {
+                Rule(.vertical)
+                VStack(spacing: 4) {
+                    HStack(alignment: .top) {
+                        ScoreList(scores: scores.overTheLine().forTeam(.we))
+                        ScoreList(scores: scores.overTheLine().forTeam(.they))
+                    }
+                    Rule(.horizontal)
+                        .frame(height: 2)
+                    HStack(alignment: .top) {
+                        ScoreList(scores: scores.underTheLine().forTeam(.we))
+                        ScoreList(scores: scores.underTheLine().forTeam(.they))
+                    }
+                }
+            }
+        }
+        .frame(height: 100)
     }
 }
 
