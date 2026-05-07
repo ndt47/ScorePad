@@ -27,12 +27,8 @@ struct RubberList: View {
                 if !openRubbers.isEmpty {
                     Section("Open Rubbers") {
                         ForEach(openRubbers, id: \.id) { rubber in
-                            NavigationLink {
-                                RubberView(rubber: rubber)
-                            } label: {
-                                RubberListCell(rubber: rubber)
-                            }
-                            .tag(rubber.id)
+                            RubberListCell(rubber: rubber)
+                                .tag(rubber.id)
                         }
                         .onDelete {
                             deleteRubbers(offsets: $0)
@@ -42,12 +38,8 @@ struct RubberList: View {
                 if !completedRubbers.isEmpty {
                     Section("Completed Rubbers") {
                         ForEach(completedRubbers, id: \.id) { rubber in
-                            NavigationLink {
-                                RubberView(rubber: rubber)
-                            } label: {
-                                RubberListCell(rubber: rubber)
-                            }
-                            .tag(rubber.id)
+                            RubberListCell(rubber: rubber)
+                                .tag(rubber.id)
                         }
                         .onDelete {
                             deleteRubbers(offsets: $0)
@@ -77,7 +69,7 @@ struct RubberList: View {
         }
         .navigationSplitViewStyle(.balanced)
         .sheet(isPresented: $creatingRubber) {
-            NewRubber()
+            NewRubber(onSave: { id in selection = id })
                 .presentationDetents([.medium])
                 .edgesIgnoringSafeArea(.all)
         }
