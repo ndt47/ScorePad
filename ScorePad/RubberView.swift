@@ -2,7 +2,7 @@ import SwiftUI
 
 
 struct RubberView: View {
-    @State var rubber: Rubber?
+    let rubber: Rubber?
     @State private var creatingAuction = false
     @State private var detailContract: Contract?
     

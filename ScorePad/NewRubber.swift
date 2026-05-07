@@ -17,6 +17,7 @@ struct NewRubber: View {
     @State var south: String = ""
     @State var west: String = ""
     @Environment(\.dismiss) var dismiss
+    var onSave: ((Rubber.ID) -> Void)? = nil
 
     enum Action {
         case save
@@ -156,6 +157,7 @@ struct NewRubber: View {
     func save() {
         let rubber = Rubber(players: players, dealer: dealer)
         modelContext.insert(rubber)
+        onSave?(rubber.id)
         dismiss()
     }
     
