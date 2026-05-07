@@ -140,20 +140,19 @@ struct UnderTheLine: View {
     var body: some View {
         ScrollView {
             ForEach(rubber.games) { game in
-                GameView(game: game)
+                GameView(game: game, scores: rubber.scoresForGame(game).underTheLine())
             }
         }
     }
 }
 
 struct GameView: View {
-    @EnvironmentObject var rubber: Rubber
     var game: Game
+    var scores: [Score]
 
     var body: some View {
         VStack(spacing: 4) {
             HStack(alignment: .top) {
-                let scores = rubber.scoresForGame(game).underTheLine()
                 ScoreList(scores: scores.forTeam(.we))
                 ScoreList(scores: scores.forTeam(.they))
             }
