@@ -68,7 +68,7 @@ extension Score {
 
 extension Suit {
     func points(for result: Int, over: Bool = false) -> Int {
-        guard result > 0, result < 7 else { return 0 }
+        guard result > 0, result <= 7 else { return 0 }
         switch self {
         case .clubs, .diamonds: return result * 20
         case .hearts, .spades: return result * 30
@@ -93,32 +93,43 @@ extension Contract: ScoreProviding {
 
         if result < 0 {
             // Undertricks
-            var undertrickScore = 0
-            var undertrickCount = 0 - result
-            var undertrickValue = vulnerable ? 100 : 50
+            let undertrickCount = 0 - result
+            let undertrickScore: Int
             if redoubled {
-                undertrickScore = vulnerable ? 400 : 200
-                undertrickValue = vulnerable ? 600 : 400
-                undertrickCount -= 1
+                if vulnerable {
+                    undertrickScore = 400 + max(0, undertrickCount - 1) * 600
+                } else {
+                    let subsequent = undertrickCount - 1
+                    undertrickScore = 200 + min(subsequent, 2) * 400 + max(0, subsequent - 2) * 600
+                }
             } else if doubled {
-                undertrickScore = vulnerable ? 200 : 100
-                undertrickValue = vulnerable ? 300 : 200
-                undertrickCount -= 1
-            }
-            if undertrickCount > 0 {
-                undertrickScore += undertrickValue * undertrickCount
+                if vulnerable {
+                    undertrickScore = 200 + max(0, undertrickCount - 1) * 300
+                } else {
+                    let subsequent = undertrickCount - 1
+                    undertrickScore = 100 + min(subsequent, 2) * 200 + max(0, subsequent - 2) * 300
+                }
+            } else {
+                undertrickScore = undertrickCount * (vulnerable ? 100 : 50)
             }
             scores.append(.under(undertrickScore, self))
         } else {
             // Bid (result == 0 is making bid)
             let multiplier = redoubled ? 4 : doubled ? 2 : 1
             scores.append(.bid(suit.points(for: level) * multiplier, self))
-            
+
+            // Insult bonus for making a doubled or redoubled contract
+            if redoubled {
+                scores.append(.over(100, self))
+            } else if doubled {
+                scores.append(.over(50, self))
+            }
+
             // Overtricks (result > 0 is overtricks)
             if result > 0 {
                 scores.append(.over(result * overtrickValue, self))
             }
-            
+
             // Slam bonus
             if level == 6 {
                 scores.append(.slam(vulnerable ? 750 : 500, self))
