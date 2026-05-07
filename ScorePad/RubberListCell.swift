@@ -55,6 +55,7 @@ struct RubberListCell: View {
             }
 
             HStack(alignment: .firstTextBaseline) {
+//                Text("\(String(describing:rubber.id))")
                 Text("Last played").bold()
                 Text(rubber.lastModified.formatted(date: .abbreviated, time: .shortened))
             }

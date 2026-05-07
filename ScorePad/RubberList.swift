@@ -15,7 +15,11 @@ struct RubberList: View {
     }
     
     @State private var creatingRubber = false
-    @State private var selection: Rubber.ID?
+    @State private var selection: Rubber.ID? {
+        didSet {
+            print("NDT \(String(describing: selection))")
+        }
+    }
     
     var body: some View {
         NavigationSplitView {
@@ -28,6 +32,7 @@ struct RubberList: View {
                             } label: {
                                 RubberListCell(rubber: rubber)
                             }
+                            .tag(rubber.id)
                         }
                         .onDelete {
                             deleteRubbers(offsets: $0)
@@ -42,6 +47,7 @@ struct RubberList: View {
                             } label: {
                                 RubberListCell(rubber: rubber)
                             }
+                            .tag(rubber.id)
                         }
                         .onDelete {
                             deleteRubbers(offsets: $0)
@@ -54,8 +60,6 @@ struct RubberList: View {
             .onAppear {
                 if rubbers.isEmpty {
                     creatingRubber = true
-                } else {
-                    selection = rubbers.first?.id
                 }
             }
             .toolbar {
