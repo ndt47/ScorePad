@@ -54,6 +54,7 @@ extension Suit: View {
         case .clubs:
             return Image(systemName: "suit.club.fill")
                 .font(.caption)
+                .foregroundColor(.primary)
                 .eraseToAnyView()
         case .diamonds:
             return Image(systemName: "suit.diamond.fill")
@@ -68,11 +69,11 @@ extension Suit: View {
         case .spades:
             return Image(systemName: "suit.spade.fill")
                 .font(.caption)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .eraseToAnyView()
         case .notrump:
             return Text("NT")
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .fontDesign(.rounded)
                 .font(.caption)
                 .fontWeight(.bold)
