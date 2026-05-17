@@ -48,7 +48,7 @@ struct AuctionView: View {
     }
         
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(alignment: .leading) {
                 RubberHeader()
                 Rule(.horizontal)
@@ -201,23 +201,8 @@ struct TricksView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-                AuctionSummaryView(result: result)
-                Spacer()
-                Text("Honors")
-                    .font(.title3)
-                    .foregroundColor(.gray)
-                Picker(selection: $honors) {
-                    ForEach(Honors.allCases, id: \.self) { honor in
-                        Text(honor.label)
-                    }
-                }
-                label: {
-                    EmptyView()
-                }
-                .pickerStyle(.menu)
-            }
-            .padding(.horizontal)
+            AuctionSummaryView(result: result)
+                .padding(.horizontal)
 
             Rule(.horizontal)
                 .frame(height: 2.0)
@@ -228,19 +213,29 @@ struct TricksView: View {
                     .font(.title3)
                     .foregroundColor(.gray)
                 Spacer()
+                Menu {
+                    Picker(selection: $honors) {
+                        ForEach(Honors.allCases, id: \.self) { honor in
+                            Text(honor.label)
+                        }
+                    } label: { EmptyView() }
+                } label: {
+                    Text(honors == .none ? "Honors" : honors.label)
+                }
+                Spacer()
                 Result(result, .long)
             }
             .padding(.horizontal)
 
             Picker(selection: $tricksTaken) {
                 ForEach(Array(0...13), id: \.self) { value in
-                    Text("\(value) trick")
+                    Text("\(value)")
                 }
             }
             label: {
                 EmptyView()
             }
-            .pickerStyle(.inline)
+            .pickerStyle(.segmented)
             .padding(.horizontal)
 
             if let contract = previewContract {

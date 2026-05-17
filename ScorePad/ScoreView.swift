@@ -9,24 +9,26 @@ import SwiftUI
 
 extension Score: View {
     var body: some View {
-        HStack {
+        HStack(alignment: .firstTextBaseline) {
             if let contract = self.contract {
                 ContractView(contract: contract)
+                    .fixedSize()
             }
             Spacer()
                 .allowsHitTesting(true)
             Text(label)
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            ZStack(alignment: .trailing) {
-                Text("0000")
-                    .fontDesign(.monospaced)
-                    .bold()
-                    .hidden()
-                Text("\(value.formatted(.number.grouping(.never)))")
-                    .fontDesign(.monospaced)
-                    .bold()
-            }
+                .lineLimit(1)
+            Text("0000")
+                .fontDesign(.monospaced)
+                .bold()
+                .hidden()
+                .overlay(alignment: .trailing) {
+                    Text("\(value.formatted(.number.grouping(.never)))")
+                        .fontDesign(.monospaced)
+                        .bold()
+                }
         }
         .padding(.horizontal)
         .frame(maxWidth: .infinity, minHeight: 18)
@@ -38,7 +40,7 @@ struct ContractView: View {
     var contract: Contract
     
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        HStack(alignment: .firstTextBaseline, spacing: 2) {
             BidView(.bid(Bid(contract.level, contract.suit)))
             Result(contract.result)
         }

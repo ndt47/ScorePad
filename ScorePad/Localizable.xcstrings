@@ -34,6 +34,7 @@
 
     },
     "%lld trick" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "variations" : {

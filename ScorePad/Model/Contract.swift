@@ -39,6 +39,12 @@ struct Contract: Codable, Identifiable {
     var result: Int {
         return tricksTaken - 6 - level
     }
+
+    var doublingLabel: String {
+        if redoubled { return " ××" }
+        if doubled { return " ×" }
+        return ""
+    }
     
     init?(auction: Auction,
           honors: Honors = .none,
