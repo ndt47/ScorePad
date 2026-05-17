@@ -21,6 +21,7 @@ struct AuctionView: View {
     @State var honors: Honors = .none
     @State var tricksTaken: Int = 0
     @State var editingContract: Contract?
+    @State var callsExpanded = true
 
     enum Action {
         case save
@@ -59,32 +60,42 @@ struct AuctionView: View {
                     if !auction.closed {
                         BiddingView()
                     }
-                    HStack {
-                        Text("Calls")
-                            .font(.title3)
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Button {
-                            auction.undoLast()
-                        } label: {
-                            Label("Undo Last", systemImage: "arrow.uturn.backward.circle")
-                        }
-                        .disabled(!auction.canRemoveLast)
-                    }            .padding()
-
-                    Rule(.horizontal)
-                        .frame(height: 2)
-                        .foregroundColor(.gray)
-                    List {
-                        if !auction.closed {
-                            CallView(call: .init(position: auction.bidder, call: .pending))
-                        }
-                        ForEach(auction.calls.reversed()) { call in
-                            CallView(call: call)
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { callsExpanded.toggle() }
+                    } label: {
+                        HStack {
+                            Text("Calls")
+                                .font(.title3)
+                                .foregroundColor(.gray)
+                            Image(systemName: callsExpanded ? "chevron.down" : "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            Spacer()
                         }
                     }
-                    .listStyle(.plain)
-                    .frame(maxHeight: .infinity)
+                    .buttonStyle(.plain)
+                    .padding(.horizontal)
+                    .padding(.top)
+
+                    if callsExpanded {
+                        List {
+                            if !auction.closed {
+                                CallView(call: .init(position: auction.bidder, call: .pending))
+                            }
+                            ForEach(auction.calls.reversed()) { call in
+                                CallView(
+                                    call: call,
+                                    onUndo: call.id == auction.calls.last?.id && auction.canRemoveLast
+                                        ? { auction.undoLast() }
+                                        : nil
+                                )
+                            }
+                        }
+                        .listStyle(.plain)
+                        .frame(maxHeight: .infinity)
+                    } else {
+                        Spacer()
+                    }
                     if auction.closed && !auction.isPassHand {
                         TricksView(tricksTaken: $tricksTaken,
                             honors: $honors
