@@ -28,7 +28,7 @@ struct BidView: View {
         HStack(alignment: .firstTextBaseline, spacing: 3) {
             switch call {
             case let .bid(b):
-                HStack(alignment: .center, spacing: 3) {
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
                     Text("\(b.level)")
                     b.suit
                 }

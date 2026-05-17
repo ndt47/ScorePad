@@ -58,16 +58,16 @@ extension Score {
     
     var label: String {
         switch self {
-        case .bid:
-            return "CONTRACT"
-        case .over:
-            return "OVER"
+        case let .bid(_, contract):
+            return "CONTRACT\(contract.doublingLabel)"
+        case let .over(_, contract):
+            return "OVER\(contract.doublingLabel)"
         case .insult:
             return "INSULT"
-        case .under:
-            return "UNDER"
-        case let .slam(_, contract):
-            return contract.level == 7 ? "GRAND SLAM" : "SMALL SLAM"
+        case let .under(_, contract):
+            return "UNDER\(contract.doublingLabel)"
+        case .slam:
+            return "SLAM"
         case .honors:
             return "HONORS"
         case .rubber:
