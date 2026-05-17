@@ -61,11 +61,11 @@ extension Score {
         case .bid:
             return "CONTRACT"
         case .over:
-            return "OVERTRICK"
+            return "OVER"
         case .insult:
             return "INSULT"
         case .under:
-            return "UNDERTRICK"
+            return "UNDER"
         case let .slam(_, contract):
             return contract.level == 7 ? "GRAND SLAM" : "SMALL SLAM"
         case .honors:

@@ -10,20 +10,8 @@ import SwiftUI
 extension Score: View {
     var body: some View {
         HStack {
-            switch self {
-            case let .bid(_, contract), let .over(_, contract), let .insult(_, contract), let .under(_, contract), let .slam(_, contract):
+            if let contract = self.contract {
                 ContractView(contract: contract)
-            case .honors:
-                Text("HONORS")
-                    .font(.caption)
-                    .bold()
-                    .foregroundColor(.gray)
-            case .rubber:
-                Text("RUBBER")
-                    .font(.caption)
-                    .bold()
-                    .foregroundColor(.gray)
-
             }
             Spacer()
                 .allowsHitTesting(true)
