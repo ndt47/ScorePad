@@ -23,6 +23,7 @@ enum Score: Identifiable {
     case bid(Int, Contract)
     // over the line
     case over(Int, Contract)
+    case insult(Int, Contract)
     case under(Int, Contract)
     case slam(Int, Contract)
     case honors(Int, Team, Contract)
@@ -32,14 +33,14 @@ enum Score: Identifiable {
 extension Score {
     var value: Int {
         switch self {
-        case let .bid(v, _), let .over(v, _), let .under(v, _), let .slam(v, _), let .honors(v, _, _), let .rubber(v, _):
+        case let .bid(v, _), let .over(v, _), let .insult(v, _), let .under(v, _), let .slam(v, _), let .honors(v, _, _), let .rubber(v, _):
             return v
         }
     }
     
     var contract: Contract? {
         switch self {
-        case let .bid(_, c), let .over(_, c), let .under(_, c), let .slam(_, c), let .honors(_, _, c):
+        case let .bid(_, c), let .over(_, c), let .insult(_, c), let .under(_, c), let .slam(_, c), let .honors(_, _, c):
             return c
         case .rubber:
             return nil
@@ -48,18 +49,37 @@ extension Score {
     
     var team: Team {
         switch self {
-        case let .bid(_, c), let .over(_, c), let .under(_, c), let .slam(_, c):
+        case let .bid(_, c), let .over(_, c), let .insult(_, c), let .under(_, c), let .slam(_, c):
             return c.declarer.team
         case let .honors(_, t, _), let .rubber(_, t):
             return t
         }
     }
     
+    var label: String {
+        switch self {
+        case .bid:
+            return "CONTRACT"
+        case .over:
+            return "OVERTRICK"
+        case .insult:
+            return "INSULT"
+        case .under:
+            return "UNDERTRICK"
+        case let .slam(_, contract):
+            return contract.level == 7 ? "GRAND SLAM" : "SMALL SLAM"
+        case .honors:
+            return "HONORS"
+        case .rubber:
+            return "RUBBER"
+        }
+    }
+
     var scoresUnderTheLine: Bool {
         guard case .bid = self else { return false }
         return true
     }
-    
+
     var scoresOverTheLine: Bool {
         !scoresUnderTheLine
     }
@@ -120,9 +140,9 @@ extension Contract: ScoreProviding {
 
             // Insult bonus for making a doubled or redoubled contract
             if redoubled {
-                scores.append(.over(100, self))
+                scores.append(.insult(100, self))
             } else if doubled {
-                scores.append(.over(50, self))
+                scores.append(.insult(50, self))
             }
 
             // Overtricks (result > 0 is overtricks)
@@ -163,7 +183,7 @@ struct Points {
         switch score {
         case let .bid(value, _):
             below += value
-        case let .over(value, _):
+        case let .over(value, _), let .insult(value, _):
             above += value
         case let .under(value, _):
             above += value
@@ -216,7 +236,7 @@ extension Array where Element == Score {
                }
            }
            switch score {
-           case let .bid(_, contract), let .over(_, contract), let .slam(_, contract):
+           case let .bid(_, contract), let .over(_, contract), let .insult(_, contract), let .slam(_, contract):
                addScoreForTeam(score, contract.declarer.team)
            case let .under(_, contract):
                addScoreForTeam(score, contract.declarer.team.opponent)
@@ -236,7 +256,7 @@ extension Array where Element == Score {
                 }
             }
             switch score {
-            case let .bid(_, contract), let .over(_, contract), let .slam(_, contract):
+            case let .bid(_, contract), let .over(_, contract), let .insult(_, contract), let .slam(_, contract):
                 addScoreForTeam(score, contract.declarer.team)
             case let .under(_, contract):
                 addScoreForTeam(score, contract.declarer.team.opponent)

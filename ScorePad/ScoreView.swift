@@ -11,7 +11,7 @@ extension Score: View {
     var body: some View {
         HStack {
             switch self {
-            case let .bid(_, contract), let .over(_, contract), let .under(_, contract), let .slam(_, contract):
+            case let .bid(_, contract), let .over(_, contract), let .insult(_, contract), let .under(_, contract), let .slam(_, contract):
                 ContractView(contract: contract)
             case .honors:
                 Text("HONORS")
@@ -27,6 +27,9 @@ extension Score: View {
             }
             Spacer()
                 .allowsHitTesting(true)
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
             Text("\(value.formatted(.number.grouping(.never)))")
                 .fontDesign(.monospaced)
                 .bold()
