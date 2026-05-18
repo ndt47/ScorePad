@@ -79,7 +79,11 @@ struct BiddingView: View {
             label: {
                 Text("Level")
             }
+            #if os(iOS)
             .pickerStyle(.inline)
+            #else
+            .pickerStyle(.menu)
+            #endif
             .disabled(auction.closed || validBids.isEmpty)
             .onAppear {
                 selectedBidID = validBids.first?.id ?? Bid(7, .notrump).id
