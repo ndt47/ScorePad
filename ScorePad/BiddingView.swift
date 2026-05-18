@@ -136,7 +136,7 @@ struct BiddingView: View {
                 .buttonStyle(.bordered)
             }
             .disabled(auction.closed)
-        }.padding()
+        }.padding(.horizontal)
     }
 }
 
