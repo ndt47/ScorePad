@@ -2,160 +2,155 @@
 //  ContractTests.swift
 //  ScorePadTests
 //
-//  Created by Nathan Taylor on 11/29/22.
-//
 
 import XCTest
+@testable import ScorePad
+
+// MARK: - Contract Init / Properties
 
 final class ContractTests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    // MARK: - Init from Auction
+
+    func testInitFromAuction() {
+        let a = Auction(dealer: .north)
+        a.bid(Bid(3, .hearts))
+        a.close()
+
+        let c = Contract(auction: a, tricksTaken: 9)
+        XCTAssertNotNil(c)
+        XCTAssertEqual(c?.level, 3)
+        XCTAssertEqual(c?.suit, .hearts)
+        XCTAssertEqual(c?.declarer, .north)
+        XCTAssertFalse(c?.doubled ?? true)
+        XCTAssertFalse(c?.redoubled ?? true)
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testInitFromAuctionDoubled() {
+        let a = Auction(dealer: .north)
+        a.bid(Bid(3, .hearts))
+        a.double()   // east
+        a.close()
+
+        let c = Contract(auction: a, tricksTaken: 9)
+        XCTAssertNotNil(c)
+        XCTAssertTrue(c?.doubled ?? false)
+        XCTAssertFalse(c?.redoubled ?? true)
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testInitFromAuctionRedoubled() {
+        let a = Auction(dealer: .north)
+        a.bid(Bid(3, .hearts))
+        a.double()     // east
+        a.redouble()   // south
+        a.close()
+
+        let c = Contract(auction: a, tricksTaken: 9)
+        XCTAssertNotNil(c)
+        XCTAssertFalse(c?.doubled ?? true)
+        XCTAssertTrue(c?.redoubled ?? false)
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testInitFromAuctionReturnsNilWithNoBid() {
+        let a = Auction()
+        a.close()
+        let c = Contract(auction: a, tricksTaken: 7)
+        XCTAssertNil(c)
+    }
+
+    func testInitFromAuctionVulnerable() {
+        let a = Auction(dealer: .north)
+        a.bid(Bid(2, .spades))
+        a.close()
+
+        let c = Contract(auction: a, tricksTaken: 8, vulnerable: true)
+        XCTAssertNotNil(c)
+        XCTAssertTrue(c?.vulnerable ?? false)
+    }
+
+    // MARK: - Direct Init
+
+    func testDirectInit() {
+        let c = Contract(level: 4, suit: .spades, declarer: .south, tricksTaken: 10)
+        XCTAssertEqual(c.level,     4)
+        XCTAssertEqual(c.suit,      .spades)
+        XCTAssertEqual(c.declarer,  .south)
+        XCTAssertEqual(c.tricksTaken, 10)
+        XCTAssertFalse(c.vulnerable)
+    }
+
+    // MARK: - Result
+
+    func testResultMadeExactly() {
+        // result = tricksTaken - 6 - level
+        let c = Contract(level: 3, suit: .hearts, declarer: .north, tricksTaken: 9)
+        XCTAssertEqual(c.result, 0)
+    }
+
+    func testResultOvertricks() {
+        let c = Contract(level: 3, suit: .hearts, declarer: .north, tricksTaken: 11)
+        XCTAssertEqual(c.result, 2)
+    }
+
+    func testResultUndertricks() {
+        let c = Contract(level: 3, suit: .hearts, declarer: .north, tricksTaken: 7)
+        XCTAssertEqual(c.result, -2)
+    }
+
+    func testResultLevel1Made() {
+        let c = Contract(level: 1, suit: .clubs, declarer: .north, tricksTaken: 7)
+        XCTAssertEqual(c.result, 0)
+    }
+
+    func testResultLevel7Made() {
+        let c = Contract(level: 7, suit: .notrump, declarer: .north, tricksTaken: 13)
+        XCTAssertEqual(c.result, 0)
+    }
+
+    // MARK: - Doubling Label
+
+    func testDoublingLabelUndoubled() {
+        let c = Contract(level: 3, suit: .hearts, declarer: .north, tricksTaken: 9)
+        XCTAssertEqual(c.doublingLabel, "")
+    }
+
+    func testDoublingLabelDoubled() {
+        let a = Auction(dealer: .north)
+        a.bid(Bid(3, .hearts)); a.double(); a.close()
+        let c = Contract(auction: a, tricksTaken: 9)!
+        XCTAssertEqual(c.doublingLabel, " ×")
+    }
+
+    func testDoublingLabelRedoubled() {
+        let a = Auction(dealer: .north)
+        a.bid(Bid(3, .hearts)); a.double(); a.redouble(); a.close()
+        let c = Contract(auction: a, tricksTaken: 9)!
+        XCTAssertEqual(c.doublingLabel, " ××")
+    }
+}
+
+// MARK: - Honors
+
+final class HonorsTests: XCTestCase {
+    func testPoints() {
+        XCTAssertEqual(Honors.none.points,         0)
+        XCTAssertEqual(Honors.declarer100.points, 100)
+        XCTAssertEqual(Honors.declarer150.points, 150)
+        XCTAssertEqual(Honors.defender100.points, 100)
+        XCTAssertEqual(Honors.defender150.points, 150)
+    }
+
+    func testAllCasesCount() {
+        XCTAssertEqual(Honors.allCases.count, 5)
+    }
+
+    func testCodable() throws {
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        for h in Honors.allCases {
+            let data = try encoder.encode(h)
+            let decoded = try decoder.decode(Honors.self, from: data)
+            XCTAssertEqual(decoded, h)
         }
     }
-
-    //    func testScoring() throws {
-    //        var auction = Auction()
-    //
-    //        XCTAssertNoThrow(try auction.pass())
-    //        XCTAssertNoThrow(try auction.bid(level: 1, suit: .diamonds))
-    //        XCTAssertNoThrow(try auction.bid(level: 2, suit: .hearts))
-    //        XCTAssertNoThrow(try auction.bid(level: 3, suit: .diamonds))
-    //        XCTAssertNoThrow(try auction.pass())
-    //        XCTAssertNoThrow(try auction.bid(level: 5, suit: .diamonds))
-    //
-    //        let down1 = Contract(auction: auction, tricksTaken: 10)
-    //        XCTAssertNotNil(down1)
-    //
-    //        let nonVulnerableDown1 = [down1!].points(vulnerable: [])
-    //        XCTAssertEqual(nonVulnerableDown1.we.above, 50)
-    //        XCTAssertEqual(nonVulnerableDown1.we.below, 0)
-    //        XCTAssertEqual(nonVulnerableDown1.they.above, 0)
-    //        XCTAssertEqual(nonVulnerableDown1.they.below, 0)
-    //
-    //        let vulnerableDown1 = [down1!].points(vulnerable: [.they])
-    //        XCTAssertEqual(vulnerableDown1.we.above, 100)
-    //        XCTAssertEqual(vulnerableDown1.we.below, 0)
-    //        XCTAssertEqual(vulnerableDown1.they.above, 0)
-    //        XCTAssertEqual(vulnerableDown1.they.below, 0)
-    //
-    //        let down3 = Contract(auction: auction, tricksTaken: 8)
-    //        XCTAssertNotNil(down3)
-    //
-    //        let nonVulnerableDown3 = [down3!].points(vulnerable: [])
-    //        XCTAssertEqual(nonVulnerableDown3.we.above, 150)
-    //        XCTAssertEqual(nonVulnerableDown3.we.below, 0)
-    //        XCTAssertEqual(nonVulnerableDown3.they.above, 0)
-    //        XCTAssertEqual(nonVulnerableDown3.they.below, 0)
-    //
-    //        let vulnerableDown3 = [down3!].points(vulnerable: [.they])
-    //        XCTAssertEqual(vulnerableDown3.we.above, 300)
-    //        XCTAssertEqual(vulnerableDown3.we.below, 0)
-    //        XCTAssertEqual(vulnerableDown3.they.above, 0)
-    //        XCTAssertEqual(vulnerableDown3.they.below, 0)
-    //
-    //        let made = Contract(auction: auction, tricksTaken: 11)
-    //        XCTAssertNotNil(made)
-    //
-    //        let madeNotVulnerable = [made!].points(vulnerable: [])
-    //        XCTAssertEqual(madeNotVulnerable.we.above, 0)
-    //        XCTAssertEqual(madeNotVulnerable.we.below, 0)
-    //        XCTAssertEqual(madeNotVulnerable.they.above, 0)
-    //        XCTAssertEqual(madeNotVulnerable.they.below, 100)
-    //
-    //        let madeVulnerable = [made!].points(vulnerable: [.they])
-    //        XCTAssertEqual(madeVulnerable.we.above, 0)
-    //        XCTAssertEqual(madeVulnerable.we.below, 0)
-    //        XCTAssertEqual(madeVulnerable.they.above, 0)
-    //        XCTAssertEqual(madeVulnerable.they.below, 100)
-    //
-    //        let over1 = Contract(auction: auction, tricksTaken: 11)
-    //        XCTAssertNotNil(over1!)
-    //
-    //        let over1NotVulnerable = [over1!].points(vulnerable: [])
-    //        XCTAssertEqual(over1NotVulnerable.we.above, 0)
-    //        XCTAssertEqual(over1NotVulnerable.we.below, 0)
-    //        XCTAssertEqual(over1NotVulnerable.they.above, 20)
-    //        XCTAssertEqual(over1NotVulnerable.they.below, 100)
-    //
-    //        let vulnerableOver1 = [over1!].points(vulnerable: [])
-    //        XCTAssertEqual(vulnerableOver1.we.above, 0)
-    //        XCTAssertEqual(vulnerableOver1.we.below, 0)
-    //        XCTAssertEqual(vulnerableOver1.they.above, 20)
-    //        XCTAssertEqual(vulnerableOver1.they.below, 100)
-    //
-    //        XCTAssertNoThrow(try auction.double())
-    //        XCTAssertTrue(auction.doubled)
-    //
-    //        test.tricksTaken = 10
-    //        let nonVulnerableDoubleDown1 = [test].points(vulnerable: [])
-    //        XCTAssertEqual(nonVulnerableDoubleDown1.we.above, 100)
-    //        XCTAssertEqual(nonVulnerableDoubleDown1.we.below, 0)
-    //        XCTAssertEqual(nonVulnerableDoubleDown1.they.above, 0)
-    //        XCTAssertEqual(nonVulnerableDoubleDown1.they.below, 0)
-    //
-    //        let vulnerableDoubleDown1 = [test].points(vulnerable: [.they])
-    //        XCTAssertEqual(vulnerableDoubleDown1.we.above, 200)
-    //        XCTAssertEqual(vulnerableDoubleDown1.we.below, 0)
-    //        XCTAssertEqual(vulnerableDoubleDown1.they.above, 0)
-    //        XCTAssertEqual(vulnerableDoubleDown1.they.below, 0)
-    //
-    //        test.tricksTaken = 8
-    //        let nonVulnerableDoubledDown3 = [test].points(vulnerable: [])
-    //        XCTAssertEqual(nonVulnerableDoubledDown3.we.above, 500)
-    //        XCTAssertEqual(nonVulnerableDoubledDown3.we.below, 0)
-    //        XCTAssertEqual(nonVulnerableDoubledDown3.they.above, 0)
-    //        XCTAssertEqual(nonVulnerableDoubledDown3.they.below, 0)
-    //
-    //        let vulnerableDoubledDown3 = [test].points(vulnerable: [.they])
-    //        XCTAssertEqual(vulnerableDoubledDown3.we.above, 800)
-    //        XCTAssertEqual(vulnerableDoubledDown3.we.below, 0)
-    //        XCTAssertEqual(vulnerableDoubledDown3.they.above, 0)
-    //        XCTAssertEqual(vulnerableDoubledDown3.they.below, 0)
-    //
-    //        test.tricksTaken = 11
-    //        let madeDoubled = [test].points(vulnerable: [])
-    //        XCTAssertEqual(madeDoubled.we.above, 0)
-    //        XCTAssertEqual(madeDoubled.we.below, 0)
-    //        XCTAssertEqual(madeDoubled.they.above, 0)
-    //        XCTAssertEqual(madeDoubled.they.below, 200)
-    //
-    //        let madeVulnerableDoubled = [test].points(vulnerable: [.they])
-    //        XCTAssertEqual(madeVulnerableDoubled.we.above, 0)
-    //        XCTAssertEqual(madeVulnerableDoubled.we.below, 0)
-    //        XCTAssertEqual(madeVulnerableDoubled.they.above, 0)
-    //        XCTAssertEqual(madeVulnerableDoubled.they.below, 200)
-    //
-    //        test.tricksTaken = 12
-    //        let doubledOver1 = [test].points(vulnerable: [])
-    //        XCTAssertEqual(doubledOver1.we.above, 0)
-    //        XCTAssertEqual(doubledOver1.we.below, 0)
-    //        XCTAssertEqual(doubledOver1.they.above, 100)
-    //        XCTAssertEqual(doubledOver1.they.below, 200)
-    //
-    //        let vulnerableDoubledOver1 = [test].points(vulnerable: [.they])
-    //        XCTAssertEqual(vulnerableDoubledOver1.we.above, 0)
-    //        XCTAssertEqual(vulnerableDoubledOver1.we.below, 0)
-    //        XCTAssertEqual(vulnerableDoubledOver1.they.above, 200)
-    //        XCTAssertEqual(vulnerableDoubledOver1.they.below, 200)
-    //    }
-
 }
