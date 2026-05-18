@@ -12,6 +12,7 @@
 		D83E4881293D99B800E37BCE /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E4880293D99B800E37BCE /* Utilities.swift */; };
 		D83E4884293E9D9400E37BCE /* DefaultsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E4883293E9D9400E37BCE /* DefaultsKey.swift */; };
 		D83E4886293EC1B700E37BCE /* RubberListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E4885293EC1B700E37BCE /* RubberListCell.swift */; };
+		D87E59B12FBA8D7900C0C56F /* CallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87E59B02FBA8D7900C0C56F /* CallTests.swift */; };
 		D8A564A32936E25300671E8C /* Auction.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A22936E25300671E8C /* Auction.swift */; };
 		D8A564A52936EB7700671E8C /* ContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A42936EB7700671E8C /* ContractTests.swift */; };
 		D8A564A72936EB8500671E8C /* ScoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A564A62936EB8500671E8C /* ScoreTests.swift */; };
@@ -68,6 +69,7 @@
 		D83E4880293D99B800E37BCE /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		D83E4883293E9D9400E37BCE /* DefaultsKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsKey.swift; sourceTree = "<group>"; };
 		D83E4885293EC1B700E37BCE /* RubberListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberListCell.swift; sourceTree = "<group>"; };
+		D87E59B02FBA8D7900C0C56F /* CallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallTests.swift; sourceTree = "<group>"; };
 		D8A564A22936E25300671E8C /* Auction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auction.swift; sourceTree = "<group>"; };
 		D8A564A42936EB7700671E8C /* ContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractTests.swift; sourceTree = "<group>"; };
 		D8A564A62936EB8500671E8C /* ScoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreTests.swift; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 		D8BD5A5A2935257900B86AA6 /* ScorePadTests */ = {
 			isa = PBXGroup;
 			children = (
+				D87E59B02FBA8D7900C0C56F /* CallTests.swift */,
 				D8BD5A5B2935257900B86AA6 /* ScorePadTests.swift */,
 				D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */,
 				D8A564A42936EB7700671E8C /* ContractTests.swift */,
@@ -394,6 +397,7 @@
 				D8BD5A8C29357D5200B86AA6 /* AuctionTests.swift in Sources */,
 				D8BD5A5C2935257900B86AA6 /* ScorePadTests.swift in Sources */,
 				D8A564A72936EB8500671E8C /* ScoreTests.swift in Sources */,
+				D87E59B12FBA8D7900C0C56F /* CallTests.swift in Sources */,
 				D8A564A52936EB7700671E8C /* ContractTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
