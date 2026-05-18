@@ -5,7 +5,7 @@ import SwiftUI
 extension Honors {
     var label: String {
         switch self {
-        case .none: return "None"
+        case .none: return "No Honors"
         case .declarer100, .declarer150: return "Declarer\u{00a0}\(points)"
         case .defender100, .defender150: return "Defender\u{00a0}\(points)"
         }
@@ -229,15 +229,16 @@ struct TricksView: View {
                     .font(.title3)
                     .foregroundColor(.gray)
                 Spacer()
-                Menu {
-                    Picker(selection: $honors) {
-                        ForEach(Honors.allCases, id: \.self) { honor in
-                            Text(honor.label)
-                        }
-                    } label: { EmptyView() }
+                Picker(selection: $honors) {
+                    ForEach(Honors.allCases, id: \.self) { honor in
+                        Text(honor.label)
+                    }
                 } label: {
-                    Text(honors == .none ? "Honors" : honors.label)
+                    Text("Honors")
                 }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .fixedSize()
                 Spacer()
                 Result(result, .long)
             }
