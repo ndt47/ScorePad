@@ -75,7 +75,6 @@ struct AuctionView: View {
                     }
                     .buttonStyle(.plain)
                     .padding(.horizontal)
-                    .padding(.top)
 
                     if callsExpanded {
                         List {
@@ -251,6 +250,7 @@ struct TricksView: View {
 
             if let contract = previewContract {
                 ScorePreviewView(contract: contract)
+                    .padding(.top, 8)
             }
         }
     }

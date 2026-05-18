@@ -59,7 +59,7 @@ extension Score {
     var label: String {
         switch self {
         case let .bid(_, contract):
-            return "CONTRACT\(contract.doublingLabel)"
+            return contract.doublingLabel.trimmingCharacters(in: .whitespaces)
         case let .over(_, contract):
             return "OVER\(contract.doublingLabel)"
         case .insult:
