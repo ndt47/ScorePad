@@ -25,7 +25,7 @@ struct CallView: View {
                 .buttonStyle(.borderless)
             }
         }
-        .frame(height: 20)
+        .padding(.vertical, 6)
     }
 }
 
