@@ -10,12 +10,20 @@ import SwiftUI
 struct CallView: View {
     @EnvironmentObject var rubber: Rubber
     let call: Call
-    
+    var onUndo: (() -> Void)? = nil
+
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             PlayerView(position: call.position)
             Spacer()
             BidView(call.call)
+            if let onUndo {
+                Button(action: onUndo) {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderless)
+            }
         }
         .frame(height: 20)
     }

@@ -42,6 +42,10 @@ struct BiddingView: View {
     var minimumBid: Bid {
         Bid(minimumLevel, minimumSuit)
     }
+
+    var validBids: [Bid] {
+        Bid.allBids.filter { $0 >= minimumBid }
+    }
     
     var minimumLevel: Int {
         guard let level = auction.level else { return 1 }
@@ -65,7 +69,7 @@ struct BiddingView: View {
     var body: some View {
         HStack(alignment: .center) {
             Picker(selection: $selectedBidID) {
-                ForEach(Bid.allBids.filter( { $0 >= minimumBid }), id: \.id) { b in
+                ForEach(validBids.isEmpty ? [Bid(7, .notrump)] : validBids, id: \.id) { b in
                     HStack {
                         Text(String(b.level))
                         b.suit
@@ -76,11 +80,11 @@ struct BiddingView: View {
                 Text("Level")
             }
             .pickerStyle(.inline)
-            .disabled(auction.closed)
+            .disabled(auction.closed || validBids.isEmpty)
             .onAppear {
-                selectedBidID = minimumBid.id
+                selectedBidID = validBids.first?.id ?? Bid(7, .notrump).id
             }
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 Button {
                     auction.pass()
@@ -90,16 +94,15 @@ struct BiddingView: View {
                 }
                 .labelStyle(.titleOnly)
                 .buttonStyle(.bordered)
-                
+
                 Button {
-                    auction.bid(Bid(id: selectedBidID
-                                   ))
-                    selectedBidID = minimumBid.id
+                    auction.bid(Bid(id: selectedBidID))
+                    selectedBidID = validBids.first?.id ?? selectedBidID
                 } label: {
                     Label(Action.bid.label, systemImage: Action.bid.systemImage)
                         .frame(maxWidth:.infinity)
                 }
-                .disabled(selectedBidID < minimumBid.value)
+                .disabled(validBids.isEmpty || selectedBidID < minimumBid.value)
                 .labelStyle(.titleOnly)
                 .buttonStyle(.borderedProminent)
 
