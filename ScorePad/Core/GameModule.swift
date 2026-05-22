@@ -1,72 +1,48 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - View-Slot Protocols
+// MARK: - View-Slot Protocol
 
 /// A view that presents the detail for a single recorded session.
 protocol GameDetailView: View {
     init(selectedSessionID: String?)
 }
 
-/// A compact card representing a game type, shown in the top-level game picker grid.
-protocol GameGridCard: View {
-    init()
-}
-
 // MARK: - GameModule
 
-/// Enumerates every game type the app supports.
-/// To add a new game: add a case, provide the required switch branches, and add the
-/// game's model types to the ModelContainer in ScorePadApp.
-enum GameModule: String, CaseIterable, Identifiable, Hashable {
-    case bridge
+/// Describes a game type the app supports. Concrete implementations live in each
+/// game's module — Core has no knowledge of specific games. Adding a game means
+/// conforming to this protocol and registering an instance in ScorePadApp; no
+/// Core files need to change.
+///
+/// View factories use associated types so call sites remain strongly typed.
+/// AppRootView dispatches to them via SE-0352 implicitly opened existentials.
+protocol GameModule: Identifiable where ID == String {
+    var name: String { get }
+    var systemImage: String { get }
+    var subtitle: String { get }
+    var modelTypes: [any PersistentModel.Type] { get }
 
-    var id: String { rawValue }
+    associatedtype SessionListView: View
+    associatedtype DetailView: GameDetailView
 
-    var name: String {
-        switch self {
-        case .bridge: "Bridge"
-        }
+    @ViewBuilder func sessionListView(selectedSessionID: Binding<String?>) -> SessionListView
+    @ViewBuilder func detailView(selectedSessionID: String?) -> DetailView
+}
+
+// MARK: - Existential-compatible dispatch
+//
+// `any GameModule` cannot call the associated-type methods directly; Swift can't
+// determine the concrete return type at the call site. These extension methods wrap
+// the concrete views in AnyView so they can be called on `any GameModule` from
+// AppRootView's navigation infrastructure. Module authors only implement the
+// strongly-typed associated-type methods above.
+extension GameModule {
+    func makeSessionListView(selectedSessionID: Binding<String?>) -> AnyView {
+        AnyView(sessionListView(selectedSessionID: selectedSessionID))
     }
 
-    var systemImage: String {
-        switch self {
-        case .bridge: "suit.spade.fill"
-        }
-    }
-
-    var subtitle: String {
-        switch self {
-        case .bridge: "Rubber Bridge"
-        }
-    }
-
-    var modelTypes: [any PersistentModel.Type] {
-        switch self {
-        case .bridge: [Rubber.self, Auction.self]
-        }
-    }
-
-    // MARK: View Builders
-
-    @ViewBuilder
-    func sessionListView(selectedSessionID: Binding<String?>) -> some View {
-        switch self {
-        case .bridge: GameSessionList<Rubber>(selectedSessionID: selectedSessionID)
-        }
-    }
-
-    @ViewBuilder
-    func detailView(selectedSessionID: String?) -> some View {
-        switch self {
-        case .bridge: BridgeDetailView(selectedSessionID: selectedSessionID)
-        }
-    }
-
-    @ViewBuilder
-    func gridCardView() -> some View {
-        switch self {
-        case .bridge: BridgeGridCard()
-        }
+    func makeDetailView(selectedSessionID: String?) -> AnyView {
+        AnyView(detailView(selectedSessionID: selectedSessionID))
     }
 }
