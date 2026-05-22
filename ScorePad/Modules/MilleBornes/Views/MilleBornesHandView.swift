@@ -13,13 +13,16 @@ struct MilleBornesHandView: View {
         NavigationStack {
             Form {
                 Section(game.team1Label) {
-                    TeamScoreEditor(score: $team1)
+                    TeamScoreEditor(score: $team1, otherScore: team2, isTwoPlayerGame: isTwoPlayerGame)
                 }
                 Section(game.team2Label) {
-                    TeamScoreEditor(score: $team2)
+                    TeamScoreEditor(score: $team2, otherScore: team1, isTwoPlayerGame: isTwoPlayerGame)
                 }
             }
             .navigationTitle(editingHand == nil ? "New Hand" : "Edit Hand")
+#if os(macOS)
+            .formStyle(.grouped)
+#endif
 #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
 #endif
@@ -46,6 +49,8 @@ struct MilleBornesHandView: View {
         }
     }
 
+    private var isTwoPlayerGame: Bool { game.isTwoPlayerGame }
+
     private func save() {
         if var hand = editingHand {
             hand.team1 = team1
@@ -65,78 +70,81 @@ struct MilleBornesHandView: View {
 
 struct TeamScoreEditor: View {
     @Binding var score: MilleBornesTeamScore
+    var otherScore: MilleBornesTeamScore
+    var isTwoPlayerGame: Bool
+
+    private var shutOut: Bool { score.tripCompleted && otherScore.totalMiles == 0 }
+    private var totalHandScore: Int { score.handScore + (shutOut ? 500 : 0) }
+
+    @ViewBuilder
+    private func autoRow(_ label: String) -> some View {
+        HStack {
+            Text(label)
+            Spacer()
+            Text("auto")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Image(systemName: "checkmark")
+                .foregroundColor(.green)
+        }
+    }
 
     var body: some View {
-        // Miles
-        HStack {
-            Text("Total Miles")
-                .fontWeight(.semibold)
-            Spacer()
-            Text("\(score.totalMiles) mi")
-                .fontDesign(.monospaced)
-                .foregroundColor(score.totalMiles > 0 ? .primary : .secondary)
+        // Miles — all five denominations in one compact row
+        VStack(spacing: 6) {
+            HStack {
+                Text("Miles")
+                    .fontWeight(.semibold)
+                Spacer()
+                Text("\(score.totalMiles)")
+                    .fontDesign(.monospaced)
+                    .fontWeight(.semibold)
+                    .foregroundColor(score.totalMiles > 0 ? .primary : .secondary)
+            }
+            HStack(spacing: 0) {
+                VerticalStepper(icon: "🐌", label: "25",  value: $score.cards25,  range: 0...10)
+                VerticalStepper(icon: "🐢", label: "50",  value: $score.cards50,  range: 0...10)
+                VerticalStepper(icon: "🦋", label: "75",  value: $score.cards75,  range: 0...10)
+                VerticalStepper(icon: "🐇", label: "100", value: $score.cards100, range: 0...12)
+                VerticalStepper(icon: "🦅", label: "200", value: $score.cards200, range: 0...2)
+            }
         }
+        .padding(.vertical, 4)
 
-        DenominationRow(label: "25 mi", count: $score.cards25, max: 40)
-        DenominationRow(label: "50 mi", count: $score.cards50, max: 20)
-        DenominationRow(label: "75 mi", count: $score.cards75, max: 14)
-        DenominationRow(label: "100 mi", count: $score.cards100, max: 12)
-        DenominationRow(label: "200 mi", count: $score.cards200, max: 2)
-
-        // Safeties
-        Stepper(value: $score.safeties, in: 0...4) {
+        // Safeties — one button per card, coup fourré checkbox beneath each
+        VStack(spacing: 4) {
             HStack {
                 Text("Safeties")
+                    .fontWeight(.semibold)
                 Spacer()
-                Text("×\(score.safeties)")
-                    .fontDesign(.monospaced)
-                    .foregroundColor(.secondary)
+            }
+            HStack(spacing: 4) {
+                SafetyButton(icon: "🚒", state: $score.rightOfWay,
+                             isUnavailable: otherScore.rightOfWay.played)
+                SafetyButton(icon: "🛞", state: $score.punctureProof,
+                             isUnavailable: otherScore.punctureProof.played)
+                SafetyButton(icon: "🏎️", state: $score.drivingAce,
+                             isUnavailable: otherScore.drivingAce.played)
+                SafetyButton(icon: "⛽", state: $score.extraTank,
+                             isUnavailable: otherScore.extraTank.played)
             }
         }
-        .onChange(of: score.safeties) {
-            if score.coupsFourres > score.safeties {
-                score.coupsFourres = score.safeties
-            }
+        .padding(.vertical, 4)
+
+        // Auto-detected bonuses
+        if score.tripCompleted { autoRow("Trip Completed") }
+        if score.allFourSafeties { autoRow("All 4 Safeties") }
+        if score.safeTrip { autoRow("Safe Trip") }
+
+        // Called Extension — 2-player only; enabled only at exactly 700 miles
+        if isTwoPlayerGame {
+            Toggle("Called Extension", isOn: $score.usedExtension)
+                .disabled(score.totalMiles != 700 || otherScore.usedExtension)
         }
 
-        if score.safeties > 0 {
-            Stepper(value: $score.coupsFourres, in: 0...score.safeties) {
-                HStack {
-                    Text("Coups Fourrés")
-                    Spacer()
-                    Text("×\(score.coupsFourres)")
-                        .fontDesign(.monospaced)
-                        .foregroundColor(.secondary)
-                }
-            }
-        }
-
-        // Bonuses
-        Toggle("Trip Completed", isOn: $score.tripCompleted)
-            .onChange(of: score.tripCompleted) {
-                if !score.tripCompleted {
-                    score.usedExtension = false
-                    score.shutOut = false
-                    score.delayedAction = false
-                }
-            }
-
-        Toggle("All 4 Safeties", isOn: $score.allFourSafeties)
-
+        // Trip-completion bonuses
         if score.tripCompleted {
-            if score.safeTrip {
-                HStack {
-                    Text("Safe Trip")
-                    Spacer()
-                    Text("(auto)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Image(systemName: "checkmark")
-                        .foregroundColor(.green)
-                }
-            }
-            Toggle("Extension", isOn: $score.usedExtension)
-            Toggle("Shut Out", isOn: $score.shutOut)
+            if shutOut { autoRow("Shut Out") }
             Toggle("Delayed Action", isOn: $score.delayedAction)
         }
 
@@ -145,55 +153,117 @@ struct TeamScoreEditor: View {
             Text("Hand Total")
                 .fontWeight(.semibold)
             Spacer()
-            Text(score.handScore.formatted(.number.grouping(.never)))
+            Text(totalHandScore.formatted(.number.grouping(.never)))
                 .fontDesign(.monospaced)
                 .fontWeight(.bold)
         }
     }
 }
 
-// MARK: - Denomination Row
+// MARK: - Safety Button
 
-struct DenominationRow: View {
-    let label: String
-    @Binding var count: Int
-    let max: Int
-
-    var value: Int {
-        let miles = Int(label.components(separatedBy: " ").first ?? "0") ?? 0
-        return count * miles
-    }
+struct SafetyButton: View {
+    let icon: String
+    @Binding var state: MilleBornesSafetyState
+    let isUnavailable: Bool
 
     var body: some View {
-        Stepper(value: $count, in: 0...max) {
-            HStack {
-                Text(label)
-                    .foregroundColor(.secondary)
-                Spacer()
-                if count > 0 {
-                    Text("×\(count) = \(value)")
-                        .fontDesign(.monospaced)
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                } else {
-                    Text("×0")
-                        .fontDesign(.monospaced)
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                }
+        VStack(spacing: 6) {
+            Button {
+                state.played.toggle()
+                if !state.played { state.coupFourre = false }
+            } label: {
+                Text(icon)
+                    .font(.title2)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(state.played ? Color.accentColor.opacity(0.15) : Color.clear)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(
+                                state.played ? Color.accentColor : Color.secondary.opacity(0.3),
+                                lineWidth: 1.5
+                            )
+                    )
             }
+            .buttonStyle(.borderless)
+            .disabled(isUnavailable)
+            .opacity(isUnavailable ? 0.35 : 1)
+
+            Button {
+                state.coupFourre.toggle()
+            } label: {
+                Image(systemName: state.coupFourre ? "checkmark.square.fill" : "square")
+                    .font(.body)
+                    .foregroundColor(state.coupFourre ? .accentColor : .secondary)
+            }
+            .buttonStyle(.borderless)
+            .disabled(!state.played || isUnavailable)
+            .opacity(!state.played || isUnavailable ? 0.3 : 1)
         }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Vertical Stepper
+
+struct VerticalStepper: View {
+    let icon: String
+    let label: String
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(icon)
+                .font(.title3)
+
+            Button {
+                if value < range.upperBound { value += 1 }
+            } label: {
+                Image(systemName: "chevron.up")
+                    .font(.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 28)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .disabled(value >= range.upperBound)
+
+            Text("\(value)")
+                .font(.body.monospacedDigit())
+                .fontWeight(value > 0 ? .semibold : .regular)
+                .foregroundColor(value > 0 ? .primary : .secondary)
+                .frame(maxWidth: .infinity)
+
+            Button {
+                if value > range.lowerBound { value -= 1 }
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 28)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .disabled(value <= range.lowerBound)
+
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
 struct MilleBornesHandView_Previews: PreviewProvider {
     static var hand: MilleBornesHand {
         var h = MilleBornesHand()
-        h.team1.cards100 = 6; h.team1.cards50 = 2
-        h.team1.safeties = 2; h.team1.coupsFourres = 1
-        h.team1.tripCompleted = true
+        h.team1.cards100 = 6; h.team1.cards50 = 2  // 700 miles → tripCompleted auto
+        h.team1.rightOfWay.played = true
+        h.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
         h.team2.cards100 = 3; h.team2.cards50 = 2
-        h.team2.safeties = 1
+        h.team2.drivingAce.played = true
         return h
     }
 
