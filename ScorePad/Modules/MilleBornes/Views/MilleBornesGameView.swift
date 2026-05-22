@@ -51,6 +51,7 @@ struct MilleBornesGameView: View {
 #endif
             .navigationTitle("")
             .environmentObject(game)
+            .environment(\.isTwoPlayerGame, game.isTwoPlayerGame)
         } else {
             Text("Select a game")
                 .font(.largeTitle)
@@ -70,7 +71,7 @@ struct MilleBornesGameView: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(game.hands) { hand in
-                    MilleBornesHandRow(hand: hand, isTwoPlayerGame: game.isTwoPlayerGame)
+                    MilleBornesHandRow(hand: hand)
                     Rule(.horizontal)
                         .frame(height: 2)
                 }

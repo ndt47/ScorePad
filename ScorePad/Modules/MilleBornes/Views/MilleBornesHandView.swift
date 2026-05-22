@@ -13,10 +13,10 @@ struct MilleBornesHandView: View {
         NavigationStack {
             Form {
                 Section(game.team1Label) {
-                    TeamScoreEditor(score: $team1, otherScore: team2, isTwoPlayerGame: isTwoPlayerGame)
+                    TeamScoreEditor(score: $team1, otherScore: team2)
                 }
                 Section(game.team2Label) {
-                    TeamScoreEditor(score: $team2, otherScore: team1, isTwoPlayerGame: isTwoPlayerGame)
+                    TeamScoreEditor(score: $team2, otherScore: team1)
                 }
             }
             .navigationTitle(editingHand == nil ? "New Hand" : "Edit Hand")
@@ -40,6 +40,7 @@ struct MilleBornesHandView: View {
 #endif
             }
         }
+        .environment(\.isTwoPlayerGame, game.isTwoPlayerGame)
         .interactiveDismissDisabled()
         .onAppear {
             if let hand = editingHand {
@@ -48,8 +49,6 @@ struct MilleBornesHandView: View {
             }
         }
     }
-
-    private var isTwoPlayerGame: Bool { game.isTwoPlayerGame }
 
     private func save() {
         if var hand = editingHand {
@@ -71,7 +70,7 @@ struct MilleBornesHandView: View {
 struct TeamScoreEditor: View {
     @Binding var score: MilleBornesTeamScore
     var otherScore: MilleBornesTeamScore
-    var isTwoPlayerGame: Bool
+    @Environment(\.isTwoPlayerGame) var isTwoPlayerGame
 
     private var tripTarget: Int { isTwoPlayerGame ? (score.usedExtension ? 1000 : 700) : 1000 }
     private var shutOut: Bool { score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame) && otherScore.totalMiles == 0 }
