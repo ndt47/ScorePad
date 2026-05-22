@@ -6,10 +6,18 @@ private struct PresentHandKey: EnvironmentKey {
     static let defaultValue: PresentHand = { _ in }
 }
 
+private struct IsTwoPlayerGameKey: EnvironmentKey {
+    static let defaultValue: Bool = true
+}
+
 extension EnvironmentValues {
     var presentHand: PresentHand {
         get { self[PresentHandKey.self] }
         set { self[PresentHandKey.self] = newValue }
+    }
+    var isTwoPlayerGame: Bool {
+        get { self[IsTwoPlayerGameKey.self] }
+        set { self[IsTwoPlayerGameKey.self] = newValue }
     }
 }
 
@@ -18,11 +26,12 @@ extension EnvironmentValues {
 struct MilleBornesHandRow: View {
     var hand: MilleBornesHand
     @Environment(\.presentHand) var present
+    @Environment(\.isTwoPlayerGame) var isTwoPlayerGame
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            TeamScoreColumn(score: hand.team1, shutOut: hand.team1ShutOut)
-            TeamScoreColumn(score: hand.team2, shutOut: hand.team2ShutOut)
+            TeamScoreColumn(score: hand.team1, shutOut: hand.team1ShutOut(isTwoPlayerGame: isTwoPlayerGame))
+            TeamScoreColumn(score: hand.team2, shutOut: hand.team2ShutOut(isTwoPlayerGame: isTwoPlayerGame))
         }
         .padding(.vertical, 6)
         .contentShape(Rectangle())
@@ -45,6 +54,7 @@ struct MilleBornesHandRow_Previews: PreviewProvider {
         ZStack {
             Rule(.vertical)
             MilleBornesHandRow(hand: hand)
+                .environment(\.isTwoPlayerGame, false)
                 .padding(.vertical, 4)
         }
         .frame(height: 160)
@@ -57,18 +67,19 @@ struct MilleBornesHandRow_Previews: PreviewProvider {
 struct TeamScoreColumn: View {
     var score: MilleBornesTeamScore
     var shutOut: Bool
+    @Environment(\.isTwoPlayerGame) var isTwoPlayerGame
 
-    private var totalScore: Int { score.handScore + (shutOut ? 500 : 0) }
+    private var totalScore: Int { score.handScore(isTwoPlayerGame: isTwoPlayerGame) + (shutOut ? 500 : 0) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            if score.scoreLines.isEmpty && !shutOut {
+            if score.scoreLines(isTwoPlayerGame: isTwoPlayerGame).isEmpty && !shutOut {
                 Text("—")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
             } else {
-                ForEach(score.scoreLines) { line in
+                ForEach(score.scoreLines(isTwoPlayerGame: isTwoPlayerGame)) { line in
                     HStack {
                         Text(line.label)
                             .font(.caption)

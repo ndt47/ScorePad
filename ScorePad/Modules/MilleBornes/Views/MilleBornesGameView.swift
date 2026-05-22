@@ -51,6 +51,7 @@ struct MilleBornesGameView: View {
 #endif
             .navigationTitle("")
             .environmentObject(game)
+            .environment(\.isTwoPlayerGame, game.isTwoPlayerGame)
         } else {
             Text("Select a game")
                 .font(.largeTitle)
