@@ -1,44 +1,17 @@
 import SwiftUI
 import SwiftData
 
-/// The Core session list — owns fetching, sectioning, selection, delete, and new-session sheet.
-///
-/// Modules configure it via GameModule.sessionListView(selectedSessionID:) by supplying
-/// a FetchDescriptor, section/nav titles, a cell view builder, and a new-session view builder.
-/// No per-module session list view is needed.
-struct GameSessionList<Session: PersistentModel & GameSession, Cell: View, NewSession: View>: View {
+/// The Core session list view. A single generic parameter is the only configuration
+/// needed — the Session type provides everything else via GameSession protocol requirements.
+struct GameSessionList<Session: GameSession>: View {
     @Query private var sessions: [Session]
-    var openSectionTitle: String
-    var closedSectionTitle: String
-    var navigationTitle: String
-    var newButtonTitle: String
-    var showsNewOnEmpty: Bool
     @Binding var selectedSessionID: String?
     @Environment(\.modelContext) private var modelContext
     @State private var showingNewSession = false
-    @ViewBuilder let cell: (Session) -> Cell
-    let makeNewSessionView: (Binding<String?>) -> NewSession
 
-    init(
-        fetchDescriptor: FetchDescriptor<Session>,
-        openSectionTitle: String = "Open",
-        closedSectionTitle: String = "Finished",
-        navigationTitle: String = "Sessions",
-        newButtonTitle: String = "New",
-        showsNewOnEmpty: Bool = true,
-        selectedSessionID: Binding<String?>,
-        @ViewBuilder cell: @escaping (Session) -> Cell,
-        @ViewBuilder makeNewSessionView: @escaping (Binding<String?>) -> NewSession
-    ) {
-        _sessions = Query(fetchDescriptor)
-        self.openSectionTitle = openSectionTitle
-        self.closedSectionTitle = closedSectionTitle
-        self.navigationTitle = navigationTitle
-        self.newButtonTitle = newButtonTitle
-        self.showsNewOnEmpty = showsNewOnEmpty
-        self._selectedSessionID = selectedSessionID
-        self.cell = cell
-        self.makeNewSessionView = makeNewSessionView
+    init(selectedSessionID: Binding<String?>) {
+        _sessions = Query(Session.fetchDescriptor)
+        _selectedSessionID = selectedSessionID
     }
 
     private var open: [Session] { sessions.filter { !$0.isFinished } }
@@ -47,9 +20,9 @@ struct GameSessionList<Session: PersistentModel & GameSession, Cell: View, NewSe
     var body: some View {
         List(selection: $selectedSessionID) {
             if !open.isEmpty {
-                Section(openSectionTitle) {
+                Section(Session.openSectionTitle) {
                     ForEach(open, id: \.sessionID) { session in
-                        cell(session).tag(session.sessionID as String?)
+                        Session.CellView(session: session).tag(session.sessionID as String?)
                     }
                     .onDelete { offsets in
                         withAnimation { offsets.forEach { modelContext.delete(open[$0]) } }
@@ -57,9 +30,9 @@ struct GameSessionList<Session: PersistentModel & GameSession, Cell: View, NewSe
                 }
             }
             if !closed.isEmpty {
-                Section(closedSectionTitle) {
+                Section(Session.closedSectionTitle) {
                     ForEach(closed, id: \.sessionID) { session in
-                        cell(session).tag(session.sessionID as String?)
+                        Session.CellView(session: session).tag(session.sessionID as String?)
                     }
                     .onDelete { offsets in
                         withAnimation { offsets.forEach { modelContext.delete(closed[$0]) } }
@@ -68,22 +41,22 @@ struct GameSessionList<Session: PersistentModel & GameSession, Cell: View, NewSe
             }
         }
         .listStyle(.plain)
-        .navigationTitle(navigationTitle)
+        .navigationTitle(Session.navigationTitle)
         .onAppear {
-            if showsNewOnEmpty && open.isEmpty && closed.isEmpty { showingNewSession = true }
+            if open.isEmpty && closed.isEmpty { showingNewSession = true }
         }
         .toolbar {
             ToolbarItem {
                 Button {
                     showingNewSession = true
                 } label: {
-                    Label(newButtonTitle, systemImage: "plus")
+                    Label(Session.newButtonTitle, systemImage: "plus")
                 }
                 .labelStyle(.titleOnly)
             }
         }
         .sheet(isPresented: $showingNewSession) {
-            makeNewSessionView($selectedSessionID)
+            Session.NewSessionView(onSave: { selectedSessionID = $0 })
         }
     }
 }

@@ -52,21 +52,7 @@ enum GameModule: String, CaseIterable, Identifiable, Hashable {
     @ViewBuilder
     func sessionListView(selectedSessionID: Binding<String?>) -> some View {
         switch self {
-        case .bridge:
-            GameSessionList(
-                fetchDescriptor: FetchDescriptor(sortBy: [SortDescriptor(\Rubber.dateCreated, order: .reverse)]),
-                openSectionTitle: "Open Rubbers",
-                closedSectionTitle: "Completed Rubbers",
-                navigationTitle: "Rubbers",
-                newButtonTitle: "New Rubber",
-                selectedSessionID: selectedSessionID
-            ) { rubber in
-                RubberListCell(rubber: rubber)
-            } makeNewSessionView: { selectedID in
-                NewRubber(onSave: { id in selectedID.wrappedValue = id.uuidString })
-                    .presentationDetents([.medium])
-                    .edgesIgnoringSafeArea(.all)
-            }
+        case .bridge: GameSessionList<Rubber>(selectedSessionID: selectedSessionID)
         }
     }
 

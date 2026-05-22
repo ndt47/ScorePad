@@ -131,8 +131,10 @@ struct NewRubber: View {
                 #endif
             }
         }
+        .presentationDetents([.medium])
+        .edgesIgnoringSafeArea(.all)
     }
-    
+
     func name(for position: Position) -> String? {
         var string: String = ""
         switch position {
