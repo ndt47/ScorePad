@@ -14,19 +14,11 @@ struct MilleBornesListCell: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 4) {
                         Text(game.team1Label)
-                        if game.winningTeam == 1 {
-                            Image(systemName: "trophy.fill")
-                                .foregroundColor(.orange)
-                                .font(.subheadline)
-                        }
+                        if game.winningTeam == 1 { WinnerBadge(showLabel: false) }
                     }
                     HStack(spacing: 4) {
                         Text(game.team2Label)
-                        if game.winningTeam == 2 {
-                            Image(systemName: "trophy.fill")
-                                .foregroundColor(.orange)
-                                .font(.subheadline)
-                        }
+                        if game.winningTeam == 2 { WinnerBadge(showLabel: false) }
                     }
                 }
                 .fontWeight(.light)
