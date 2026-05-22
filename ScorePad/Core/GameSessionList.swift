@@ -8,6 +8,8 @@ struct GameSessionList<Session: GameSession>: View {
     @Binding var selectedSessionID: String?
     @Environment(\.modelContext) private var modelContext
     @State private var showingNewSession = false
+    @State private var editMode: EditMode = .inactive
+    @State private var editSelection: Set<String> = []
 
     init(selectedSessionID: Binding<String?>) {
         _sessions = Query(Session.fetchDescriptor)
@@ -18,47 +20,101 @@ struct GameSessionList<Session: GameSession>: View {
     private var closed: [Session] { sessions.filter(\.isFinished) }
 
     var body: some View {
-        List(selection: $selectedSessionID) {
+        List(selection: $editSelection) {
             if !open.isEmpty {
                 Section(Session.openSectionTitle) {
                     ForEach(open, id: \.sessionID) { session in
-                        Session.CellView(session: session).tag(session.sessionID as String?)
+                        Session.CellView(session: session).tag(session.sessionID)
                     }
                     .onDelete { offsets in
-                        withAnimation { offsets.forEach { modelContext.delete(open[$0]) } }
+                        delete(offsets.map { open[$0] })
                     }
                 }
             }
             if !closed.isEmpty {
                 Section(Session.closedSectionTitle) {
                     ForEach(closed, id: \.sessionID) { session in
-                        Session.CellView(session: session).tag(session.sessionID as String?)
+                        Session.CellView(session: session).tag(session.sessionID)
                     }
                     .onDelete { offsets in
-                        withAnimation { offsets.forEach { modelContext.delete(closed[$0]) } }
+                        delete(offsets.map { closed[$0] })
                     }
                 }
             }
         }
         .listStyle(.plain)
+        .environment(\.editMode, $editMode)
         .navigationTitle(Session.navigationTitle)
         .onAppear {
-            // Auto-open the new-game sheet when there are no sessions yet, so the
-            // user lands directly in creation rather than staring at an empty list.
-            if open.isEmpty && closed.isEmpty { showingNewSession = true }
+            if open.isEmpty && closed.isEmpty {
+                showingNewSession = true
+            } else {
+                editSelection = selectedSessionID.map { [$0] } ?? []
+            }
+        }
+        // Sync List selection → navigation when browsing (not editing)
+        .onChange(of: editSelection) { _, newValue in
+            guard !editMode.isEditing else { return }
+            selectedSessionID = newValue.first
+        }
+        // Sync external navigation changes (e.g. new session saved) → List highlight
+        .onChange(of: selectedSessionID) { _, newValue in
+            guard !editMode.isEditing else { return }
+            editSelection = newValue.map { [$0] } ?? []
+        }
+        // Restore single-item selection when leaving edit mode
+        .onChange(of: editMode) { _, newValue in
+            if !newValue.isEditing {
+                editSelection = selectedSessionID.map { [$0] } ?? []
+            }
         }
         .toolbar {
-            ToolbarItem {
-                Button {
-                    showingNewSession = true
-                } label: {
-                    Label(Session.newButtonTitle, systemImage: "plus")
+            if editMode.isEditing {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Delete", role: .destructive) {
+                        deleteSelected()
+                    }
+                    .disabled(editSelection.isEmpty)
                 }
-                .labelStyle(.titleOnly)
+            }
+            ToolbarItemGroup(placement: .primaryAction) {
+                if editMode.isEditing {
+                    Button("Done") {
+                        withAnimation { editMode = .inactive }
+                    }
+                } else {
+                    Button("Edit") {
+                        withAnimation { editMode = .active }
+                    }
+                    Button {
+                        showingNewSession = true
+                    } label: {
+                        Label(Session.newButtonTitle, systemImage: "plus")
+                    }
+                    .labelStyle(.iconOnly)
+                }
             }
         }
         .sheet(isPresented: $showingNewSession) {
-            Session.NewSessionView(onSave: { selectedSessionID = $0 })
+            Session.NewSessionView(onSave: { id in
+                editMode = .inactive
+                selectedSessionID = id
+            })
         }
+    }
+
+    private func delete(_ toDelete: [Session]) {
+        if toDelete.contains(where: { $0.sessionID == selectedSessionID }) {
+            selectedSessionID = nil
+        }
+        withAnimation {
+            toDelete.forEach { modelContext.delete($0) }
+        }
+    }
+
+    private func deleteSelected() {
+        delete(sessions.filter { editSelection.contains($0.sessionID) })
+        editSelection = []
+        editMode = .inactive
     }
 }
