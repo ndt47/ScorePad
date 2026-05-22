@@ -14,7 +14,6 @@
 		4F4A3EB7F82D03C459F3ADDB /* BridgeGridCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373A914D2C8CE226889B1B6F /* BridgeGridCard.swift */; };
 		83F05B92E850BA764F422949 /* PlayerRosterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4495024449E274B3E989AFD /* PlayerRosterView.swift */; };
 		89C8D3474CD246207BC01F50 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577F26937136697E2CCDD87F /* GameSession.swift */; };
-		91DEE028FFB714B13A517C20 /* BridgeSessionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1176B3BC5827FF9FE53B4533 /* BridgeSessionListView.swift */; };
 		A9FD798FF6039D12AD7074AC /* GameModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98677DB2AFB6FA617F366495 /* GameModule.swift */; };
 		AD6729B6059333662C073252 /* BridgeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86B531C36C31B274B1F88FA /* BridgeDetailView.swift */; };
 		D83E487D293D1D5900E37BCE /* NewRubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487C293D1D5900E37BCE /* NewRubber.swift */; };
@@ -76,13 +75,11 @@
 
 /* Begin PBXFileReference section */
 		098FFE522CF86C127C03EF60 /* GameTypeGridView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameTypeGridView.swift; sourceTree = "<group>"; };
-		1176B3BC5827FF9FE53B4533 /* BridgeSessionListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeSessionListView.swift; sourceTree = "<group>"; };
 		17BBC61DB4491FFAA31195F0 /* AppRootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
 		1DBE63D7316C26FFE3E3F048 /* GameTypeGridView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameTypeGridView.swift; sourceTree = "<group>"; };
 		2911E787F541215D2CFEB6A5 /* PersonProfile.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PersonProfile.swift; sourceTree = "<group>"; };
 		373A914D2C8CE226889B1B6F /* BridgeGridCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeGridCard.swift; sourceTree = "<group>"; };
 		395F5F3F6DB3281B6D02FB9F /* GameSessionList.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameSessionList.swift; sourceTree = "<group>"; };
-		4D9D16BD088381B5BD721DE9 /* BridgeSessionListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeSessionListView.swift; sourceTree = "<group>"; };
 		577F26937136697E2CCDD87F /* GameSession.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
 		6A946207C457F5617B37EE93 /* AppRootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
 		7E629A9F7710666445A1EFE9 /* PlayerPickerField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlayerPickerField.swift; sourceTree = "<group>"; };
@@ -176,10 +173,8 @@
 				D83E4885293EC1B700E37BCE /* RubberListCell.swift */,
 				D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */,
 				D8A564A92937B5A100671E8C /* ScoreView.swift */,
-				1176B3BC5827FF9FE53B4533 /* BridgeSessionListView.swift */,
 				E86B531C36C31B274B1F88FA /* BridgeDetailView.swift */,
 				373A914D2C8CE226889B1B6F /* BridgeGridCard.swift */,
-				4D9D16BD088381B5BD721DE9 /* BridgeSessionListView.swift */,
 				D2F4BB07A40287E5036E8536 /* BridgeDetailView.swift */,
 				E9F13A863229378075C77ED5 /* BridgeGridCard.swift */,
 			);
@@ -499,7 +494,6 @@
 				2AC6A0DECF15239F44A8D502 /* PersonProfile.swift in Sources */,
 				83F05B92E850BA764F422949 /* PlayerRosterView.swift in Sources */,
 				E1FB19A581442C84E729F1CD /* PlayerPickerField.swift in Sources */,
-				91DEE028FFB714B13A517C20 /* BridgeSessionListView.swift in Sources */,
 				AD6729B6059333662C073252 /* BridgeDetailView.swift in Sources */,
 				4F4A3EB7F82D03C459F3ADDB /* BridgeGridCard.swift in Sources */,
 				FF521E9374AE43DBF82A0422 /* AppRootView.swift in Sources */,

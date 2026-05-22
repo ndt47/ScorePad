@@ -3,12 +3,6 @@ import SwiftData
 
 // MARK: - View-Slot Protocols
 
-/// A view that presents a scrollable list of a game type's recorded sessions.
-/// The host passes a binding so navigation state is driven from outside the module.
-protocol GameSessionListView: View {
-    init(selectedSessionID: Binding<String?>)
-}
-
 /// A view that presents the detail for a single recorded session.
 protocol GameDetailView: View {
     init(selectedSessionID: String?)
@@ -58,7 +52,21 @@ enum GameModule: String, CaseIterable, Identifiable, Hashable {
     @ViewBuilder
     func sessionListView(selectedSessionID: Binding<String?>) -> some View {
         switch self {
-        case .bridge: BridgeSessionListView(selectedSessionID: selectedSessionID)
+        case .bridge:
+            GameSessionList(
+                fetchDescriptor: FetchDescriptor(sortBy: [SortDescriptor(\Rubber.dateCreated, order: .reverse)]),
+                openSectionTitle: "Open Rubbers",
+                closedSectionTitle: "Completed Rubbers",
+                navigationTitle: "Rubbers",
+                newButtonTitle: "New Rubber",
+                selectedSessionID: selectedSessionID
+            ) { rubber in
+                RubberListCell(rubber: rubber)
+            } makeNewSessionView: { selectedID in
+                NewRubber(onSave: { id in selectedID.wrappedValue = id.uuidString })
+                    .presentationDetents([.medium])
+                    .edgesIgnoringSafeArea(.all)
+            }
         }
     }
 
