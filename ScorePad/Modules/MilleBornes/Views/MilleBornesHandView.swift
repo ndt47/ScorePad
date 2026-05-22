@@ -76,6 +76,9 @@ struct TeamScoreEditor: View {
     private var shutOut: Bool { score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame) && otherScore.totalMiles == 0 }
     private var totalHandScore: Int { score.handScore(isTwoPlayerGame: isTwoPlayerGame) + (shutOut ? 500 : 0) }
 
+    // Caps each denomination stepper so the running total cannot exceed the trip target.
+    // `current` is passed in so the upper bound always allows the value already entered
+    // (avoids the stepper clamping a valid existing value on re-render).
     private func cardRange(denomination: Int, current: Int, hardCap: Int) -> ClosedRange<Int> {
         let additionalAllowed = max(0, (tripTarget - score.totalMiles) / denomination)
         return 0...min(hardCap, current + additionalAllowed)

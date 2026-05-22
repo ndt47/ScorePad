@@ -43,6 +43,8 @@ struct GameSessionList<Session: GameSession>: View {
         .listStyle(.plain)
         .navigationTitle(Session.navigationTitle)
         .onAppear {
+            // Auto-open the new-game sheet when there are no sessions yet, so the
+            // user lands directly in creation rather than staring at an empty list.
             if open.isEmpty && closed.isEmpty { showingNewSession = true }
         }
         .toolbar {
