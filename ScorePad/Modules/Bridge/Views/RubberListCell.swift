@@ -28,13 +28,9 @@ struct RubberListCell: View {
                     ForEach(Team.allCases, id: \.self) { team in
                         let player1 = rubber.player(at: team.positions[0]) ?? team.positions[0].label
                         let player2 = rubber.player(at: team.positions[1]) ?? team.positions[1].label
-                        HStack(alignment: .firstTextBaseline, spacing: 0) {
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
                             Text("\(player1) & \(player2)")
-                            if rubber.winningTeam == team {
-                                Image(systemName: "trophy.fill")
-                                    .foregroundColor(.orange)
-                                    .font(.subheadline)
-                            }
+                            if rubber.winningTeam == team { WinnerBadge(showLabel: false) }
                         }
                     }
                 }

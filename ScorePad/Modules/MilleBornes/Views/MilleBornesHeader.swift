@@ -4,11 +4,13 @@ struct MilleBornesHeader: View {
     @EnvironmentObject var game: MilleBornesGame
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            MilleBornesTeamHeaderView(label: game.team1Label,
+        HStack(alignment: .top, spacing: 0) {
+            MilleBornesTeamHeaderView(players: game.team1Players,
+                                     fallback: "Team 1",
                                      score: game.cumulativeScore(team: 1),
                                      isWinner: game.winningTeam == 1)
-            MilleBornesTeamHeaderView(label: game.team2Label,
+            MilleBornesTeamHeaderView(players: game.team2Players,
+                                     fallback: "Team 2",
                                      score: game.cumulativeScore(team: 2),
                                      isWinner: game.winningTeam == 2)
         }
@@ -16,52 +18,37 @@ struct MilleBornesHeader: View {
 }
 
 struct MilleBornesTeamHeaderView: View {
-    var label: String
+    var players: [String]
+    var fallback: String
     var score: Int
     var isWinner: Bool
 
+    private var displayNames: [String] { players.isEmpty ? [fallback] : players }
+
     var body: some View {
-        VStack(alignment: .center) {
-            HStack {
-                VStack(alignment: .trailing) {
-                    HStack {
-                        Spacer()
-                        Text(label)
-                            .font(.title2)
-                            .fontWeight(.heavy)
-                            .allowsTightening(true)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity)
-                    HStack {
-                        Spacer()
-                        Text(score.formatted(.number.grouping(.never)))
-                            .font(.title3)
-                            .fontDesign(.monospaced)
-                            .foregroundColor(.gray)
-                    }
-                    .frame(maxWidth: .infinity)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 2) {
+                ForEach(displayNames, id: \.self) { name in
+                    Text(name)
+                        .font(.title3)
+                        .fontWeight(.heavy)
+                        .allowsTightening(true)
+                        .lineLimit(1)
                 }
-                .frame(maxWidth: .infinity)
-
-                Divider()
-                    .frame(height: 40)
-
-                VStack(alignment: .leading) {
-                    if isWinner {
-                        HStack(spacing: 4) {
-                            Image(systemName: "trophy.fill")
-                                .foregroundColor(.orange)
-                            Text("Winner")
-                                .font(.caption)
-                                .foregroundColor(.orange)
-                        }
-                    }
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(score.formatted(.number.grouping(.never)))
+                    .font(.title3)
+                    .fontDesign(.monospaced)
+                    .foregroundColor(.gray)
+                if isWinner {
+                    WinnerBadge()
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .frame(maxWidth: .infinity)
+        .padding(.horizontal, 6)
     }
 }
 
@@ -72,8 +59,8 @@ struct MilleBornesHeader_Previews: PreviewProvider {
         h.team1.cards100 = 8; h.team1.cards200 = 1  // 1000 miles → tripCompleted auto
         h.team1.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
         h.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
-        h.team1.drivingAce.played = true
-        h.team1.extraTank.played  = true  // allFourSafeties auto
+        h.team1.drivingAce = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.extraTank = MilleBornesSafetyState(played: true, coupFourre: true)  // allFourSafeties auto
         g.hands.append(h)
         return g
     }
@@ -82,11 +69,11 @@ struct MilleBornesHeader_Previews: PreviewProvider {
         VStack {
             MilleBornesHeader()
                 .environmentObject(MilleBornesGame.mock)
-                .previewDisplayName("In Progress")
+                .previewDisplayName("In Progress (4-player)")
             Divider()
             MilleBornesHeader()
                 .environmentObject(winnerGame)
-                .previewDisplayName("Winner")
+                .previewDisplayName("Winner (4-player)")
         }
     }
 }
