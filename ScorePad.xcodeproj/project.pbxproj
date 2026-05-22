@@ -193,6 +193,7 @@
 				D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */,
 				D8A564A92937B5A100671E8C /* ScoreView.swift */,
 				A55AB158FD0B6DB4806C88A7 /* BridgeDetailView.swift */,
+				D8A564DF293A882800671E8C /* Result.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -270,7 +271,6 @@
 			isa = PBXGroup;
 			children = (
 				D8BD5A482935257700B86AA6 /* ScorePad */,
-				D8BD5A5A2935257900B86AA6 /* ScorePadTests */,
 				D8BD5A642935257900B86AA6 /* ScorePadUITests */,
 				D8BD5A472935257700B86AA6 /* Products */,
 			);
@@ -294,8 +294,6 @@
 				D8A564D829394E8100671E8C /* EnvironmentValues.swift */,
 				D83E4880293D99B800E37BCE /* Utilities.swift */,
 				D8BD5A492935257700B86AA6 /* ScorePadApp.swift */,
-				D8A564DF293A882800671E8C /* Result.swift */,
-				D83E487E293D4B7600E37BCE /* Rule.swift */,
 				D8BD5A4D2935257900B86AA6 /* Assets.xcassets */,
 				D8BD5A4F2935257900B86AA6 /* ScorePad.entitlements */,
 				D8BD5A502935257900B86AA6 /* Preview Content */,
@@ -313,13 +311,6 @@
 				D8BD5A512935257900B86AA6 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		D8BD5A5A2935257900B86AA6 /* ScorePadTests */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ScorePadTests;
 			sourceTree = "<group>";
 		};
 		D8BD5A642935257900B86AA6 /* ScorePadUITests */ = {
@@ -375,6 +366,7 @@
 			children = (
 				92DA112EF0467C87E9AADDD0 /* AppRootView.swift */,
 				CBFABE14CE8D44B8A64E4493 /* GameTypeGridView.swift */,
+				D83E487E293D4B7600E37BCE /* Rule.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
