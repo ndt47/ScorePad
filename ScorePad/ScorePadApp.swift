@@ -10,10 +10,13 @@ import SwiftData
 
 @main
 struct ScorePadApp: App {
+    let registry = GameRegistry(modules: [.bridge])
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Rubber.self,
             Auction.self,
+            PersonProfile.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -26,8 +29,9 @@ struct ScorePadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RubberList()
+            AppRootView()
         }
         .modelContainer(sharedModelContainer)
+        .environment(registry)
     }
 }

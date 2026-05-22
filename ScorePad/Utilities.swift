@@ -1,6 +1,10 @@
 import SwiftUI
 
 extension View {
+    func eraseToAnyView() -> AnyView {
+        AnyView(self)
+    }
+
     static var isIPad: Bool {
         #if os(iOS)
         return UIDevice.current.userInterfaceIdiom == .pad

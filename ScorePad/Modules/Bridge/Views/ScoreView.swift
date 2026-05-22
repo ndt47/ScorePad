@@ -81,12 +81,6 @@ extension Suit: View {
     }
 }
 
-extension View {
-    func eraseToAnyView() -> AnyView {
-        AnyView(self)
-    }
-}
-
 struct Score_Previews: PreviewProvider {
     static var previews: some View {
         VStack {

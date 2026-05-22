@@ -10,6 +10,7 @@ import SwiftData
 
 struct NewRubber: View {
     @Environment(\.modelContext) private var modelContext
+    @Query(sort: \PersonProfile.name) private var roster: [PersonProfile]
 
     @State var dealer: Position = .north
     @State var north: String = ""
@@ -18,6 +19,7 @@ struct NewRubber: View {
     @State var west: String = ""
     @Environment(\.dismiss) var dismiss
     var onSave: ((Rubber.ID) -> Void)? = nil
+    var onCancel: (() -> Void)? = nil
 
     enum Action {
         case save
@@ -46,8 +48,8 @@ struct NewRubber: View {
                         Text(Team.we.label)
                             .font(.title2)
                             .bold()
-                        TextField(Position.north.label, text: $north)
-                        TextField(Position.south.label, text: $south)
+                        PlayerPickerField(Position.north.label, text: $north)
+                        PlayerPickerField(Position.south.label, text: $south)
                     }
                     Divider()
                         .frame(height:120)
@@ -55,8 +57,8 @@ struct NewRubber: View {
                         Text(Team.they.label)
                             .font(.title2)
                             .bold()
-                        TextField(Position.east.label, text: $east)
-                        TextField(Position.west.label, text: $west)
+                        PlayerPickerField(Position.east.label, text: $east)
+                        PlayerPickerField(Position.west.label, text: $west)
                     }
                 }
                 HStack {
@@ -155,6 +157,13 @@ struct NewRubber: View {
     }
     
     func save() {
+        // Auto-add any new names to the shared roster
+        for player in players {
+            let name = player.name
+            if !roster.contains(where: { $0.name.lowercased() == name.lowercased() }) {
+                modelContext.insert(PersonProfile(name: name))
+            }
+        }
         let rubber = Rubber(players: players, dealer: dealer)
         modelContext.insert(rubber)
         onSave?(rubber.id)
@@ -162,6 +171,7 @@ struct NewRubber: View {
     }
     
     func cancel() {
+        onCancel?()
         dismiss()
     }
 }
