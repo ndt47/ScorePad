@@ -30,8 +30,8 @@ struct MilleBornesHandRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            TeamScoreColumn(score: hand.team1, shutOut: hand.team1ShutOut(isTwoPlayerGame: isTwoPlayerGame))
-            TeamScoreColumn(score: hand.team2, shutOut: hand.team2ShutOut(isTwoPlayerGame: isTwoPlayerGame))
+            TeamScoreColumn(score: hand.team1, shutOut: hand.team1ShutOut(isTwoPlayerGame: isTwoPlayerGame), extensionCalled: hand.extensionCalled)
+            TeamScoreColumn(score: hand.team2, shutOut: hand.team2ShutOut(isTwoPlayerGame: isTwoPlayerGame), extensionCalled: hand.extensionCalled)
         }
         .padding(.vertical, 6)
         .contentShape(Rectangle())
@@ -52,7 +52,9 @@ struct MilleBornesHandRow_Previews: PreviewProvider {
 
     static var previews: some View {
         ZStack {
-            Rule(.vertical)
+            Rectangle()
+                .fill(.separator)
+                .frame(width: 0.5)
             MilleBornesHandRow(hand: hand)
                 .environment(\.isTwoPlayerGame, false)
                 .padding(.vertical, 4)
@@ -67,48 +69,43 @@ struct MilleBornesHandRow_Previews: PreviewProvider {
 struct TeamScoreColumn: View {
     var score: MilleBornesTeamScore
     var shutOut: Bool
+    var extensionCalled: Bool
     @Environment(\.isTwoPlayerGame) var isTwoPlayerGame
 
-    private var totalScore: Int { score.handScore(isTwoPlayerGame: isTwoPlayerGame) + (shutOut ? 500 : 0) }
+    private var totalScore: Int { score.handScore(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled) + (shutOut ? 500 : 0) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            if score.scoreLines(isTwoPlayerGame: isTwoPlayerGame).isEmpty && !shutOut {
-                Text("—")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-            } else {
-                ForEach(score.scoreLines(isTwoPlayerGame: isTwoPlayerGame)) { line in
-                    HStack {
-                        Text(line.label)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Text(line.value.formatted(.number.grouping(.never)))
-                            .font(.caption)
-                            .fontDesign(.monospaced)
-                    }
-                }
-                if shutOut {
-                    HStack {
-                        Text("Shut Out")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Text("500")
-                            .font(.caption)
-                            .fontDesign(.monospaced)
-                    }
-                }
-                Divider()
+            Spacer(minLength: 0)
+            ForEach(score.scoreLines(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled)) { line in
                 HStack {
+                    Text(line.label)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                     Spacer()
-                    Text(totalScore.formatted(.number.grouping(.never)))
+                    Text(line.value.formatted(.number.grouping(.never)))
                         .font(.caption)
                         .fontDesign(.monospaced)
-                        .fontWeight(.bold)
                 }
+            }
+            if shutOut {
+                HStack {
+                    Text("Shut Out")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("500")
+                        .font(.caption)
+                        .fontDesign(.monospaced)
+                }
+            }
+            Divider()
+            HStack {
+                Spacer()
+                Text(totalScore.formatted(.number.grouping(.never)))
+                    .font(.caption)
+                    .fontDesign(.monospaced)
+                    .fontWeight(.bold)
             }
         }
         .frame(maxWidth: .infinity)

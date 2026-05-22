@@ -45,20 +45,22 @@ struct MilleBornesTeamScore: Codable, Equatable {
         return totalMiles == 1000 ? 400 : 200
     }
 
-    // 2-player rule: trip ends at 700 unless extension was called, then at 1000.
+    // 2-player rule: trip ends at 700 unless extension was called by either team, then at 1000.
     // 4-player rule: trip always ends at 1000; extension is not available.
-    func tripCompleted(isTwoPlayerGame: Bool) -> Bool {
-        isTwoPlayerGame ? (totalMiles == 700 && !usedExtension) || totalMiles == 1000
+    // Callers with cross-team visibility should pass extensionCalled: team1.usedExtension || team2.usedExtension
+    // so the non-calling team also plays to 1000 when the opponent declares extension.
+    func tripCompleted(isTwoPlayerGame: Bool, extensionCalled: Bool = false) -> Bool {
+        isTwoPlayerGame ? (totalMiles == 700 && !(usedExtension || extensionCalled)) || totalMiles == 1000
                         : totalMiles == 1000
     }
 
-    func safeTrip(isTwoPlayerGame: Bool) -> Bool {
-        tripCompleted(isTwoPlayerGame: isTwoPlayerGame) && cards200 == 0
+    func safeTrip(isTwoPlayerGame: Bool, extensionCalled: Bool = false) -> Bool {
+        tripCompleted(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled) && cards200 == 0
     }
 
-    func handScore(isTwoPlayerGame: Bool) -> Int {
-        let tc = tripCompleted(isTwoPlayerGame: isTwoPlayerGame)
-        let st = safeTrip(isTwoPlayerGame: isTwoPlayerGame)
+    func handScore(isTwoPlayerGame: Bool, extensionCalled: Bool = false) -> Int {
+        let tc = tripCompleted(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled)
+        let st = safeTrip(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled)
         return totalMiles
             + safeties * 100
             + coupsFourres * 300
@@ -69,9 +71,9 @@ struct MilleBornesTeamScore: Codable, Equatable {
             + (delayedAction   ? 300 : 0)
     }
 
-    func scoreLines(isTwoPlayerGame: Bool) -> [MilleBornesScoreLine] {
-        let tc = tripCompleted(isTwoPlayerGame: isTwoPlayerGame)
-        let st = safeTrip(isTwoPlayerGame: isTwoPlayerGame)
+    func scoreLines(isTwoPlayerGame: Bool, extensionCalled: Bool = false) -> [MilleBornesScoreLine] {
+        let tc = tripCompleted(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled)
+        let st = safeTrip(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled)
         var lines: [MilleBornesScoreLine] = []
         if totalMiles > 0 {
             lines.append(MilleBornesScoreLine(label: "Miles", value: totalMiles))

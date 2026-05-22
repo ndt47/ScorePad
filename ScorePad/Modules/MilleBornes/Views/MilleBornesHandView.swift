@@ -72,9 +72,10 @@ struct TeamScoreEditor: View {
     var otherScore: MilleBornesTeamScore
     @Environment(\.isTwoPlayerGame) var isTwoPlayerGame
 
-    private var tripTarget: Int { isTwoPlayerGame ? (score.usedExtension ? 1000 : 700) : 1000 }
-    private var shutOut: Bool { score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame) && otherScore.totalMiles == 0 }
-    private var totalHandScore: Int { score.handScore(isTwoPlayerGame: isTwoPlayerGame) + (shutOut ? 500 : 0) }
+    private var extensionCalled: Bool { score.usedExtension || otherScore.usedExtension }
+    private var tripTarget: Int { isTwoPlayerGame ? (extensionCalled ? 1000 : 700) : 1000 }
+    private var shutOut: Bool { score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled) && otherScore.totalMiles == 0 }
+    private var totalHandScore: Int { score.handScore(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled) + (shutOut ? 500 : 0) }
 
     // Caps each denomination stepper so the running total cannot exceed the trip target.
     // `current` is passed in so the upper bound always allows the value already entered
@@ -140,9 +141,9 @@ struct TeamScoreEditor: View {
         .padding(.vertical, 4)
 
         // Auto-detected bonuses
-        if score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame) { autoRow("Trip Completed") }
+        if score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled) { autoRow("Trip Completed") }
         if score.allFourSafeties { autoRow("All 4 Safeties") }
-        if score.safeTrip(isTwoPlayerGame: isTwoPlayerGame) { autoRow("Safe Trip") }
+        if score.safeTrip(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled) { autoRow("Safe Trip") }
 
         // Called Extension — 2-player only; enabled only at exactly 700 miles
         if isTwoPlayerGame {
@@ -151,7 +152,7 @@ struct TeamScoreEditor: View {
         }
 
         // Trip-completion bonuses
-        if score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame) {
+        if score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled) {
             if shutOut { autoRow("Shut Out") }
             Toggle("Delayed Action", isOn: $score.delayedAction)
         }

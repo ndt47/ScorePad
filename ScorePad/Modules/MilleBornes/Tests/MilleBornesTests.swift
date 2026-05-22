@@ -117,6 +117,20 @@ final class MilleBornesTripCompletedTests: XCTestCase {
         XCTAssertTrue(s.tripCompleted(isTwoPlayerGame: true))
     }
 
+    func testOpponentExtensionAlsoDefersTripTo1000() {
+        // When the opponent calls the extension, the non-calling team must also play to 1000.
+        var team1 = MilleBornesTeamScore()
+        team1.cards100 = 7  // 700 miles, did NOT call extension
+        var team2 = MilleBornesTeamScore()
+        team2.usedExtension = true  // opponent called it
+
+        let extensionCalled = team1.usedExtension || team2.usedExtension
+        XCTAssertFalse(team1.tripCompleted(isTwoPlayerGame: true, extensionCalled: extensionCalled))
+
+        team1.cards100 = 10  // 1000 miles → now done
+        XCTAssertTrue(team1.tripCompleted(isTwoPlayerGame: true, extensionCalled: extensionCalled))
+    }
+
     func testFourPlayerHandScoreAt700HasNoTripBonus() {
         var s = MilleBornesTeamScore()
         s.cards100 = 7  // 700 miles, 4-player — miles only, no trip bonus

@@ -8,12 +8,13 @@ struct MilleBornesGameView: View {
     var body: some View {
         if let game {
             ZStack {
-                Rule(.vertical)
-                VStack(spacing: 4) {
+                Rectangle()
+                    .fill(.separator)
+                    .frame(width: 0.5)
+                VStack(spacing: 0) {
                     MilleBornesHeader()
-                    Spacer()
+                    Divider()
                     handsScrollView(game: game)
-                    Spacer()
                 }
                 .environment(\.presentHand) { hand in
                     editingHand = hand
@@ -72,8 +73,7 @@ struct MilleBornesGameView: View {
             LazyVStack(spacing: 0) {
                 ForEach(game.hands) { hand in
                     MilleBornesHandRow(hand: hand)
-                    Rule(.horizontal)
-                        .frame(height: 2)
+                    Divider()
                 }
             }
         }
