@@ -76,42 +76,36 @@ struct TeamScoreColumn: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            if score.scoreLines(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled).isEmpty && !shutOut {
-                Text("—")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-            } else {
-                ForEach(score.scoreLines(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled)) { line in
-                    HStack {
-                        Text(line.label)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Text(line.value.formatted(.number.grouping(.never)))
-                            .font(.caption)
-                            .fontDesign(.monospaced)
-                    }
-                }
-                if shutOut {
-                    HStack {
-                        Text("Shut Out")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Text("500")
-                            .font(.caption)
-                            .fontDesign(.monospaced)
-                    }
-                }
-                Divider()
+            Spacer(minLength: 0)
+            ForEach(score.scoreLines(isTwoPlayerGame: isTwoPlayerGame, extensionCalled: extensionCalled)) { line in
                 HStack {
+                    Text(line.label)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                     Spacer()
-                    Text(totalScore.formatted(.number.grouping(.never)))
+                    Text(line.value.formatted(.number.grouping(.never)))
                         .font(.caption)
                         .fontDesign(.monospaced)
-                        .fontWeight(.bold)
                 }
+            }
+            if shutOut {
+                HStack {
+                    Text("Shut Out")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("500")
+                        .font(.caption)
+                        .fontDesign(.monospaced)
+                }
+            }
+            Divider()
+            HStack {
+                Spacer()
+                Text(totalScore.formatted(.number.grouping(.never)))
+                    .font(.caption)
+                    .fontDesign(.monospaced)
+                    .fontWeight(.bold)
             }
         }
         .frame(maxWidth: .infinity)

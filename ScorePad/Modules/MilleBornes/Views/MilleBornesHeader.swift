@@ -28,13 +28,19 @@ struct MilleBornesTeamHeaderView: View {
     var body: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
-                ForEach(displayNames, id: \.self) { name in
-                    Text(name)
-                        .font(.title3)
-                        .fontWeight(.heavy)
-                        .allowsTightening(true)
-                        .lineLimit(1)
-                }
+                Text(displayNames[0])
+                    .font(.title3)
+                    .fontWeight(.heavy)
+                    .allowsTightening(true)
+                    .lineLimit(1)
+                // Always reserve space for a second name line so the header height is
+                // consistent across 2-player (1 name) and 4-player (2 names) games.
+                Text(displayNames.count > 1 ? displayNames[1] : displayNames[0])
+                    .font(.title3)
+                    .fontWeight(.heavy)
+                    .allowsTightening(true)
+                    .lineLimit(1)
+                    .opacity(displayNames.count > 1 ? 1 : 0)
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
