@@ -1,0 +1,113 @@
+import Foundation
+import SwiftData
+
+@Model
+final class MilleBornesGame: ObservableObject, Identifiable, Codable {
+    var id: UUID = UUID()
+    var dateCreated: Date = Date.now
+    var lastModified: Date = Date.now
+    var team1Players: [String] = []
+    var team2Players: [String] = []
+    var hands: [MilleBornesHand] = []
+
+    init(team1Players: [String] = [], team2Players: [String] = []) {
+        self.id = UUID()
+        self.dateCreated = .now
+        self.lastModified = .now
+        self.team1Players = team1Players
+        self.team2Players = team2Players
+        self.hands = []
+    }
+
+    enum CodingKeys: CodingKey {
+        case id, dateCreated, lastModified, team1Players, team2Players, hands
+    }
+
+    required init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id           = try c.decode(UUID.self,                forKey: .id)
+        dateCreated  = try c.decode(Date.self,                forKey: .dateCreated)
+        lastModified = try c.decode(Date.self,                forKey: .lastModified)
+        team1Players = try c.decode([String].self,            forKey: .team1Players)
+        team2Players = try c.decode([String].self,            forKey: .team2Players)
+        hands        = try c.decode([MilleBornesHand].self,   forKey: .hands)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id,           forKey: .id)
+        try c.encode(dateCreated,  forKey: .dateCreated)
+        try c.encode(lastModified, forKey: .lastModified)
+        try c.encode(team1Players, forKey: .team1Players)
+        try c.encode(team2Players, forKey: .team2Players)
+        try c.encode(hands,        forKey: .hands)
+    }
+
+    var isFinished: Bool {
+        cumulativeScore(team: 1) >= 5000 || cumulativeScore(team: 2) >= 5000
+    }
+
+    var winningTeam: Int? {
+        guard isFinished else { return nil }
+        let s1 = cumulativeScore(team: 1)
+        let s2 = cumulativeScore(team: 2)
+        if s1 > s2 { return 1 }
+        if s2 > s1 { return 2 }
+        return nil
+    }
+
+    func cumulativeScore(team: Int) -> Int {
+        hands.reduce(0) { $0 + (team == 1 ? $1.team1.handScore : $1.team2.handScore) }
+    }
+
+    func addHand(_ hand: MilleBornesHand) {
+        hands.append(hand)
+        lastModified = .now
+    }
+
+    func replaceHand(_ hand: MilleBornesHand) {
+        guard let index = hands.firstIndex(where: { $0.id == hand.id }) else { return }
+        hands[index] = hand
+        lastModified = .now
+    }
+
+    var team1Label: String {
+        team1Players.isEmpty ? "Team 1" : team1Players.joined(separator: " & ")
+    }
+
+    var team2Label: String {
+        team2Players.isEmpty ? "Team 2" : team2Players.joined(separator: " & ")
+    }
+}
+
+extension MilleBornesGame: Hashable {
+    static func == (lhs: MilleBornesGame, rhs: MilleBornesGame) -> Bool {
+        lhs.id == rhs.id
+    }
+    func hash(into hasher: inout Hasher) {
+        id.hash(into: &hasher)
+    }
+}
+
+extension MilleBornesGame {
+    static var mock: MilleBornesGame {
+        let game = MilleBornesGame(
+            team1Players: ["Nathan", "Caty"],
+            team2Players: ["Sharon", "Larisa"]
+        )
+        var h1 = MilleBornesHand()
+        h1.team1.cards100 = 6; h1.team1.cards50 = 2
+        h1.team1.safeties = 2; h1.team1.coupsFourres = 1
+        h1.team1.tripCompleted = true; h1.team1.shutOut = true
+        h1.team2.cards100 = 3; h1.team2.cards50 = 2
+        h1.team2.safeties = 1
+        var h2 = MilleBornesHand()
+        h2.team1.cards100 = 4; h2.team1.cards50 = 1
+        h2.team1.safeties = 1
+        h2.team2.cards100 = 6; h2.team2.cards200 = 1
+        h2.team2.safeties = 3; h2.team2.coupsFourres = 2
+        h2.team2.tripCompleted = true
+        game.hands = [h1, h2]
+        return game
+    }
+}
