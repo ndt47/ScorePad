@@ -9,4 +9,5 @@ import Foundation
 
 enum DefaultsKey: String {
     case selectedRubberID
+    case selectedGameModuleID
 }
