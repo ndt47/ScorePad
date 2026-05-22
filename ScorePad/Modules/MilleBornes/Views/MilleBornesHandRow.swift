@@ -21,8 +21,8 @@ struct MilleBornesHandRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            TeamScoreColumn(score: hand.team1)
-            TeamScoreColumn(score: hand.team2)
+            TeamScoreColumn(score: hand.team1, shutOut: hand.team1ShutOut)
+            TeamScoreColumn(score: hand.team2, shutOut: hand.team2ShutOut)
         }
         .padding(.vertical, 6)
         .contentShape(Rectangle())
@@ -33,11 +33,11 @@ struct MilleBornesHandRow: View {
 struct MilleBornesHandRow_Previews: PreviewProvider {
     static var hand: MilleBornesHand {
         var h = MilleBornesHand()
-        h.team1.cards100 = 6; h.team1.cards50 = 2
-        h.team1.safeties = 2; h.team1.coupsFourres = 1
-        h.team1.tripCompleted = true
+        h.team1.cards100 = 6; h.team1.cards50 = 2  // 700 miles → tripCompleted auto
+        h.team1.rightOfWay.played = true
+        h.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
         h.team2.cards100 = 3; h.team2.cards50 = 2
-        h.team2.safeties = 1
+        h.team2.extraTank.played = true
         return h
     }
 
@@ -56,10 +56,13 @@ struct MilleBornesHandRow_Previews: PreviewProvider {
 
 struct TeamScoreColumn: View {
     var score: MilleBornesTeamScore
+    var shutOut: Bool
+
+    private var totalScore: Int { score.handScore + (shutOut ? 500 : 0) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            if score.scoreLines.isEmpty {
+            if score.scoreLines.isEmpty && !shutOut {
                 Text("—")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -76,10 +79,21 @@ struct TeamScoreColumn: View {
                             .fontDesign(.monospaced)
                     }
                 }
+                if shutOut {
+                    HStack {
+                        Text("Shut Out")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("500")
+                            .font(.caption)
+                            .fontDesign(.monospaced)
+                    }
+                }
                 Divider()
                 HStack {
                     Spacer()
-                    Text(score.handScore.formatted(.number.grouping(.never)))
+                    Text(totalScore.formatted(.number.grouping(.never)))
                         .font(.caption)
                         .fontDesign(.monospaced)
                         .fontWeight(.bold)

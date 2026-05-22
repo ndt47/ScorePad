@@ -57,7 +57,7 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
     }
 
     func cumulativeScore(team: Int) -> Int {
-        hands.reduce(0) { $0 + (team == 1 ? $1.team1.handScore : $1.team2.handScore) }
+        hands.reduce(0) { $0 + (team == 1 ? $1.team1Score : $1.team2Score) }
     }
 
     func addHand(_ hand: MilleBornesHand) {
@@ -70,6 +70,8 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         hands[index] = hand
         lastModified = .now
     }
+
+    var isTwoPlayerGame: Bool { team1Players.count <= 1 }
 
     var team1Label: String {
         team1Players.isEmpty ? "Team 1" : team1Players.joined(separator: " & ")
@@ -96,17 +98,18 @@ extension MilleBornesGame {
             team2Players: ["Sharon", "Larisa"]
         )
         var h1 = MilleBornesHand()
-        h1.team1.cards100 = 6; h1.team1.cards50 = 2
-        h1.team1.safeties = 2; h1.team1.coupsFourres = 1
-        h1.team1.tripCompleted = true; h1.team1.shutOut = true
+        h1.team1.cards100 = 6; h1.team1.cards50 = 2  // 700 miles → tripCompleted auto
+        h1.team1.rightOfWay.played = true
+        h1.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
         h1.team2.cards100 = 3; h1.team2.cards50 = 2
-        h1.team2.safeties = 1
+        h1.team2.drivingAce.played = true
         var h2 = MilleBornesHand()
         h2.team1.cards100 = 4; h2.team1.cards50 = 1
-        h2.team1.safeties = 1
-        h2.team2.cards100 = 6; h2.team2.cards200 = 1
-        h2.team2.safeties = 3; h2.team2.coupsFourres = 2
-        h2.team2.tripCompleted = true
+        h2.team1.extraTank.played = true
+        h2.team2.cards100 = 5; h2.team2.cards200 = 1  // 700 miles → tripCompleted auto
+        h2.team2.rightOfWay.played = true
+        h2.team2.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
+        h2.team2.drivingAce = MilleBornesSafetyState(played: true, coupFourre: true)
         game.hands = [h1, h2]
         return game
     }

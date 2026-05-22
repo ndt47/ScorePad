@@ -56,36 +56,31 @@ final class MilleBornesSafeTripTests: XCTestCase {
 
     func testSafeTripFalseWhenTripNotCompleted() {
         var s = MilleBornesTeamScore()
-        s.cards200 = 0
-        s.tripCompleted = false
+        s.cards200 = 0  // 0 miles → tripCompleted = false
         XCTAssertFalse(s.safeTrip)
     }
 
     func testSafeTripFalseWhenUsed200() {
         var s = MilleBornesTeamScore()
-        s.cards200 = 1
-        s.tripCompleted = true
+        s.cards200 = 1; s.cards100 = 5  // 700 miles → tripCompleted, but used a 200
         XCTAssertFalse(s.safeTrip)
     }
 
     func testSafeTripFalseWhenUsedTwo200s() {
         var s = MilleBornesTeamScore()
-        s.cards200 = 2
-        s.tripCompleted = true
+        s.cards200 = 2; s.cards100 = 6  // 1000 miles → tripCompleted, but used 200s
         XCTAssertFalse(s.safeTrip)
     }
 
     func testSafeTripTrueWhenNo200AndCompleted() {
         var s = MilleBornesTeamScore()
-        s.cards25 = 2; s.cards50 = 2; s.cards100 = 8  // 1000 miles without 200s
-        s.tripCompleted = true
+        s.cards100 = 7  // exactly 700 miles, no 200s → tripCompleted + safeTrip
         XCTAssertTrue(s.safeTrip)
     }
 
     func testSafeTripFalseWhenNo200ButNotCompleted() {
         var s = MilleBornesTeamScore()
-        s.cards100 = 5  // 500 miles, no trip
-        s.tripCompleted = false
+        s.cards100 = 5  // 500 miles — not 700 or 1000, so tripCompleted = false
         XCTAssertFalse(s.safeTrip)
     }
 }
@@ -102,96 +97,102 @@ final class MilleBornesHandScoreTests: XCTestCase {
 
     func testSafetyBonus100Each() {
         var s = MilleBornesTeamScore()
-        s.safeties = 1
+        s.rightOfWay.played = true
         XCTAssertEqual(s.handScore, 100)
-        s.safeties = 4
-        XCTAssertEqual(s.handScore, 400)
+        s.punctureProof.played = true
+        s.drivingAce.played = true  // 3 safeties — stop before allFourSafeties triggers
+        XCTAssertEqual(s.handScore, 300)
     }
 
     func testCoupFourreBonus300Each() {
         var s = MilleBornesTeamScore()
-        s.safeties = 2
-        s.coupsFourres = 2
+        s.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        s.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
         // 2×100 safety + 2×300 coup fourré
         XCTAssertEqual(s.handScore, 2 * 100 + 2 * 300)
     }
 
     func testCoupFourreStacksWithSafetyBonus() {
         var s = MilleBornesTeamScore()
-        s.safeties = 3
-        s.coupsFourres = 1
+        s.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        s.punctureProof.played = true
+        s.drivingAce.played = true
         // 3×100 + 1×300
         XCTAssertEqual(s.handScore, 300 + 300)
     }
 
     func testTripCompletedBonus400() {
         var s = MilleBornesTeamScore()
-        s.cards200 = 1   // suppress safeTrip auto-detection
-        s.tripCompleted = true
-        XCTAssertEqual(s.handScore, 200 + 400)
+        s.cards200 = 1; s.cards100 = 5  // 700 miles → tripCompleted, no safeTrip (has 200)
+        XCTAssertEqual(s.handScore, 700 + 400)
     }
 
     func testAllFourSafetiesBonus300() {
         var s = MilleBornesTeamScore()
-        s.allFourSafeties = true
-        XCTAssertEqual(s.handScore, 300)
+        s.rightOfWay.played = true; s.punctureProof.played = true
+        s.drivingAce.played = true; s.extraTank.played = true
+        XCTAssertEqual(s.handScore, 4 * 100 + 300)
     }
 
     func testSafeTripBonus300() {
         var s = MilleBornesTeamScore()
-        s.cards100 = 10  // 1000 mi, no 200s → safeTrip auto = true
-        s.tripCompleted = true
-        // miles + trip + safe trip
+        s.cards100 = 10  // 1000 miles, no 200s → tripCompleted + safeTrip auto
         XCTAssertEqual(s.handScore, 1000 + 400 + 300)
     }
 
     func testSafeTripNotAwardedWhen200Used() {
         var s = MilleBornesTeamScore()
-        s.cards200 = 1; s.cards100 = 8  // 1000 miles with a 200 → no safeTrip
-        s.tripCompleted = true
-        // miles + trip only
+        s.cards200 = 1; s.cards100 = 8  // 1000 miles with a 200 → tripCompleted, no safeTrip
         XCTAssertEqual(s.handScore, 1000 + 400)
     }
 
-    func testExtensionBonus200() {
+    func testExtensionBonus400WhenCompletedAtThousand() {
         var s = MilleBornesTeamScore()
-        s.cards200 = 1   // suppress safeTrip auto-detection
-        s.tripCompleted = true
+        s.cards200 = 1; s.cards100 = 8  // 1000 miles, called extension and won
         s.usedExtension = true
-        XCTAssertEqual(s.handScore, 200 + 400 + 200)
+        // trip(400) + extension(400); no safeTrip (has 200 card)
+        XCTAssertEqual(s.handScore, 1000 + 400 + 400)
+    }
+
+    func testExtensionBonus200WhenCalledButNotCompleted() {
+        var s = MilleBornesTeamScore()
+        s.cards200 = 1; s.cards100 = 5  // 700 miles, called extension but opponent won
+        s.usedExtension = true
+        // tripCompleted = false (700 mi + usedExtension means hand continues), extension = 200
+        XCTAssertFalse(s.tripCompleted)
+        XCTAssertEqual(s.handScore, 700 + 200)
     }
 
     func testShutOutBonus500() {
-        var s = MilleBornesTeamScore()
-        s.cards200 = 1   // suppress safeTrip auto-detection
-        s.tripCompleted = true
-        s.shutOut = true
-        XCTAssertEqual(s.handScore, 200 + 400 + 500)
+        var h = MilleBornesHand()
+        h.team1.cards200 = 1; h.team1.cards100 = 5  // 700 miles → tripCompleted, no safeTrip
+        // team2 has 0 miles → shutOut auto
+        XCTAssertTrue(h.team1ShutOut)
+        XCTAssertEqual(h.team1Score, 700 + 400 + 500)
     }
 
     func testDelayedActionBonus300() {
         var s = MilleBornesTeamScore()
-        s.cards200 = 1   // suppress safeTrip auto-detection
-        s.tripCompleted = true
+        s.cards200 = 1; s.cards100 = 5  // 700 miles → tripCompleted, no safeTrip
         s.delayedAction = true
-        XCTAssertEqual(s.handScore, 200 + 400 + 300)
+        XCTAssertEqual(s.handScore, 700 + 400 + 300)
     }
 
     func testFullBonusHand() {
-        // Trip completed without 200s, all 4 safeties (3 coup fourré), extension, shut out, delayed action
-        var s = MilleBornesTeamScore()
-        s.cards100 = 10          // 1000 miles
-        s.safeties = 4           // 4 × 100 = 400
-        s.coupsFourres = 3       // 3 × 300 = 900
-        s.tripCompleted = true   // 400
-        s.allFourSafeties = true // 300
-        // safeTrip = true (no 200s + tripCompleted) → 300
-        s.usedExtension = true   // 200
-        s.shutOut = true         // 500
-        s.delayedAction = true   // 300
+        // 1000 miles (no 200s) → tripCompleted, safeTrip, allFourSafeties auto; extension explicit
+        // team2 has 0 miles → shutOut auto at hand level
+        var h = MilleBornesHand()
+        h.team1.cards100 = 10
+        h.team1.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.drivingAce    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.extraTank.played = true
+        h.team1.usedExtension = true
+        h.team1.delayedAction = true
 
-        let expected = 1000 + 400 + 900 + 400 + 300 + 300 + 200 + 500 + 300
-        XCTAssertEqual(s.handScore, expected)
+        // 1000 + 400 (trip) + 900 (CF) + 400 (safeties) + 300 (allFour) + 300 (safeTrip) + 400 (extension) + 500 (shutOut) + 300 (delayedAction)
+        let expected = 1000 + 400 + 900 + 400 + 300 + 300 + 400 + 500 + 300
+        XCTAssertEqual(h.team1Score, expected)
     }
 
     func testZeroScore() {
@@ -222,60 +223,66 @@ final class MilleBornesScoreLinesTests: XCTestCase {
 
     func testSingleSafetyLabel() {
         var s = MilleBornesTeamScore()
-        s.safeties = 1
+        s.rightOfWay.played = true
         XCTAssertTrue(s.scoreLines.map(\.label).contains("Safety"))
     }
 
     func testPluralSafetyLabel() {
         var s = MilleBornesTeamScore()
-        s.safeties = 3
+        s.rightOfWay.played = true; s.punctureProof.played = true; s.drivingAce.played = true
         XCTAssertTrue(s.scoreLines.map(\.label).contains("Safety ×3"))
     }
 
     func testSingleCoupFourreLabel() {
         var s = MilleBornesTeamScore()
-        s.safeties = 1; s.coupsFourres = 1
+        s.rightOfWay = MilleBornesSafetyState(played: true, coupFourre: true)
         XCTAssertTrue(s.scoreLines.map(\.label).contains("Coup Fourré"))
     }
 
     func testPluralCoupFourreLabel() {
         var s = MilleBornesTeamScore()
-        s.safeties = 2; s.coupsFourres = 2
+        s.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        s.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
         XCTAssertTrue(s.scoreLines.map(\.label).contains("Coup Fourré ×2"))
     }
 
     func testBonusLabelsIncluded() {
         var s = MilleBornesTeamScore()
-        s.cards100 = 10; s.tripCompleted = true
-        s.allFourSafeties = true; s.usedExtension = true
-        s.shutOut = true; s.delayedAction = true
+        s.cards100 = 10   // 1000 miles → tripCompleted + safeTrip (no 200s)
+        s.rightOfWay.played = true; s.punctureProof.played = true
+        s.drivingAce.played = true; s.extraTank.played = true  // allFourSafeties
+        s.usedExtension = true
+        s.delayedAction = true
 
         let labels = s.scoreLines.map(\.label)
         XCTAssertTrue(labels.contains("Trip"))
         XCTAssertTrue(labels.contains("All 4 Safeties"))
-        XCTAssertTrue(labels.contains("Safe Trip"))   // auto: no 200s + tripCompleted
-        XCTAssertTrue(labels.contains("Extension"))
-        XCTAssertTrue(labels.contains("Shut Out"))
+        XCTAssertTrue(labels.contains("Safe Trip"))
+        XCTAssertTrue(labels.contains("Called Extension"))
         XCTAssertTrue(labels.contains("Delayed Action"))
+        // Shut Out is computed at the hand level, not in scoreLines
     }
 
     func testSafeTripLineAbsentWhenUsed200() {
         var s = MilleBornesTeamScore()
-        s.cards200 = 1; s.cards100 = 8; s.tripCompleted = true
+        s.cards200 = 1; s.cards100 = 8  // 1000 miles → tripCompleted, but used 200 → no safeTrip
         XCTAssertFalse(s.scoreLines.map(\.label).contains("Safe Trip"))
     }
 
     func testScoreLineValuesAreCorrect() {
         var s = MilleBornesTeamScore()
-        s.tripCompleted = true; s.allFourSafeties = true
-        s.usedExtension = true; s.shutOut = true; s.delayedAction = true
+        s.cards200 = 1; s.cards100 = 8  // 1000 miles → tripCompleted, no safeTrip (has 200)
+        s.rightOfWay.played = true; s.punctureProof.played = true
+        s.drivingAce.played = true; s.extraTank.played = true  // allFourSafeties
+        s.usedExtension = true
+        s.delayedAction = true
 
         let lineValues = Dictionary(uniqueKeysWithValues: s.scoreLines.map { ($0.label, $0.value) })
-        XCTAssertEqual(lineValues["Trip"],           400)
-        XCTAssertEqual(lineValues["All 4 Safeties"], 300)
-        XCTAssertEqual(lineValues["Extension"],      200)
-        XCTAssertEqual(lineValues["Shut Out"],       500)
-        XCTAssertEqual(lineValues["Delayed Action"], 300)
+        XCTAssertEqual(lineValues["Trip"],             400)
+        XCTAssertEqual(lineValues["All 4 Safeties"],   300)
+        XCTAssertEqual(lineValues["Called Extension"], 400)  // 1000 miles → won with extension
+        XCTAssertEqual(lineValues["Delayed Action"],   300)
+        // Shut Out is computed at the hand level, not in scoreLines
     }
 }
 
@@ -301,19 +308,19 @@ final class MilleBornesGameTests: XCTestCase {
     }
 
     func testCumulativeScoreAggregatesHands() {
-        let g = game(hands: [(500, 300), (400, 700)])
+        let g = game(hands: [(500, 300), (400, 500)])  // all below 700 — no trip bonuses
         XCTAssertEqual(g.cumulativeScore(team: 1), 900)
-        XCTAssertEqual(g.cumulativeScore(team: 2), 1000)
+        XCTAssertEqual(g.cumulativeScore(team: 2), 800)
     }
 
     func testCumulativeScoreIncludesBonuses() {
         let g = MilleBornesGame(team1Players: ["A"], team2Players: ["B"])
         var h = MilleBornesHand()
-        h.team1.cards100 = 10  // 1000 miles
-        h.team1.tripCompleted = true  // +400, and safeTrip (+300) since no 200s
+        h.team1.cards100 = 10  // 1000 miles → tripCompleted + safeTrip (no 200s) auto
+        h.team2.cards100 = 3   // 300 miles — prevents shutOut so only trip bonuses apply
         g.addHand(h)
         XCTAssertEqual(g.cumulativeScore(team: 1), 1700)
-        XCTAssertEqual(g.cumulativeScore(team: 2), 0)
+        XCTAssertEqual(g.cumulativeScore(team: 2), 300)
     }
 
     func testIsNotFinishedBelowThreshold() {
@@ -324,17 +331,20 @@ final class MilleBornesGameTests: XCTestCase {
     func testIsFinishedAtExactly5000() {
         let g = MilleBornesGame(team1Players: ["A"], team2Players: ["B"])
         var h = MilleBornesHand()
-        // 1000 miles + trip(400) + safeTrip(300) + shutOut(500) + allFour(300) + extension(200) = 2700
-        h.team1.cards100 = 10; h.team1.tripCompleted = true
-        h.team1.shutOut = true; h.team1.allFourSafeties = true; h.team1.usedExtension = true
-        h.team1.safeties = 4; h.team1.coupsFourres = 0  // 4×100 = 400 more → 3100
-        // That's 2700 + 400 = 3100, not 5000 yet — add a second hand
+        // 1000 mi + ext → tripCompleted + safeTrip + allFourSafeties auto; team2=0 → shutOut auto
+        // 1000 + 400 (trip) + 400 (ext@1000) + 300 (safeTrip) + 300 (allFour) + 400 (4×safety) + 500 (shutOut) = 3300
+        h.team1.cards100 = 10
+        h.team1.rightOfWay.played = true; h.team1.punctureProof.played = true
+        h.team1.drivingAce.played = true; h.team1.extraTank.played = true
+        h.team1.usedExtension = true
         g.addHand(h)
 
         var h2 = MilleBornesHand()
-        // Enough for team1 to cross 5000 total
-        h2.team1.cards100 = 10; h2.team1.tripCompleted = true  // 1000 + 400 + 300 = 1700
-        h2.team1.safeties = 4; h2.team1.coupsFourres = 4        // 4×100+4×300 = 1600
+        h2.team1.cards100 = 10
+        h2.team1.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h2.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
+        h2.team1.drivingAce    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h2.team1.extraTank     = MilleBornesSafetyState(played: true, coupFourre: true)
         g.addHand(h2)
 
         XCTAssertTrue(g.isFinished)
@@ -343,14 +353,18 @@ final class MilleBornesGameTests: XCTestCase {
     func testIsFinishedWhenTeam2Crosses5000() {
         let g = MilleBornesGame(team1Players: ["A"], team2Players: ["B"])
         var h = MilleBornesHand()
-        h.team2.cards100 = 10; h.team2.tripCompleted = true
-        h.team2.safeties = 4; h.team2.coupsFourres = 4
-        h.team2.shutOut = true; h.team2.allFourSafeties = true
-        h.team2.usedExtension = true; h.team2.delayedAction = true
+        // 1000 mi + ext → tripCompleted + safeTrip + allFourSafeties auto; team1=0 → shutOut auto
+        // 1000 + 400 (trip) + 300 (safeTrip) + 300 (allFour) + 400 (safeties) + 1200 (CF) + 400 (ext@1000) + 300 (delayed) + 500 (shutOut) = 4800
+        h.team2.cards100 = 10
+        h.team2.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team2.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team2.drivingAce    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team2.extraTank     = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team2.usedExtension = true
+        h.team2.delayedAction = true
         g.addHand(h)
-        // 1000 + 400 + 300 (safeTrip) + 400 + 1200 + 500 + 300 + 200 + 300 = 4600; add another
         var h2 = MilleBornesHand()
-        h2.team2.cards100 = 5; h2.team2.tripCompleted = true
+        h2.team2.cards100 = 5  // 500 miles, no trip — enough to cross 5000
         g.addHand(h2)
         XCTAssertTrue(g.isFinished)
         XCTAssertEqual(g.winningTeam, 2)
@@ -363,13 +377,16 @@ final class MilleBornesGameTests: XCTestCase {
 
     func testWinningTeamIsHigherScoreWhenFinished() {
         let g = MilleBornesGame(team1Players: ["A"], team2Players: ["B"])
-        // Give team1 a big hand to finish
         var h = MilleBornesHand()
-        h.team1.cards100 = 10; h.team1.tripCompleted = true
-        h.team1.safeties = 4; h.team1.coupsFourres = 4
-        h.team1.shutOut = true; h.team1.allFourSafeties = true
-        h.team1.usedExtension = true; h.team1.delayedAction = true
-        h.team2.cards100 = 3
+        // 1000 mi → tripCompleted + safeTrip + allFourSafeties auto; extension explicit
+        h.team1.cards100 = 10
+        h.team1.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.drivingAce    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.extraTank     = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.usedExtension = true
+        h.team1.delayedAction = true
+        // team2 has 0 miles → shutOut auto-triggers for team1
         g.addHand(h)
         var h2 = MilleBornesHand()
         h2.team1.cards100 = 5
@@ -404,9 +421,9 @@ final class MilleBornesGameTests: XCTestCase {
         g.addHand(h)
         XCTAssertEqual(g.cumulativeScore(team: 1), 500)
 
-        h.team1.cards100 = 10  // replace with 1000 miles
+        h.team1.cards100 = 6  // replace with 600 miles (below 700 — no trip bonuses)
         g.replaceHand(h)
-        XCTAssertEqual(g.cumulativeScore(team: 1), 1000)
+        XCTAssertEqual(g.cumulativeScore(team: 1), 600)
     }
 
     func testReplaceHandWithUnknownIDIsNoOp() {
@@ -430,11 +447,11 @@ final class MilleBornesGameTests: XCTestCase {
         var h3 = MilleBornesHand(); h3.team1.cards100 = 2
         g.addHand(h1); g.addHand(h2); g.addHand(h3)
 
-        h2.team1.cards100 = 10
+        h2.team1.cards100 = 6  // replace with 600 miles (below 700 — no trip bonuses)
         g.replaceHand(h2)
 
         XCTAssertEqual(g.hands.count, 3)
-        XCTAssertEqual(g.cumulativeScore(team: 1), 300 + 1000 + 200)
+        XCTAssertEqual(g.cumulativeScore(team: 1), 300 + 600 + 200)
     }
 
     // MARK: - Labels
@@ -471,10 +488,11 @@ final class MilleBornesGameTests: XCTestCase {
 
     func testHandCodableRoundtrip() throws {
         var h = MilleBornesHand()
-        h.team1.cards100 = 6; h.team1.cards200 = 1
-        h.team1.safeties = 3; h.team1.coupsFourres = 2
-        h.team1.tripCompleted = true; h.team1.shutOut = true
-        h.team2.cards50 = 4; h.team2.safeties = 1
+        h.team1.cards100 = 6; h.team1.cards200 = 1  // 800 miles
+        h.team1.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.drivingAce.played = true
+        h.team2.cards50 = 4; h.team2.rightOfWay.played = true
 
         let data = try JSONEncoder().encode(h)
         let decoded = try JSONDecoder().decode(MilleBornesHand.self, from: data)

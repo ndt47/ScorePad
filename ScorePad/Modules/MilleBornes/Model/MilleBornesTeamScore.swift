@@ -1,5 +1,10 @@
 import Foundation
 
+struct MilleBornesSafetyState: Codable, Equatable {
+    var played: Bool = false
+    var coupFourre: Bool = false
+}
+
 struct MilleBornesTeamScore: Codable, Equatable {
     var cards25: Int = 0
     var cards50: Int = 0
@@ -7,32 +12,47 @@ struct MilleBornesTeamScore: Codable, Equatable {
     var cards100: Int = 0
     var cards200: Int = 0  // max 2 per hand
 
-    var safeties: Int = 0       // total safety cards played (0–4)
-    var coupsFourres: Int = 0   // subset played as coup fourré (0–safeties)
+    // One state per safety card — each card can only go to one team per hand
+    var rightOfWay    = MilleBornesSafetyState()  // 🚒
+    var punctureProof = MilleBornesSafetyState()  // 🛞
+    var drivingAce    = MilleBornesSafetyState()  // 🏎️
+    var extraTank     = MilleBornesSafetyState()  // ⛽
 
-    var tripCompleted: Bool = false
-    var allFourSafeties: Bool = false
-    var usedExtension: Bool = false
-    var shutOut: Bool = false
+    var usedExtension: Bool = false  // must be declared at the table when reaching 700 mi
     var delayedAction: Bool = false
 
     var totalMiles: Int {
         cards25 * 25 + cards50 * 50 + cards75 * 75 + cards100 * 100 + cards200 * 200
     }
 
-    // Auto-detected: no 200-mile cards used when trip was completed
+    var safeties: Int {
+        [rightOfWay, punctureProof, drivingAce, extraTank].filter(\.played).count
+    }
+    var coupsFourres: Int {
+        [rightOfWay, punctureProof, drivingAce, extraTank].filter(\.coupFourre).count
+    }
+
+    // Trip completed means this team WON the hand.
+    // At 700 miles with extension called, the hand continues — not a win yet.
+    var tripCompleted: Bool { (totalMiles == 700 && !usedExtension) || totalMiles == 1000 }
+    var allFourSafeties: Bool { safeties == 4 }
     var safeTrip: Bool { tripCompleted && cards200 == 0 }
+
+    // Extension bonus: +400 if the calling team reaches 1000, +200 if they called but opponent won.
+    var extensionBonus: Int {
+        guard usedExtension else { return 0 }
+        return totalMiles == 1000 ? 400 : 200
+    }
 
     var handScore: Int {
         totalMiles
         + safeties * 100
         + coupsFourres * 300
-        + (tripCompleted    ? 400 : 0)
-        + (allFourSafeties  ? 300 : 0)
-        + (safeTrip         ? 300 : 0)
-        + (usedExtension    ? 200 : 0)
-        + (shutOut          ? 500 : 0)
-        + (delayedAction    ? 300 : 0)
+        + (tripCompleted   ? 400 : 0)
+        + (allFourSafeties ? 300 : 0)
+        + (safeTrip        ? 300 : 0)
+        + extensionBonus
+        + (delayedAction   ? 300 : 0)
     }
 
     var scoreLines: [MilleBornesScoreLine] {
@@ -48,12 +68,11 @@ struct MilleBornesTeamScore: Codable, Equatable {
             let label = coupsFourres == 1 ? "Coup Fourré" : "Coup Fourré ×\(coupsFourres)"
             lines.append(MilleBornesScoreLine(label: label, value: coupsFourres * 300))
         }
-        if tripCompleted  { lines.append(MilleBornesScoreLine(label: "Trip",          value: 400)) }
-        if allFourSafeties { lines.append(MilleBornesScoreLine(label: "All 4 Safeties", value: 300)) }
-        if safeTrip       { lines.append(MilleBornesScoreLine(label: "Safe Trip",     value: 300)) }
-        if usedExtension  { lines.append(MilleBornesScoreLine(label: "Extension",     value: 200)) }
-        if shutOut        { lines.append(MilleBornesScoreLine(label: "Shut Out",      value: 500)) }
-        if delayedAction  { lines.append(MilleBornesScoreLine(label: "Delayed Action",value: 300)) }
+        if tripCompleted   { lines.append(MilleBornesScoreLine(label: "Trip",             value: 400)) }
+        if allFourSafeties { lines.append(MilleBornesScoreLine(label: "All 4 Safeties",   value: 300)) }
+        if safeTrip        { lines.append(MilleBornesScoreLine(label: "Safe Trip",        value: 300)) }
+        if usedExtension   { lines.append(MilleBornesScoreLine(label: "Called Extension", value: extensionBonus)) }
+        if delayedAction   { lines.append(MilleBornesScoreLine(label: "Delayed Action",   value: 300)) }
         return lines
     }
 }

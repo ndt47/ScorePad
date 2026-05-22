@@ -69,10 +69,11 @@ struct MilleBornesHeader_Previews: PreviewProvider {
     static var winnerGame: MilleBornesGame {
         let g = MilleBornesGame.mock
         var h = MilleBornesHand()
-        h.team1.cards100 = 10; h.team1.cards200 = 2
-        h.team1.tripCompleted = true; h.team1.shutOut = true
-        h.team1.safeties = 4; h.team1.coupsFourres = 2
-        h.team1.allFourSafeties = true
+        h.team1.cards100 = 8; h.team1.cards200 = 1  // 1000 miles → tripCompleted auto
+        h.team1.rightOfWay    = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.punctureProof = MilleBornesSafetyState(played: true, coupFourre: true)
+        h.team1.drivingAce.played = true
+        h.team1.extraTank.played  = true  // allFourSafeties auto
         g.hands.append(h)
         return g
     }
