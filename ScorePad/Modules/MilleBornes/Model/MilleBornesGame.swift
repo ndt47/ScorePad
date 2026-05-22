@@ -19,6 +19,9 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         self.hands = []
     }
 
+    // SwiftData's @Model macro doesn't synthesize Codable when stored properties include
+    // complex Codable types (like [MilleBornesHand]). Manual implementation is required
+    // to support export/import without a separate DTO layer.
     enum CodingKeys: CodingKey {
         case id, dateCreated, lastModified, team1Players, team2Players, hands
     }
@@ -72,6 +75,7 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         lastModified = .now
     }
 
+    // <= 1 (not == 1) so a game with no players yet (during creation) defaults to 2-player rules.
     var isTwoPlayerGame: Bool { team1Players.count <= 1 }
 
     var team1Label: String {

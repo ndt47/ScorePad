@@ -32,7 +32,9 @@ struct Contract: Codable, Identifiable {
     var honors: Honors = .none
     var tricksTaken: Int = 0
     
-    // Properties set when the contract is registered
+    // vulnerable is a snapshot captured at the time the contract is entered, not
+    // recomputed on every access. When a past contract is edited, Rubber._adjustContracts
+    // walks forward from that point and corrects the snapshot on any affected contracts.
     var vulnerable: Bool = false
     var date: Date = .now
     

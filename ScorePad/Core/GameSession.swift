@@ -31,6 +31,9 @@ protocol GameSession: PersistentModel {
     static var navigationTitle: String { get }
     static var newButtonTitle: String { get }
 
+    // String rather than UUID so AppNavigationState can hold a single selectedSessionID
+    // across all game types without knowing the concrete model type. Conformers return
+    // id.uuidString; type erasure happens once at this protocol boundary.
     var sessionID: String { get }
     var isFinished: Bool { get }
     var dateCreated: Date { get }

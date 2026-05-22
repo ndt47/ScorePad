@@ -1,10 +1,14 @@
 import Foundation
 
+// Each safety card is a named struct rather than a count so the UI can disable the
+// matching card for the opposing team — a specific card can only be held by one team per hand.
 struct MilleBornesSafetyState: Codable, Equatable {
     var played: Bool = false
     var coupFourre: Bool = false
 }
 
+// Shut-out is intentionally absent here. It requires knowing the opposing team's
+// mile total, which this struct doesn't have. It lives on MilleBornesHand instead.
 struct MilleBornesTeamScore: Codable, Equatable {
     var cards25: Int = 0
     var cards50: Int = 0
@@ -12,13 +16,13 @@ struct MilleBornesTeamScore: Codable, Equatable {
     var cards100: Int = 0
     var cards200: Int = 0  // max 2 per hand
 
-    // One state per safety card — each card can only go to one team per hand
     var rightOfWay    = MilleBornesSafetyState()  // 🚒
     var punctureProof = MilleBornesSafetyState()  // 🛞
     var drivingAce    = MilleBornesSafetyState()  // 🏎️
     var extraTank     = MilleBornesSafetyState()  // ⛽
 
-    var usedExtension: Bool = false  // must be declared at the table when reaching 700 mi
+    // Extension must be declared at the table at exactly 700 miles (2-player only).
+    var usedExtension: Bool = false
     var delayedAction: Bool = false
 
     var totalMiles: Int {
@@ -34,13 +38,15 @@ struct MilleBornesTeamScore: Codable, Equatable {
 
     var allFourSafeties: Bool { safeties == 4 }
 
-    // Extension bonus: +400 if the calling team reaches 1000, +200 if they called but opponent won.
+    // Both teams can earn an extension bonus: +400 for the team that reaches 1000,
+    // +200 for a team that called extension but didn't win the trip.
     var extensionBonus: Int {
         guard usedExtension else { return 0 }
         return totalMiles == 1000 ? 400 : 200
     }
 
-    // 2-player: win at 700 (or 1000 with extension). 4-player: win at 1000.
+    // 2-player rule: trip ends at 700 unless extension was called, then at 1000.
+    // 4-player rule: trip always ends at 1000; extension is not available.
     func tripCompleted(isTwoPlayerGame: Bool) -> Bool {
         isTwoPlayerGame ? (totalMiles == 700 && !usedExtension) || totalMiles == 1000
                         : totalMiles == 1000

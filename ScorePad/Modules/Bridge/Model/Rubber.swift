@@ -108,24 +108,27 @@ final class Rubber: ObservableObject, Identifiable, Codable {
         _adjustContracts(from: index)
     }
     
+    // Editing a past contract can change which team is vulnerable for every
+    // subsequent contract (a game might now be complete one hand earlier or later).
+    // This walk corrects the vulnerable snapshot on every affected contract so that
+    // scoring remains accurate without recomputing vulnerability on every access.
     private func _adjustContracts(from index: Int) {
         guard index < history.endIndex else { return }
-        
+
         var madeChanges = false
         let replacements = history.suffix(from: index).enumerated().map { index, result in
             guard case let .contract(a, c) = result else { return result }
-        
+
             let games = history.prefix(upTo: index).games
             let isVulnerable = games.vulnerableTeams.contains(c.declarer.team)
-            
+
             guard isVulnerable != c.vulnerable else { return result }
             var newContract = c
             newContract.vulnerable = isVulnerable
             madeChanges = true
             return .contract(a, newContract)
         }
-        
-        
+
         if madeChanges {
             let replaceRange = index..<history.endIndex
             history.replaceSubrange(replaceRange, with: replacements)
