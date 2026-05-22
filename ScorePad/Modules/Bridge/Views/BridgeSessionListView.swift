@@ -14,63 +14,26 @@ struct BridgeSessionListView: GameSessionListView {
 
     @State private var creatingRubber = false
 
-    private var openRubbers: [Rubber] { rubbers.filter { !$0.isFinished } }
-    private var completedRubbers: [Rubber] { rubbers.filter(\.isFinished) }
-
-    /// Converts String? ↔ Rubber.ID? at the module boundary.
-    private var selectedRubberID: Binding<Rubber.ID?> {
-        Binding(
-            get: { selectedSessionID.wrappedValue.flatMap { UUID(uuidString: $0) } },
-            set: { selectedSessionID.wrappedValue = $0?.uuidString }
-        )
-    }
-
     var body: some View {
-        List(selection: selectedRubberID) {
-            if !openRubbers.isEmpty {
-                Section("Open Rubbers") {
-                    ForEach(openRubbers, id: \.id) { rubber in
-                        RubberListCell(rubber: rubber)
-                            .tag(rubber.id)
-                    }
-                    .onDelete { offsets in deleteRubbers(from: openRubbers, offsets: offsets) }
-                }
+        GameSessionList(
+            open: rubbers.filter { !$0.isFinished },
+            closed: rubbers.filter(\.isFinished),
+            openSectionTitle: "Open Rubbers",
+            closedSectionTitle: "Completed Rubbers",
+            navigationTitle: "Rubbers",
+            newButtonTitle: "New Rubber",
+            selectedSessionID: selectedSessionID,
+            onNew: { creatingRubber = true },
+            onDelete: { offsets, source in
+                for index in offsets { modelContext.delete(source[index]) }
             }
-            if !completedRubbers.isEmpty {
-                Section("Completed Rubbers") {
-                    ForEach(completedRubbers, id: \.id) { rubber in
-                        RubberListCell(rubber: rubber)
-                            .tag(rubber.id)
-                    }
-                    .onDelete { offsets in deleteRubbers(from: completedRubbers, offsets: offsets) }
-                }
-            }
-        }
-        .listStyle(.plain)
-        .navigationTitle("Rubbers")
-        .onAppear {
-            if rubbers.isEmpty { creatingRubber = true }
-        }
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    creatingRubber = true
-                } label: {
-                    Label("New Rubber", systemImage: "plus")
-                }
-                .labelStyle(.titleOnly)
-            }
+        ) { rubber in
+            RubberListCell(rubber: rubber)
         }
         .sheet(isPresented: $creatingRubber) {
-            NewRubber(onSave: { id in selectedRubberID.wrappedValue = id })
+            NewRubber(onSave: { id in selectedSessionID.wrappedValue = id.uuidString })
                 .presentationDetents([.medium])
                 .edgesIgnoringSafeArea(.all)
-        }
-    }
-
-    private func deleteRubbers(from source: [Rubber], offsets: IndexSet) {
-        withAnimation {
-            for index in offsets { modelContext.delete(source[index]) }
         }
     }
 }

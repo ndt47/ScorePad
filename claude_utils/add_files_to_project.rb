@@ -4,8 +4,8 @@
 
 require 'xcodeproj'
 
-PROJECT_PATH = File.join(__dir__, 'ScorePad.xcodeproj')
-SOURCES_ROOT = File.join(__dir__, 'ScorePad')
+PROJECT_PATH = File.join(__dir__, '..', 'ScorePad.xcodeproj')
+SOURCES_ROOT = File.join(__dir__, '..', 'ScorePad')
 TARGET_NAME  = 'ScorePad'
 
 proj   = Xcodeproj::Project.open(PROJECT_PATH)
@@ -78,6 +78,10 @@ add_file(proj, target, sources_phase, 'Modules/Bridge/Views/BridgeGridCard.swift
 puts "\n=== Phase 5: App navigation views ==="
 add_file(proj, target, sources_phase, 'Views/AppRootView.swift',      ['Views'])
 add_file(proj, target, sources_phase, 'Views/GameTypeGridView.swift',  ['Views'])
+
+puts "\n=== Phase 6: Core session list ==="
+add_file(proj, target, sources_phase, 'Core/GameSession.swift',     ['Core'])
+add_file(proj, target, sources_phase, 'Core/GameSessionList.swift',  ['Core'])
 
 proj.save
 puts "\n✓ Project saved."

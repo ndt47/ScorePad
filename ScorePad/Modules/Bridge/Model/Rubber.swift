@@ -282,3 +282,8 @@ extension Rubber {
     }
 }
 
+// MARK: - GameSession
+extension Rubber: GameSession {
+    var sessionID: String { id.uuidString }
+}
+
