@@ -82,7 +82,7 @@ struct AuctionView: View {
 
                     if callsExpanded {
                         ScrollView {
-                            LazyVStack(spacing: 0) {
+                            VStack(spacing: 0) {
                                 if !auction.closed {
                                     CallView(call: .init(position: auction.bidder, call: .pending))
                                     Divider()
