@@ -1,8 +1,12 @@
 import SwiftUI
 import SwiftData
 
-struct BridgeDetailView: View {
+struct BridgeDetailView: GameDetailView {
     var selectedSessionID: String?
+
+    init(selectedSessionID: String?) {
+        self.selectedSessionID = selectedSessionID
+    }
 
     @Query(FetchDescriptor(sortBy: [SortDescriptor(\Rubber.dateCreated, order: .reverse)]))
     private var rubbers: [Rubber]

@@ -301,22 +301,21 @@ struct AuctionSummaryView: View {
     }
     
     var body: some View {
-        guard let level = auction.level, let suit = auction.suit else { return EmptyView ().eraseToAnyView()
-        }
-        return HStack(alignment: .firstTextBaseline) {
-            Text("\(player) is playing")
-            BidView(.bid(Bid(level, suit)))
-            if auction.redoubled {
-                Text("REDOUBLED")
-                    .foregroundColor(.gray)
-                    .font(.caption)
-
-            } else if auction.doubled {
-                Text("DOUBLED")
-                    .foregroundColor(.gray)
-                    .font(.caption)
+        if let level = auction.level, let suit = auction.suit {
+            HStack(alignment: .firstTextBaseline) {
+                Text("\(player) is playing")
+                BidView(.bid(Bid(level, suit)))
+                if auction.redoubled {
+                    Text("REDOUBLED")
+                        .foregroundColor(.gray)
+                        .font(.caption)
+                } else if auction.doubled {
+                    Text("DOUBLED")
+                        .foregroundColor(.gray)
+                        .font(.caption)
+                }
             }
-        }.eraseToAnyView()
+        }
     }
 }
 

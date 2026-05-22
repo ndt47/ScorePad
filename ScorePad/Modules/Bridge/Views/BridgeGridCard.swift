@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct BridgeGridCard: View {
+struct BridgeGridCard: GameGridCard {
     var body: some View {
         VStack(spacing: 12) {
             ZStack {

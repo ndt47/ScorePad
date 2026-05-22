@@ -1,8 +1,12 @@
 import SwiftUI
 import SwiftData
 
-struct BridgeSessionListView: View {
+struct BridgeSessionListView: GameSessionListView {
     var selectedSessionID: Binding<String?>
+
+    init(selectedSessionID: Binding<String?>) {
+        self.selectedSessionID = selectedSessionID
+    }
 
     @Environment(\.modelContext) private var modelContext
     @Query(FetchDescriptor(sortBy: [SortDescriptor(\Rubber.dateCreated, order: .reverse)]))

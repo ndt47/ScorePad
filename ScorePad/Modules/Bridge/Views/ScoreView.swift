@@ -51,32 +51,27 @@ extension Suit: View {
     var body: some View {
         switch self {
         case .clubs:
-            return Image(systemName: "suit.club.fill")
+            Image(systemName: "suit.club.fill")
                 .font(.caption)
-                .foregroundColor(.primary)
-                .eraseToAnyView()
+                .foregroundStyle(.primary)
         case .diamonds:
-            return Image(systemName: "suit.diamond.fill")
+            Image(systemName: "suit.diamond.fill")
                 .font(.caption)
-                .foregroundColor(.red)
-                .eraseToAnyView()
+                .foregroundStyle(.red)
         case .hearts:
-            return Image(systemName: "suit.heart.fill")
+            Image(systemName: "suit.heart.fill")
                 .font(.caption)
-                .foregroundColor(.red)
-                .eraseToAnyView()
+                .foregroundStyle(.red)
         case .spades:
-            return Image(systemName: "suit.spade.fill")
+            Image(systemName: "suit.spade.fill")
                 .font(.caption)
-                .foregroundColor(.primary)
-                .eraseToAnyView()
+                .foregroundStyle(.primary)
         case .notrump:
-            return Text("NT")
-                .foregroundColor(.primary)
-                .fontDesign(.rounded)
+            Text("NT")
                 .font(.caption)
+                .fontDesign(.rounded)
                 .fontWeight(.bold)
-                .eraseToAnyView()
+                .foregroundStyle(.primary)
         }
     }
 }
