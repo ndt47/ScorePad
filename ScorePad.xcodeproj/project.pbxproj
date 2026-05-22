@@ -12,6 +12,7 @@
 		3107699B06D1024F65AE54D6 /* PersonProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B512ABC9B578813611C975 /* PersonProfile.swift */; };
 		3536D5198820C28BD6CA823A /* PlayerRosterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D14627AF2357E38A8144038 /* PlayerRosterView.swift */; };
 		3E25EA68D2D9E71EA5E25B94 /* GameModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21891776AA838985AF8DFA36 /* GameModule.swift */; };
+		43381DEA74FF4C3DB6353126 /* MilleBornesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */; };
 		5F6CDD6E6B8E50434AF0175B /* PlayerPickerField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C0FC4C2B536C375CC15A2C /* PlayerPickerField.swift */; };
 		646164457F923E676C662319 /* Rubber+GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164221463F4D12E152C8248C /* Rubber+GameSession.swift */; };
 		89C8D3474CD246207BC01F50 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577F26937136697E2CCDD87F /* GameSession.swift */; };
@@ -55,7 +56,6 @@
 		D8BD5A4E2935257900B86AA6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8BD5A4D2935257900B86AA6 /* Assets.xcassets */; };
 		D8BD5A522935257900B86AA6 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8BD5A512935257900B86AA6 /* Preview Assets.xcassets */; };
 		D8BD5A5C2935257900B86AA6 /* ScorePadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A5B2935257900B86AA6 /* ScorePadTests.swift */; };
-		43381DEA74FF4C3DB6353126 /* MilleBornesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */; };
 		D8BD5A662935257900B86AA6 /* ScorePadUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A652935257900B86AA6 /* ScorePadUITests.swift */; };
 		D8BD5A682935257900B86AA6 /* ScorePadUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A672935257900B86AA6 /* ScorePadUITestsLaunchTests.swift */; };
 		D8BD5A752935263000B86AA6 /* Rubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A742935263000B86AA6 /* Rubber.swift */; };
@@ -108,7 +108,6 @@
 		D83E4883293E9D9400E37BCE /* DefaultsKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsKey.swift; sourceTree = "<group>"; };
 		D83E4885293EC1B700E37BCE /* RubberListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberListCell.swift; sourceTree = "<group>"; };
 		D87E59B02FBA8D7900C0C56F /* CallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallTests.swift; sourceTree = "<group>"; };
-		DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesTests.swift; sourceTree = "<group>"; };
 		D87E59B62FC0AD5E00C0C56F /* MilleBornesTeamScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesTeamScore.swift; sourceTree = "<group>"; };
 		D87E59B82FC0AD5F00C0C56F /* MilleBornesHand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesHand.swift; sourceTree = "<group>"; };
 		D87E59BA2FC0AD7100C0C56F /* MilleBornesGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesGame.swift; sourceTree = "<group>"; };
@@ -153,6 +152,7 @@
 		D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuctionTests.swift; sourceTree = "<group>"; };
 		D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberView.swift; sourceTree = "<group>"; };
 		D8C374442B33471C00566574 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesTests.swift; sourceTree = "<group>"; };
 		FECD2D71AE9FB07BBCD42C32 /* ScorePadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScorePadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -204,6 +204,7 @@
 				48F1883E0BBA7D528443558C /* Views */,
 				164221463F4D12E152C8248C /* Rubber+GameSession.swift */,
 				3F26B7B2B6F0658516DE8308 /* BridgeModule.swift */,
+				D8F882A12FC0DD0400080E76 /* Tests */,
 			);
 			path = Bridge;
 			sourceTree = "<group>";
@@ -236,6 +237,7 @@
 				D87E59B52FC0AD4E00C0C56F /* Views */,
 				D87E59BC2FC0AD7B00C0C56F /* MilleBornesModule.swift */,
 				D87E59BE2FC0AD8300C0C56F /* MilleBornesGame+GameSession.swift */,
+				D8F882A22FC0DD0500080E76 /* Tests */,
 			);
 			path = MilleBornes;
 			sourceTree = "<group>";
@@ -316,12 +318,6 @@
 		D8BD5A5A2935257900B86AA6 /* ScorePadTests */ = {
 			isa = PBXGroup;
 			children = (
-				D87E59B02FBA8D7900C0C56F /* CallTests.swift */,
-				D8BD5A5B2935257900B86AA6 /* ScorePadTests.swift */,
-				D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */,
-				D8A564A42936EB7700671E8C /* ContractTests.swift */,
-				D8A564A62936EB8500671E8C /* ScoreTests.swift */,
-				DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */,
 			);
 			path = ScorePadTests;
 			sourceTree = "<group>";
@@ -333,6 +329,26 @@
 				D8BD5A672935257900B86AA6 /* ScorePadUITestsLaunchTests.swift */,
 			);
 			path = ScorePadUITests;
+			sourceTree = "<group>";
+		};
+		D8F882A12FC0DD0400080E76 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */,
+				D87E59B02FBA8D7900C0C56F /* CallTests.swift */,
+				D8A564A42936EB7700671E8C /* ContractTests.swift */,
+				D8A564A62936EB8500671E8C /* ScoreTests.swift */,
+				D8BD5A5B2935257900B86AA6 /* ScorePadTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		D8F882A22FC0DD0500080E76 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		ED3937EF9025ABC89D737853 /* Model */ = {
