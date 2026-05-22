@@ -57,7 +57,8 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
     }
 
     func cumulativeScore(team: Int) -> Int {
-        hands.reduce(0) { $0 + (team == 1 ? $1.team1Score : $1.team2Score) }
+        hands.reduce(0) { $0 + (team == 1 ? $1.team1Score(isTwoPlayerGame: isTwoPlayerGame)
+                                           : $1.team2Score(isTwoPlayerGame: isTwoPlayerGame)) }
     }
 
     func addHand(_ hand: MilleBornesHand) {

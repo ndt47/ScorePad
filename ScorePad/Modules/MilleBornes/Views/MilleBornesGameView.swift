@@ -70,7 +70,7 @@ struct MilleBornesGameView: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(game.hands) { hand in
-                    MilleBornesHandRow(hand: hand)
+                    MilleBornesHandRow(hand: hand, isTwoPlayerGame: game.isTwoPlayerGame)
                     Rule(.horizontal)
                         .frame(height: 2)
                 }

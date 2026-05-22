@@ -73,8 +73,14 @@ struct TeamScoreEditor: View {
     var otherScore: MilleBornesTeamScore
     var isTwoPlayerGame: Bool
 
-    private var shutOut: Bool { score.tripCompleted && otherScore.totalMiles == 0 }
-    private var totalHandScore: Int { score.handScore + (shutOut ? 500 : 0) }
+    private var tripTarget: Int { isTwoPlayerGame ? (score.usedExtension ? 1000 : 700) : 1000 }
+    private var shutOut: Bool { score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame) && otherScore.totalMiles == 0 }
+    private var totalHandScore: Int { score.handScore(isTwoPlayerGame: isTwoPlayerGame) + (shutOut ? 500 : 0) }
+
+    private func cardRange(denomination: Int, current: Int, hardCap: Int) -> ClosedRange<Int> {
+        let additionalAllowed = max(0, (tripTarget - score.totalMiles) / denomination)
+        return 0...min(hardCap, current + additionalAllowed)
+    }
 
     @ViewBuilder
     private func autoRow(_ label: String) -> some View {
@@ -102,11 +108,11 @@ struct TeamScoreEditor: View {
                     .foregroundColor(score.totalMiles > 0 ? .primary : .secondary)
             }
             HStack(spacing: 0) {
-                VerticalStepper(icon: "🐌", label: "25",  value: $score.cards25,  range: 0...10)
-                VerticalStepper(icon: "🐢", label: "50",  value: $score.cards50,  range: 0...10)
-                VerticalStepper(icon: "🦋", label: "75",  value: $score.cards75,  range: 0...10)
-                VerticalStepper(icon: "🐇", label: "100", value: $score.cards100, range: 0...12)
-                VerticalStepper(icon: "🦅", label: "200", value: $score.cards200, range: 0...2)
+                VerticalStepper(icon: "🐌", label: "25",  value: $score.cards25,  range: cardRange(denomination: 25,  current: score.cards25,  hardCap: 10))
+                VerticalStepper(icon: "🐢", label: "50",  value: $score.cards50,  range: cardRange(denomination: 50,  current: score.cards50,  hardCap: 10))
+                VerticalStepper(icon: "🦋", label: "75",  value: $score.cards75,  range: cardRange(denomination: 75,  current: score.cards75,  hardCap: 10))
+                VerticalStepper(icon: "🐇", label: "100", value: $score.cards100, range: cardRange(denomination: 100, current: score.cards100, hardCap: 12))
+                VerticalStepper(icon: "🦅", label: "200", value: $score.cards200, range: cardRange(denomination: 200, current: score.cards200, hardCap: 2))
             }
         }
         .padding(.vertical, 4)
@@ -132,9 +138,9 @@ struct TeamScoreEditor: View {
         .padding(.vertical, 4)
 
         // Auto-detected bonuses
-        if score.tripCompleted { autoRow("Trip Completed") }
+        if score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame) { autoRow("Trip Completed") }
         if score.allFourSafeties { autoRow("All 4 Safeties") }
-        if score.safeTrip { autoRow("Safe Trip") }
+        if score.safeTrip(isTwoPlayerGame: isTwoPlayerGame) { autoRow("Safe Trip") }
 
         // Called Extension — 2-player only; enabled only at exactly 700 miles
         if isTwoPlayerGame {
@@ -143,7 +149,7 @@ struct TeamScoreEditor: View {
         }
 
         // Trip-completion bonuses
-        if score.tripCompleted {
+        if score.tripCompleted(isTwoPlayerGame: isTwoPlayerGame) {
             if shutOut { autoRow("Shut Out") }
             Toggle("Delayed Action", isOn: $score.delayedAction)
         }

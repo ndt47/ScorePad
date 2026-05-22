@@ -32,11 +32,7 @@ struct MilleBornesTeamScore: Codable, Equatable {
         [rightOfWay, punctureProof, drivingAce, extraTank].filter(\.coupFourre).count
     }
 
-    // Trip completed means this team WON the hand.
-    // At 700 miles with extension called, the hand continues — not a win yet.
-    var tripCompleted: Bool { (totalMiles == 700 && !usedExtension) || totalMiles == 1000 }
     var allFourSafeties: Bool { safeties == 4 }
-    var safeTrip: Bool { tripCompleted && cards200 == 0 }
 
     // Extension bonus: +400 if the calling team reaches 1000, +200 if they called but opponent won.
     var extensionBonus: Int {
@@ -44,18 +40,32 @@ struct MilleBornesTeamScore: Codable, Equatable {
         return totalMiles == 1000 ? 400 : 200
     }
 
-    var handScore: Int {
-        totalMiles
-        + safeties * 100
-        + coupsFourres * 300
-        + (tripCompleted   ? 400 : 0)
-        + (allFourSafeties ? 300 : 0)
-        + (safeTrip        ? 300 : 0)
-        + extensionBonus
-        + (delayedAction   ? 300 : 0)
+    // 2-player: win at 700 (or 1000 with extension). 4-player: win at 1000.
+    func tripCompleted(isTwoPlayerGame: Bool) -> Bool {
+        isTwoPlayerGame ? (totalMiles == 700 && !usedExtension) || totalMiles == 1000
+                        : totalMiles == 1000
     }
 
-    var scoreLines: [MilleBornesScoreLine] {
+    func safeTrip(isTwoPlayerGame: Bool) -> Bool {
+        tripCompleted(isTwoPlayerGame: isTwoPlayerGame) && cards200 == 0
+    }
+
+    func handScore(isTwoPlayerGame: Bool) -> Int {
+        let tc = tripCompleted(isTwoPlayerGame: isTwoPlayerGame)
+        let st = safeTrip(isTwoPlayerGame: isTwoPlayerGame)
+        return totalMiles
+            + safeties * 100
+            + coupsFourres * 300
+            + (tc              ? 400 : 0)
+            + (allFourSafeties ? 300 : 0)
+            + (st              ? 300 : 0)
+            + extensionBonus
+            + (delayedAction   ? 300 : 0)
+    }
+
+    func scoreLines(isTwoPlayerGame: Bool) -> [MilleBornesScoreLine] {
+        let tc = tripCompleted(isTwoPlayerGame: isTwoPlayerGame)
+        let st = safeTrip(isTwoPlayerGame: isTwoPlayerGame)
         var lines: [MilleBornesScoreLine] = []
         if totalMiles > 0 {
             lines.append(MilleBornesScoreLine(label: "Miles", value: totalMiles))
@@ -68,9 +78,9 @@ struct MilleBornesTeamScore: Codable, Equatable {
             let label = coupsFourres == 1 ? "Coup Fourré" : "Coup Fourré ×\(coupsFourres)"
             lines.append(MilleBornesScoreLine(label: label, value: coupsFourres * 300))
         }
-        if tripCompleted   { lines.append(MilleBornesScoreLine(label: "Trip",             value: 400)) }
+        if tc              { lines.append(MilleBornesScoreLine(label: "Trip",             value: 400)) }
         if allFourSafeties { lines.append(MilleBornesScoreLine(label: "All 4 Safeties",   value: 300)) }
-        if safeTrip        { lines.append(MilleBornesScoreLine(label: "Safe Trip",        value: 300)) }
+        if st              { lines.append(MilleBornesScoreLine(label: "Safe Trip",        value: 300)) }
         if usedExtension   { lines.append(MilleBornesScoreLine(label: "Called Extension", value: extensionBonus)) }
         if delayedAction   { lines.append(MilleBornesScoreLine(label: "Delayed Action",   value: 300)) }
         return lines
