@@ -67,6 +67,18 @@
 		D8BD5A9029358E6A00B86AA6 /* RubberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */; };
 		D8C374452B33471C00566574 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D8C374442B33471C00566574 /* Localizable.xcstrings */; };
 		D8F882A62FC0FA4000080E76 /* WinnerBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882A52FC0FA4000080E76 /* WinnerBadge.swift */; };
+		D8F882AC2FC204C300080E76 /* Phase10Hand.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882AB2FC204C300080E76 /* Phase10Hand.swift */; };
+		D8F882AE2FC204D500080E76 /* Phase10Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882AD2FC204D500080E76 /* Phase10Game.swift */; };
+		D8F882B02FC204E200080E76 /* Phase10Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882AF2FC204E200080E76 /* Phase10Module.swift */; };
+		D8F882B22FC204E800080E76 /* Phase10Game+GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882B12FC204E800080E76 /* Phase10Game+GameSession.swift */; };
+		D8F882B42FC204EB00080E76 /* Phase10DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882B32FC204EB00080E76 /* Phase10DetailView.swift */; };
+		D8F882B62FC2050000080E76 /* Phase10ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882B52FC2050000080E76 /* Phase10ListCell.swift */; };
+		D8F882B82FC2050700080E76 /* NewPhase10Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882B72FC2050700080E76 /* NewPhase10Game.swift */; };
+		D8F882BA2FC2051000080E76 /* Phase10HandRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882B92FC2051000080E76 /* Phase10HandRow.swift */; };
+		D8F882BC2FC2052100080E76 /* Phase10Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882BB2FC2052100080E76 /* Phase10Header.swift */; };
+		D8F882BE2FC2052E00080E76 /* Phase10HandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882BD2FC2052E00080E76 /* Phase10HandView.swift */; };
+		D8F882C02FC2053500080E76 /* Phase10GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882BF2FC2053500080E76 /* Phase10GameView.swift */; };
+		D8F882C22FC2055400080E76 /* Phase10Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882C12FC2055400080E76 /* Phase10Tests.swift */; };
 		E162446A7017E5884AB1DACA /* BridgeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55AB158FD0B6DB4806C88A7 /* BridgeDetailView.swift */; };
 		F224B550A166BBF9CE2D3F04 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DA112EF0467C87E9AADDD0 /* AppRootView.swift */; };
 /* End PBXBuildFile section */
@@ -154,6 +166,18 @@
 		D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberView.swift; sourceTree = "<group>"; };
 		D8C374442B33471C00566574 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		D8F882A52FC0FA4000080E76 /* WinnerBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinnerBadge.swift; sourceTree = "<group>"; };
+		D8F882AB2FC204C300080E76 /* Phase10Hand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Hand.swift; sourceTree = "<group>"; };
+		D8F882AD2FC204D500080E76 /* Phase10Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Game.swift; sourceTree = "<group>"; };
+		D8F882AF2FC204E200080E76 /* Phase10Module.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Module.swift; sourceTree = "<group>"; };
+		D8F882B12FC204E800080E76 /* Phase10Game+GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Phase10Game+GameSession.swift"; sourceTree = "<group>"; };
+		D8F882B32FC204EB00080E76 /* Phase10DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10DetailView.swift; sourceTree = "<group>"; };
+		D8F882B52FC2050000080E76 /* Phase10ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10ListCell.swift; sourceTree = "<group>"; };
+		D8F882B72FC2050700080E76 /* NewPhase10Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPhase10Game.swift; sourceTree = "<group>"; };
+		D8F882B92FC2051000080E76 /* Phase10HandRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10HandRow.swift; sourceTree = "<group>"; };
+		D8F882BB2FC2052100080E76 /* Phase10Header.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Header.swift; sourceTree = "<group>"; };
+		D8F882BD2FC2052E00080E76 /* Phase10HandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10HandView.swift; sourceTree = "<group>"; };
+		D8F882BF2FC2053500080E76 /* Phase10GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10GameView.swift; sourceTree = "<group>"; };
+		D8F882C12FC2055400080E76 /* Phase10Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Tests.swift; sourceTree = "<group>"; };
 		DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesTests.swift; sourceTree = "<group>"; };
 		FECD2D71AE9FB07BBCD42C32 /* ScorePadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScorePadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -217,6 +241,7 @@
 			children = (
 				554E8C72B1A9D9D8991F5217 /* Bridge */,
 				D87E59B32FC0AD4800C0C56F /* MilleBornes */,
+				D8F882A72FC204AE00080E76 /* Phase10 */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -340,6 +365,49 @@
 			isa = PBXGroup;
 			children = (
 				DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		D8F882A72FC204AE00080E76 /* Phase10 */ = {
+			isa = PBXGroup;
+			children = (
+				D8F882A82FC204B400080E76 /* Model */,
+				D8F882A92FC204B600080E76 /* Views */,
+				D8F882AA2FC204B800080E76 /* Tests */,
+				D8F882AF2FC204E200080E76 /* Phase10Module.swift */,
+				D8F882B12FC204E800080E76 /* Phase10Game+GameSession.swift */,
+			);
+			path = Phase10;
+			sourceTree = "<group>";
+		};
+		D8F882A82FC204B400080E76 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				D8F882AB2FC204C300080E76 /* Phase10Hand.swift */,
+				D8F882AD2FC204D500080E76 /* Phase10Game.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		D8F882A92FC204B600080E76 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D8F882B32FC204EB00080E76 /* Phase10DetailView.swift */,
+				D8F882B52FC2050000080E76 /* Phase10ListCell.swift */,
+				D8F882B72FC2050700080E76 /* NewPhase10Game.swift */,
+				D8F882B92FC2051000080E76 /* Phase10HandRow.swift */,
+				D8F882BB2FC2052100080E76 /* Phase10Header.swift */,
+				D8F882BD2FC2052E00080E76 /* Phase10HandView.swift */,
+				D8F882BF2FC2053500080E76 /* Phase10GameView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D8F882AA2FC204B800080E76 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				D8F882C12FC2055400080E76 /* Phase10Tests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -516,11 +584,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8BD5A9029358E6A00B86AA6 /* RubberView.swift in Sources */,
+				D8F882B62FC2050000080E76 /* Phase10ListCell.swift in Sources */,
+				D8F882AC2FC204C300080E76 /* Phase10Hand.swift in Sources */,
+				D8F882C02FC2053500080E76 /* Phase10GameView.swift in Sources */,
+				D8F882B22FC204E800080E76 /* Phase10Game+GameSession.swift in Sources */,
 				D8BD5A8A29357CA200B86AA6 /* Position.swift in Sources */,
 				D87E59BB2FC0AD7100C0C56F /* MilleBornesGame.swift in Sources */,
 				D8A564DE293A5AF700671E8C /* CallView.swift in Sources */,
 				D87E59C12FC0AD8D00C0C56F /* MilleBornesListCell.swift in Sources */,
 				D8AD71EB2B3385DB000DBA88 /* Player.swift in Sources */,
+				D8F882B82FC2050700080E76 /* NewPhase10Game.swift in Sources */,
 				D83E4884293E9D9400E37BCE /* DefaultsKey.swift in Sources */,
 				D83E487D293D1D5900E37BCE /* NewRubber.swift in Sources */,
 				D8BD5A4A2935257700B86AA6 /* ScorePadApp.swift in Sources */,
@@ -531,13 +604,17 @@
 				D8BD5A8629357C4800B86AA6 /* Call.swift in Sources */,
 				D8A564AD293910D800671E8C /* RubberHeader.swift in Sources */,
 				D8BD5A752935263000B86AA6 /* Rubber.swift in Sources */,
+				D8F882BA2FC2051000080E76 /* Phase10HandRow.swift in Sources */,
+				D8F882BC2FC2052100080E76 /* Phase10Header.swift in Sources */,
 				D87E59C52FC0ADA000C0C56F /* MilleBornesDetailView.swift in Sources */,
 				D8BD5A8829357C6800B86AA6 /* Score.swift in Sources */,
+
 				D8AD71F12B33875F000DBA88 /* Suit.swift in Sources */,
 				D8AD71ED2B338602000DBA88 /* Game.swift in Sources */,
 				D8A564D729394D8F00671E8C /* AuctionView.swift in Sources */,
 				D8AD71F32B33878D000DBA88 /* Bid.swift in Sources */,
 				D8A564D929394E8100671E8C /* EnvironmentValues.swift in Sources */,
+				D8F882BE2FC2052E00080E76 /* Phase10HandView.swift in Sources */,
 				D83E4886293EC1B700E37BCE /* RubberListCell.swift in Sources */,
 				D8AD71EF2B338678000DBA88 /* AuctionResult.swift in Sources */,
 				D8A564A32936E25300671E8C /* Auction.swift in Sources */,
@@ -547,18 +624,21 @@
 				D87E59CD2FC0ADD600C0C56F /* MilleBornesGameView.swift in Sources */,
 				D8BD5A8429357C2300B86AA6 /* Contract.swift in Sources */,
 				D83E4881293D99B800E37BCE /* Utilities.swift in Sources */,
+				D8F882B42FC204EB00080E76 /* Phase10DetailView.swift in Sources */,
 				D8A564AA2937B5A100671E8C /* ScoreView.swift in Sources */,
 				89C8D3474CD246207BC01F50 /* GameSession.swift in Sources */,
 				D8F882A62FC0FA4000080E76 /* WinnerBadge.swift in Sources */,
 				075CD185567C31E7D7731A59 /* GameSessionList.swift in Sources */,
 				646164457F923E676C662319 /* Rubber+GameSession.swift in Sources */,
 				D87E59C92FC0ADB400C0C56F /* MilleBornesHandRow.swift in Sources */,
+				D8F882AE2FC204D500080E76 /* Phase10Game.swift in Sources */,
 				D87E59BF2FC0AD8300C0C56F /* MilleBornesGame+GameSession.swift in Sources */,
 				D87E59C32FC0AD9800C0C56F /* NewMilleBornesGame.swift in Sources */,
 				BFABDFA9D68839A336BF0E04 /* BridgeModule.swift in Sources */,
 				3E25EA68D2D9E71EA5E25B94 /* GameModule.swift in Sources */,
 				D87E59B72FC0AD5E00C0C56F /* MilleBornesTeamScore.swift in Sources */,
 				0D8462DC4E87F1EE8A868E10 /* GameRegistry.swift in Sources */,
+				D8F882B02FC204E200080E76 /* Phase10Module.swift in Sources */,
 				3107699B06D1024F65AE54D6 /* PersonProfile.swift in Sources */,
 				3536D5198820C28BD6CA823A /* PlayerRosterView.swift in Sources */,
 				5F6CDD6E6B8E50434AF0175B /* PlayerPickerField.swift in Sources */,
@@ -577,6 +657,7 @@
 				D8BD5A5C2935257900B86AA6 /* ScorePadTests.swift in Sources */,
 				D8A564A72936EB8500671E8C /* ScoreTests.swift in Sources */,
 				43381DEA74FF4C3DB6353126 /* MilleBornesTests.swift in Sources */,
+				D8F882C22FC2055400080E76 /* Phase10Tests.swift in Sources */,
 				D87E59B12FBA8D7900C0C56F /* CallTests.swift in Sources */,
 				D8A564A52936EB7700671E8C /* ContractTests.swift in Sources */,
 			);

@@ -40,7 +40,7 @@ struct Bid: Identifiable, Hashable, Codable, Comparable {
     }
     
     init(id: ID) {
-        var count = Suit.allCases.count
+        let count = Suit.allCases.count
         self.level = id / count
         self.suit = Suit(rawValue: id % count)!
     }
