@@ -12,44 +12,7 @@ struct Phase10HandView: View {
         NavigationStack {
             Form {
                 ForEach(game.players.indices, id: \.self) { i in
-                    let phase = currentPhase(for: i)
-                    let color = Phase10Game.playerColor(for: i)
-
-                    Section {
-                        // Phase description (non-interactive info row)
-                        HStack(spacing: 6) {
-                            Text(Phase10Game.phaseIcon(for: phase))
-                                .font(.caption)
-                            Text(Phase10Game.phaseDescription(for: phase))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-
-                        // Score entry
-                        HStack {
-                            Text("Score")
-                            Spacer()
-                            if !results.isEmpty {
-                                TextField("0", value: $results[i].score, format: .number)
-                                    .keyboardType(.numberPad)
-                                    .multilineTextAlignment(.trailing)
-                                    .frame(width: 80)
-                            }
-                        }
-
-                        // Phase completion toggle
-                        if !results.isEmpty {
-                            Toggle("Completed Phase \(phase)", isOn: $results[i].completedPhase)
-                                .tint(color)
-                        }
-                    } header: {
-                        HStack(spacing: 8) {
-                            Circle()
-                                .fill(color)
-                                .frame(width: 10, height: 10)
-                            Text(game.players[i])
-                        }
-                    }
+                    playerSection(index: i)
                 }
             }
 #if os(macOS)
@@ -75,6 +38,44 @@ struct Phase10HandView: View {
         }
         .interactiveDismissDisabled()
         .onAppear { loadResults() }
+    }
+
+    @ViewBuilder
+    private func playerSection(index i: Int) -> some View {
+        let phase = currentPhase(for: i)
+        let color = Phase10Game.playerColor(for: i)
+        Section {
+            HStack(spacing: 6) {
+                Text(Phase10Game.phaseIcon(for: phase))
+                    .font(.caption)
+                Text(Phase10Game.phaseDescription(for: phase))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            HStack {
+                Text("Score")
+                Spacer()
+                if !results.isEmpty {
+                    TextField("0", value: $results[i].score, format: .number)
+#if os(iOS)
+                        .keyboardType(.numberPad)
+#endif
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 80)
+                }
+            }
+            if !results.isEmpty {
+                Toggle("Completed Phase \(phase)", isOn: $results[i].completedPhase)
+                    .tint(color)
+            }
+        } header: {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(color)
+                    .frame(width: 10, height: 10)
+                Text(game.players[i])
+            }
+        }
     }
 
     // When editing an existing hand, compute the phase at that hand's position in history

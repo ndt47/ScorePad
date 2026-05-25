@@ -15,24 +15,10 @@ struct NewPhase10Game: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            Form {
                 Section {
                     ForEach(playerNames.indices, id: \.self) { i in
-                        HStack(spacing: 12) {
-                            Circle()
-                                .fill(Phase10Game.playerColor(for: i))
-                                .frame(width: 12, height: 12)
-                            TextField("Player \(i + 1)", text: $playerNames[i])
-                            if playerNames.count > 2 {
-                                Button {
-                                    playerNames.remove(at: i)
-                                } label: {
-                                    Image(systemName: "minus.circle.fill")
-                                        .foregroundColor(.red)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
+                        playerRow(at: i)
                     }
                     if playerNames.count < 8 {
                         Button {
@@ -45,6 +31,9 @@ struct NewPhase10Game: View {
                     Text("Players (\(playerNames.count))")
                 }
             }
+#if os(macOS)
+            .formStyle(.grouped)
+#endif
             .navigationTitle("New Game")
             .toolbar {
 #if os(iOS)
@@ -61,6 +50,25 @@ struct NewPhase10Game: View {
             }
         }
         .presentationDetents([.medium, .large])
+    }
+
+    @ViewBuilder
+    private func playerRow(at i: Int) -> some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(Phase10Game.playerColor(for: i))
+                .frame(width: 12, height: 12)
+            TextField("Player \(i + 1)", text: $playerNames[i])
+            if playerNames.count > 2 {
+                Button {
+                    playerNames.remove(at: i)
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .foregroundColor(.red)
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     private func save() {

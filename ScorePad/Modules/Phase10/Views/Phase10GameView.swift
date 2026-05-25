@@ -7,52 +7,60 @@ struct Phase10GameView: View {
 
     var body: some View {
         if let game {
-            VStack(alignment: .leading, spacing: 0) {
-                ScrollView([.vertical, .horizontal]) {
-                    VStack {
-                        Phase10Header()
-                        Divider()
-                        ForEach(game.hands.indices, id: \.self) { i in
-                            Phase10HandRow(hand: game.hands[i], handIndex: i)
-                            Divider()
-                        }
+            scoreSheet(game: game)
+                .environment(\.phase10PlayerColumnWidth, Phase10Game.playerColumnWidth)
+                .environment(\.presentPhase10Hand) { hand in editingHand = hand }
+                .environmentObject(game)
+                .ignoresSafeArea(.keyboard)
+                .toolbar {
+#if os(iOS)
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        addButton.disabled(game.isFinished)
                     }
-                }
-            }
-            .scrollBounceBehavior(.basedOnSize)
-            .environment(\.phase10PlayerColumnWidth, Phase10Game.playerColumnWidth)
-            .environment(\.presentPhase10Hand) { hand in
-                editingHand = hand
-            }
-            .environmentObject(game)
-            .ignoresSafeArea(.keyboard)
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    addButton.disabled(game.isFinished)
-                }
 #else
-                ToolbarItem {
-                    addButton.disabled(game.isFinished)
+                    ToolbarItem {
+                        addButton.disabled(game.isFinished)
+                    }
+#endif
                 }
-#endif
-            }
-            .sheet(isPresented: $creatingHand) {
-                Phase10HandView()
-                    .environmentObject(game)
-            }
-            .sheet(item: $editingHand) { hand in
-                Phase10HandView(editingHand: hand)
-                    .environmentObject(game)
-            }
+                .sheet(isPresented: $creatingHand) {
+                    Phase10HandView()
+                        .environmentObject(game)
+                }
+                .sheet(item: $editingHand) { hand in
+                    Phase10HandView(editingHand: hand)
+                        .environmentObject(game)
+                }
 #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
+                .navigationBarTitleDisplayMode(.inline)
 #endif
-            .navigationTitle("")
+                .navigationTitle("")
         } else {
             Text("Select a game")
                 .font(.largeTitle)
         }
+    }
+
+    @ViewBuilder
+    private func scoreSheet(game: Phase10Game) -> some View {
+        ScrollView([.horizontal, .vertical]) {
+            LazyVStack(spacing: 0, pinnedViews: .sectionHeaders) {
+                Section {
+                    ForEach(game.hands.indices.reversed(), id: \.self) { i in
+                        Phase10HandRow(hand: game.hands[i], handIndex: i)
+                        Divider()
+                    }
+                } header: {
+                    VStack(spacing: 0) {
+                        Phase10Header()
+                        Divider()
+                    }
+                    .background(.background)
+                }
+            }
+        }
+        .defaultScrollAnchor(.top)
+        .scrollBounceBehavior(.basedOnSize)
     }
 
     private var addButton: some View {
