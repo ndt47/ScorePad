@@ -4,6 +4,7 @@ import SwiftData
 struct NewPhase10Game: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \PersonProfile.name) private var roster: [PersonProfile]
 
     @State private var playerNames: [String] = ["", ""]
 
@@ -58,7 +59,7 @@ struct NewPhase10Game: View {
             Circle()
                 .fill(Phase10Game.playerColor(for: i))
                 .frame(width: 12, height: 12)
-            TextField("Player \(i + 1)", text: $playerNames[i])
+            PlayerPickerField("Player \(i + 1)", text: $playerNames[i])
             if playerNames.count > 2 {
                 Button {
                     playerNames.remove(at: i)
@@ -72,6 +73,12 @@ struct NewPhase10Game: View {
     }
 
     private func save() {
+        for name in playerNames {
+            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty && !roster.contains(where: { $0.name.lowercased() == trimmed.lowercased() }) {
+                modelContext.insert(PersonProfile(name: trimmed))
+            }
+        }
         let names = playerNames.enumerated().map { (i, name) in
             let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
             return trimmed.isEmpty ? "Player \(i + 1)" : trimmed

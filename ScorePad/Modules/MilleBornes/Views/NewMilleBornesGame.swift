@@ -4,6 +4,7 @@ import SwiftData
 struct NewMilleBornesGame: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \PersonProfile.name) private var roster: [PersonProfile]
 
     @State private var playerCount = 2
     @State private var t1p1 = ""
@@ -42,9 +43,9 @@ struct NewMilleBornesGame: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Team 1")
                             .font(.title2).bold()
-                        TextField("Player 1", text: $t1p1)
+                        PlayerPickerField("Player 1", text: $t1p1)
                         if playerCount == 4 {
-                            TextField("Player 2", text: $t1p2)
+                            PlayerPickerField("Player 2", text: $t1p2)
                         }
                     }
                     Divider()
@@ -52,9 +53,9 @@ struct NewMilleBornesGame: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Team 2")
                             .font(.title2).bold()
-                        TextField("Player 1", text: $t2p1)
+                        PlayerPickerField("Player 1", text: $t2p1)
                         if playerCount == 4 {
-                            TextField("Player 2", text: $t2p2)
+                            PlayerPickerField("Player 2", text: $t2p2)
                         }
                     }
                 }
@@ -83,6 +84,10 @@ struct NewMilleBornesGame: View {
     }
 
     private func save() {
+        let allNames = team1Players + team2Players
+        for name in allNames where !roster.contains(where: { $0.name.lowercased() == name.lowercased() }) {
+            modelContext.insert(PersonProfile(name: name))
+        }
         let game = MilleBornesGame(team1Players: team1Players, team2Players: team2Players)
         modelContext.insert(game)
         onSave?(game.id)
