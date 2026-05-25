@@ -10,7 +10,7 @@ import SwiftData
 
 @main
 struct ScorePadApp: App {
-    static let modules: [any GameModule] = [BridgeModule(), MilleBornesModule()]
+    static let modules: [any GameModule] = [BridgeModule(), MilleBornesModule(), Phase10Module()]
 
     let registry = GameRegistry(modules: ScorePadApp.modules)
 

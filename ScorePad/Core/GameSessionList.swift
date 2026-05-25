@@ -8,7 +8,9 @@ struct GameSessionList<Session: GameSession>: View {
     @Binding var selectedSessionID: String?
     @Environment(\.modelContext) private var modelContext
     @State private var showingNewSession = false
+#if os(iOS)
     @State private var editMode: EditMode = .inactive
+#endif
     @State private var editSelection: Set<String> = []
 
     init(selectedSessionID: Binding<String?>) {
@@ -43,7 +45,9 @@ struct GameSessionList<Session: GameSession>: View {
             }
         }
         .listStyle(.plain)
+#if os(iOS)
         .environment(\.editMode, $editMode)
+#endif
         .navigationTitle(Session.navigationTitle)
         .onAppear {
             if open.isEmpty && closed.isEmpty {
@@ -54,21 +58,28 @@ struct GameSessionList<Session: GameSession>: View {
         }
         // Sync List selection → navigation when browsing (not editing)
         .onChange(of: editSelection) { _, newValue in
+#if os(iOS)
             guard !editMode.isEditing else { return }
+#endif
             selectedSessionID = newValue.first
         }
         // Sync external navigation changes (e.g. new session saved) → List highlight
         .onChange(of: selectedSessionID) { _, newValue in
+#if os(iOS)
             guard !editMode.isEditing else { return }
+#endif
             editSelection = newValue.map { [$0] } ?? []
         }
+#if os(iOS)
         // Restore single-item selection when leaving edit mode
         .onChange(of: editMode) { _, newValue in
             if !newValue.isEditing {
                 editSelection = selectedSessionID.map { [$0] } ?? []
             }
         }
+#endif
         .toolbar {
+#if os(iOS)
             if editMode.isEditing {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Delete", role: .destructive) {
@@ -94,10 +105,27 @@ struct GameSessionList<Session: GameSession>: View {
                     .labelStyle(.iconOnly)
                 }
             }
+#else
+            ToolbarItemGroup(placement: .primaryAction) {
+                if !editSelection.isEmpty {
+                    Button("Delete", role: .destructive) {
+                        deleteSelected()
+                    }
+                }
+                Button {
+                    showingNewSession = true
+                } label: {
+                    Label(Session.newButtonTitle, systemImage: "plus")
+                }
+                .labelStyle(.iconOnly)
+            }
+#endif
         }
         .sheet(isPresented: $showingNewSession) {
             Session.NewSessionView(onSave: { id in
+#if os(iOS)
                 editMode = .inactive
+#endif
                 selectedSessionID = id
             })
         }
@@ -115,6 +143,8 @@ struct GameSessionList<Session: GameSession>: View {
     private func deleteSelected() {
         delete(sessions.filter { editSelection.contains($0.sessionID) })
         editSelection = []
+#if os(iOS)
         editMode = .inactive
+#endif
     }
 }
