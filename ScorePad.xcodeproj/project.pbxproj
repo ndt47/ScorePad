@@ -20,6 +20,7 @@
 		BFABDFA9D68839A336BF0E04 /* BridgeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F26B7B2B6F0658516DE8308 /* BridgeModule.swift */; };
 		D809D8C22FC422630081F9F9 /* PlayerRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C12FC422630081F9F9 /* PlayerRef.swift */; };
 		D809D8C52FC55BC30081F9F9 /* ScorePadMigrationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */; };
+		D809D8C72FC564010081F9F9 /* PlayerRefArrayTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C62FC564010081F9F9 /* PlayerRefArrayTransformer.swift */; };
 		D83E487D293D1D5900E37BCE /* NewRubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487C293D1D5900E37BCE /* NewRubber.swift */; };
 		D83E487F293D4B7600E37BCE /* Rule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487E293D4B7600E37BCE /* Rule.swift */; };
 		D83E4881293D99B800E37BCE /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E4880293D99B800E37BCE /* Utilities.swift */; };
@@ -119,6 +120,7 @@
 		CBFABE14CE8D44B8A64E4493 /* GameTypeGridView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameTypeGridView.swift; sourceTree = "<group>"; };
 		D809D8C12FC422630081F9F9 /* PlayerRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRef.swift; sourceTree = "<group>"; };
 		D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadMigrationPlan.swift; sourceTree = "<group>"; };
+		D809D8C62FC564010081F9F9 /* PlayerRefArrayTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRefArrayTransformer.swift; sourceTree = "<group>"; };
 		D83E487C293D1D5900E37BCE /* NewRubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRubber.swift; sourceTree = "<group>"; };
 		D83E487E293D4B7600E37BCE /* Rule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rule.swift; sourceTree = "<group>"; };
 		D83E4880293D99B800E37BCE /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -462,6 +464,7 @@
 				4D14627AF2357E38A8144038 /* PlayerRosterView.swift */,
 				C2C0FC4C2B536C375CC15A2C /* PlayerPickerField.swift */,
 				D809D8C12FC422630081F9F9 /* PlayerRef.swift */,
+				D809D8C62FC564010081F9F9 /* PlayerRefArrayTransformer.swift */,
 			);
 			path = Players;
 			sourceTree = "<group>";
@@ -661,6 +664,7 @@
 				F224B550A166BBF9CE2D3F04 /* AppRootView.swift in Sources */,
 				D87E59BD2FC0AD7B00C0C56F /* MilleBornesModule.swift in Sources */,
 				8F9D9AA78DE59FAA3B53557C /* GameTypeGridView.swift in Sources */,
+				D809D8C72FC564010081F9F9 /* PlayerRefArrayTransformer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

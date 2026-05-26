@@ -7,6 +7,7 @@ final class Phase10Game: ObservableObject, Identifiable {
     var id: UUID = UUID()
     var dateCreated: Date = Date.now
     var lastModified: Date = Date.now
+    @Attribute(.transformable(by: PlayerRefArrayTransformer.transformerName))
     var players: [PlayerRef] = []
     var hands: [Phase10Hand] = []
 
