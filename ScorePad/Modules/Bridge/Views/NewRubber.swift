@@ -163,7 +163,7 @@ struct NewRubber: View {
         for player in players {
             let profile = roster.first(where: { $0.name.lowercased() == player.name.lowercased() })
                 ?? { let p = PersonProfile(name: player.name); modelContext.insert(p); return p }()
-            linked.append(Player(name: player.name, position: player.position, profileID: profile.id))
+            linked.append(Player(ref: PlayerRef(profile: profile), position: player.position))
         }
         let rubber = Rubber(players: linked, dealer: dealer)
         modelContext.insert(rubber)

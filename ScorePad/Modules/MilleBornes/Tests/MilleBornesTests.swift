@@ -541,8 +541,8 @@ final class MilleBornesGameTests: XCTestCase {
         let decoded = try JSONDecoder().decode(MilleBornesGame.self, from: data)
         XCTAssertEqual(decoded.id, g.id)
         XCTAssertEqual(decoded.hands.count, g.hands.count)
-        XCTAssertEqual(decoded.team1PlayerRefs, g.team1PlayerRefs)
-        XCTAssertEqual(decoded.team2PlayerRefs, g.team2PlayerRefs)
+        XCTAssertEqual(decoded.team1Players, g.team1Players)
+        XCTAssertEqual(decoded.team2Players, g.team2Players)
     }
 
     func testHandCodableRoundtrip() throws {

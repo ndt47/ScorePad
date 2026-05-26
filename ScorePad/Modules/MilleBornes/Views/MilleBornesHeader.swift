@@ -5,11 +5,11 @@ struct MilleBornesHeader: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            MilleBornesTeamHeaderView(players: game.team1PlayerRefs,
+            MilleBornesTeamHeaderView(players: game.team1Players,
                                      fallback: "Team 1",
                                      score: game.cumulativeScore(team: 1),
                                      isWinner: game.winningTeam == 1)
-            MilleBornesTeamHeaderView(players: game.team2PlayerRefs,
+            MilleBornesTeamHeaderView(players: game.team2Players,
                                      fallback: "Team 2",
                                      score: game.cumulativeScore(team: 2),
                                      isWinner: game.winningTeam == 2)

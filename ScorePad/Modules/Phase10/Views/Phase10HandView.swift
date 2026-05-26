@@ -11,7 +11,7 @@ struct Phase10HandView: View {
     var body: some View {
         NavigationStack {
             Form {
-                ForEach(game.playerRefs.indices, id: \.self) { i in
+                ForEach(game.players.indices, id: \.self) { i in
                     playerSection(index: i)
                 }
             }
@@ -73,7 +73,7 @@ struct Phase10HandView: View {
                 Circle()
                     .fill(color)
                     .frame(width: 10, height: 10)
-                Text(game.playerRefs[i].name)
+                Text(game.players[i].name)
             }
         }
     }
@@ -91,7 +91,7 @@ struct Phase10HandView: View {
         if let hand = editingHand {
             results = hand.playerResults
         } else {
-            results = Array(repeating: Phase10PlayerResult(), count: game.playerRefs.count)
+            results = Array(repeating: Phase10PlayerResult(), count: game.players.count)
         }
     }
 
@@ -101,7 +101,7 @@ struct Phase10HandView: View {
             hand.playerResults = results
             game.replaceHand(hand)
         } else {
-            var hand = Phase10Hand(playerCount: game.playerRefs.count)
+            var hand = Phase10Hand(playerCount: game.players.count)
             hand.playerResults = results
             game.addHand(hand)
         }

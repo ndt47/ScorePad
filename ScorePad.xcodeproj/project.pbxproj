@@ -19,6 +19,7 @@
 		8F9D9AA78DE59FAA3B53557C /* GameTypeGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFABE14CE8D44B8A64E4493 /* GameTypeGridView.swift */; };
 		BFABDFA9D68839A336BF0E04 /* BridgeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F26B7B2B6F0658516DE8308 /* BridgeModule.swift */; };
 		D809D8C22FC422630081F9F9 /* PlayerRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C12FC422630081F9F9 /* PlayerRef.swift */; };
+		D809D8C52FC55BC30081F9F9 /* ScorePadMigrationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */; };
 		D83E487D293D1D5900E37BCE /* NewRubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487C293D1D5900E37BCE /* NewRubber.swift */; };
 		D83E487F293D4B7600E37BCE /* Rule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487E293D4B7600E37BCE /* Rule.swift */; };
 		D83E4881293D99B800E37BCE /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E4880293D99B800E37BCE /* Utilities.swift */; };
@@ -117,6 +118,7 @@
 		C2C0FC4C2B536C375CC15A2C /* PlayerPickerField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlayerPickerField.swift; sourceTree = "<group>"; };
 		CBFABE14CE8D44B8A64E4493 /* GameTypeGridView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameTypeGridView.swift; sourceTree = "<group>"; };
 		D809D8C12FC422630081F9F9 /* PlayerRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRef.swift; sourceTree = "<group>"; };
+		D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadMigrationPlan.swift; sourceTree = "<group>"; };
 		D83E487C293D1D5900E37BCE /* NewRubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRubber.swift; sourceTree = "<group>"; };
 		D83E487E293D4B7600E37BCE /* Rule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rule.swift; sourceTree = "<group>"; };
 		D83E4880293D99B800E37BCE /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -256,8 +258,17 @@
 				395F5F3F6DB3281B6D02FB9F /* GameSessionList.swift */,
 				21891776AA838985AF8DFA36 /* GameModule.swift */,
 				3DE9CA93782367AFD6DDA59F /* GameRegistry.swift */,
+				D809D8C32FC55BAE0081F9F9 /* Migration */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		D809D8C32FC55BAE0081F9F9 /* Migration */ = {
+			isa = PBXGroup;
+			children = (
+				D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */,
+			);
+			path = Migration;
 			sourceTree = "<group>";
 		};
 		D87E59B32FC0AD4800C0C56F /* MilleBornes */ = {
@@ -519,7 +530,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					D8BD5A452935257700B86AA6 = {
 						CreatedOnToolsVersion = 14.3;
@@ -646,6 +657,7 @@
 				3536D5198820C28BD6CA823A /* PlayerRosterView.swift in Sources */,
 				5F6CDD6E6B8E50434AF0175B /* PlayerPickerField.swift in Sources */,
 				E162446A7017E5884AB1DACA /* BridgeDetailView.swift in Sources */,
+				D809D8C52FC55BC30081F9F9 /* ScorePadMigrationPlan.swift in Sources */,
 				F224B550A166BBF9CE2D3F04 /* AppRootView.swift in Sources */,
 				D87E59BD2FC0AD7B00C0C56F /* MilleBornesModule.swift in Sources */,
 				8F9D9AA78DE59FAA3B53557C /* GameTypeGridView.swift in Sources */,
@@ -695,6 +707,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -724,9 +737,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = DLUJT5TTQE;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -744,6 +760,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -753,6 +770,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -782,9 +800,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = DLUJT5TTQE;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -795,6 +816,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
@@ -808,8 +830,8 @@
 				CODE_SIGN_ENTITLEMENTS = ScorePad/ScorePad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 8;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"ScorePad/Preview Content\"";
-				DEVELOPMENT_TEAM = DLUJT5TTQE;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -847,8 +869,8 @@
 				CODE_SIGN_ENTITLEMENTS = ScorePad/ScorePad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 8;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"ScorePad/Preview Content\"";
-				DEVELOPMENT_TEAM = DLUJT5TTQE;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -881,14 +903,13 @@
 		D8BD5A6F2935257900B86AA6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DLUJT5TTQE;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.ScorePadTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -904,14 +925,13 @@
 		D8BD5A702935257900B86AA6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DLUJT5TTQE;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.ScorePadTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -927,10 +947,9 @@
 		D8BD5A722935257900B86AA6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DLUJT5TTQE;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
@@ -949,10 +968,9 @@
 		D8BD5A732935257900B86AA6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DLUJT5TTQE;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;

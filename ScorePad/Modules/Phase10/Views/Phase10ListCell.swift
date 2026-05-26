@@ -11,7 +11,7 @@ struct Phase10ListCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text(game.playerRefs.map(\.name).joined(separator: ", "))
+                Text(game.players.map(\.name).joined(separator: ", "))
                     .fontWeight(.light)
                     .font(.subheadline)
                     .lineLimit(1)
@@ -23,14 +23,14 @@ struct Phase10ListCell: View {
             }
 
             // Up to 4 players shown; excess collapsed to "+N more"
-            let displayed = game.playerRefs.prefix(4)
+            let displayed = game.players.prefix(4)
             VStack(alignment: .leading, spacing: 3) {
                 ForEach(displayed.indices, id: \.self) { i in
                     HStack(spacing: 6) {
                         Circle()
                             .fill(Phase10Game.playerColor(for: i))
                             .frame(width: 8, height: 8)
-                        Text(game.playerRefs[i].name)
+                        Text(game.players[i].name)
                             .font(.caption).fontWeight(.medium)
                             .lineLimit(1)
                         let phase = game.currentPhase(for: i)
@@ -49,8 +49,8 @@ struct Phase10ListCell: View {
                         }
                     }
                 }
-                if game.playerRefs.count > 4 {
-                    Text("+\(game.playerRefs.count - 4) more")
+                if game.players.count > 4 {
+                    Text("+\(game.players.count - 4) more")
                         .font(.caption2)
                         .foregroundColor(selected ? .white : .secondary)
                 }

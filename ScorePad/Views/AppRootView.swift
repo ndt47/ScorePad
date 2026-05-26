@@ -79,20 +79,20 @@ struct AppRootView: View {
 
             // Ensure profiles exist for every name currently in game records.
             for r in rubbers     { for p in r.players          { _ = profile(for: p.name) } }
-            for g in milleGames  { for r in g.team1PlayerRefs + g.team2PlayerRefs { _ = profile(for: r.name) } }
-            for g in phase10Games { for r in g.playerRefs      { _ = profile(for: r.name) } }
+            for g in milleGames  { for r in g.team1Players + g.team2Players { _ = profile(for: r.name) } }
+            for g in phase10Games { for r in g.players         { _ = profile(for: r.name) } }
 
             // Link any unlinked PlayerRef / Player entries.
             for game in milleGames {
-                var t1 = game.team1PlayerRefs; var t2 = game.team2PlayerRefs; var changed = false
+                var t1 = game.team1Players; var t2 = game.team2Players; var changed = false
                 for i in t1.indices where t1[i].profileID == nil { t1[i].profileID = profile(for: t1[i].name).id; changed = true }
                 for i in t2.indices where t2[i].profileID == nil { t2[i].profileID = profile(for: t2[i].name).id; changed = true }
-                if changed { game.team1PlayerRefs = t1; game.team2PlayerRefs = t2 }
+                if changed { game.team1Players = t1; game.team2Players = t2 }
             }
             for game in phase10Games {
-                var refs = game.playerRefs; var changed = false
+                var refs = game.players; var changed = false
                 for i in refs.indices where refs[i].profileID == nil { refs[i].profileID = profile(for: refs[i].name).id; changed = true }
-                if changed { game.playerRefs = refs }
+                if changed { game.players = refs }
             }
             for rubber in rubbers {
                 var players = rubber.players; var changed = false
