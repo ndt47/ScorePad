@@ -54,27 +54,53 @@ struct AppRootView: View {
         }
     }
 
-    // Backfills PersonProfile records for all player names stored in existing game sessions.
-    // Runs on foreground so CloudKit-synced data from other devices is picked up after sync settles.
+    // Ensures PersonProfile records exist for every player across all game types and links
+    // any unlinked PlayerRef/Player entries by name. Runs each foreground activation so
+    // CloudKit-synced games landed after the previous launch are also picked up.
     @MainActor
     private func migratePlayerProfiles() {
         do {
-            var allNames: Set<String> = []
-            let rubbers = try modelContext.fetch(FetchDescriptor<Rubber>())
-            for rubber in rubbers { for player in rubber.players { allNames.insert(player.name) } }
-            let milleGames = try modelContext.fetch(FetchDescriptor<MilleBornesGame>())
-            for game in milleGames { for name in game.team1Players + game.team2Players { allNames.insert(name) } }
+            let rubbers     = try modelContext.fetch(FetchDescriptor<Rubber>())
+            let milleGames  = try modelContext.fetch(FetchDescriptor<MilleBornesGame>())
             let phase10Games = try modelContext.fetch(FetchDescriptor<Phase10Game>())
-            for game in phase10Games { for name in game.players { allNames.insert(name) } }
 
-            let existing = try modelContext.fetch(FetchDescriptor<PersonProfile>())
-            let existingNames = Set(existing.map { $0.name.lowercased() })
-            var inserted = false
-            for name in allNames where !name.isEmpty && !existingNames.contains(name.lowercased()) {
-                modelContext.insert(PersonProfile(name: name))
-                inserted = true
+            // Build a name → PersonProfile map, creating missing profiles as needed.
+            var byName: [String: PersonProfile] = Dictionary(
+                uniqueKeysWithValues: try modelContext.fetch(FetchDescriptor<PersonProfile>())
+                    .map { ($0.name.lowercased(), $0) }
+            )
+            func profile(for name: String) -> PersonProfile {
+                if let existing = byName[name.lowercased()] { return existing }
+                let p = PersonProfile(name: name)
+                modelContext.insert(p)
+                byName[name.lowercased()] = p
+                return p
             }
-            if inserted { try modelContext.save() }
+
+            // Ensure profiles exist for every name currently in game records.
+            for r in rubbers     { for p in r.players          { _ = profile(for: p.name) } }
+            for g in milleGames  { for r in g.team1PlayerRefs + g.team2PlayerRefs { _ = profile(for: r.name) } }
+            for g in phase10Games { for r in g.playerRefs      { _ = profile(for: r.name) } }
+
+            // Link any unlinked PlayerRef / Player entries.
+            for game in milleGames {
+                var t1 = game.team1PlayerRefs; var t2 = game.team2PlayerRefs; var changed = false
+                for i in t1.indices where t1[i].profileID == nil { t1[i].profileID = profile(for: t1[i].name).id; changed = true }
+                for i in t2.indices where t2[i].profileID == nil { t2[i].profileID = profile(for: t2[i].name).id; changed = true }
+                if changed { game.team1PlayerRefs = t1; game.team2PlayerRefs = t2 }
+            }
+            for game in phase10Games {
+                var refs = game.playerRefs; var changed = false
+                for i in refs.indices where refs[i].profileID == nil { refs[i].profileID = profile(for: refs[i].name).id; changed = true }
+                if changed { game.playerRefs = refs }
+            }
+            for rubber in rubbers {
+                var players = rubber.players; var changed = false
+                for i in players.indices where players[i].profileID == nil { players[i].profileID = profile(for: players[i].name).id; changed = true }
+                if changed { rubber.players = players }
+            }
+
+            try modelContext.save()
         } catch {}
     }
 

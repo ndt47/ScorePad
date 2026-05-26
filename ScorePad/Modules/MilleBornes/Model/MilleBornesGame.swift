@@ -6,16 +6,49 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
     var id: UUID = UUID()
     var dateCreated: Date = Date.now
     var lastModified: Date = Date.now
-    var team1Players: [String] = []
-    var team2Players: [String] = []
     var hands: [MilleBornesHand] = []
 
-    init(team1Players: [String] = [], team2Players: [String] = []) {
+    // Stored as [String] for schema compatibility (original column names preserved).
+    var team1Players: [String] = []
+    var team2Players: [String] = []
+    // Stores [PlayerRef] as JSON-encoded Data. nil until migration task links names to profiles.
+    var team1PlayerRefsData: Data? = nil
+    var team2PlayerRefsData: Data? = nil
+
+    // Unified [PlayerRef] API. Uses ref data (with profile IDs) when available;
+    // falls back to string names wrapped in PlayerRef for pre-migration records.
+    var team1PlayerRefs: [PlayerRef] {
+        get {
+            if let data = team1PlayerRefsData,
+               let refs = try? JSONDecoder().decode([PlayerRef].self, from: data) { return refs }
+            return team1Players.map { PlayerRef(name: $0) }
+        }
+        set {
+            team1Players = newValue.map(\.name)
+            team1PlayerRefsData = try? JSONEncoder().encode(newValue)
+        }
+    }
+
+    var team2PlayerRefs: [PlayerRef] {
+        get {
+            if let data = team2PlayerRefsData,
+               let refs = try? JSONDecoder().decode([PlayerRef].self, from: data) { return refs }
+            return team2Players.map { PlayerRef(name: $0) }
+        }
+        set {
+            team2Players = newValue.map(\.name)
+            team2PlayerRefsData = try? JSONEncoder().encode(newValue)
+        }
+    }
+
+    init(team1Players: [PlayerRef] = [], team2Players: [PlayerRef] = []) {
         self.id = UUID()
         self.dateCreated = .now
         self.lastModified = .now
-        self.team1Players = team1Players
-        self.team2Players = team2Players
+        self.team1Players = team1Players.map(\.name)
+        self.team1PlayerRefsData = try? JSONEncoder().encode(team1Players)
+        self.team2Players = team2Players.map(\.name)
+        self.team2PlayerRefsData = try? JSONEncoder().encode(team2Players)
         self.hands = []
     }
 
@@ -28,12 +61,17 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
 
     required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        id           = try c.decode(UUID.self,                forKey: .id)
-        dateCreated  = try c.decode(Date.self,                forKey: .dateCreated)
-        lastModified = try c.decode(Date.self,                forKey: .lastModified)
-        team1Players = try c.decode([String].self,            forKey: .team1Players)
-        team2Players = try c.decode([String].self,            forKey: .team2Players)
-        hands        = try c.decode([MilleBornesHand].self,   forKey: .hands)
+        id           = try c.decode(UUID.self,              forKey: .id)
+        dateCreated  = try c.decode(Date.self,              forKey: .dateCreated)
+        lastModified = try c.decode(Date.self,              forKey: .lastModified)
+        // PlayerRef.init(from:) handles both old bare-string and new keyed formats.
+        let t1 = try c.decode([PlayerRef].self,             forKey: .team1Players)
+        let t2 = try c.decode([PlayerRef].self,             forKey: .team2Players)
+        team1Players = t1.map(\.name)
+        team2Players = t2.map(\.name)
+        team1PlayerRefsData = try? JSONEncoder().encode(t1)
+        team2PlayerRefsData = try? JSONEncoder().encode(t2)
+        hands        = try c.decode([MilleBornesHand].self, forKey: .hands)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -41,8 +79,8 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         try c.encode(id,           forKey: .id)
         try c.encode(dateCreated,  forKey: .dateCreated)
         try c.encode(lastModified, forKey: .lastModified)
-        try c.encode(team1Players, forKey: .team1Players)
-        try c.encode(team2Players, forKey: .team2Players)
+        try c.encode(team1PlayerRefs, forKey: .team1Players)
+        try c.encode(team2PlayerRefs, forKey: .team2Players)
         try c.encode(hands,        forKey: .hands)
     }
 
@@ -99,8 +137,8 @@ extension MilleBornesGame: Hashable {
 extension MilleBornesGame {
     static var mock: MilleBornesGame {
         let game = MilleBornesGame(
-            team1Players: ["Nathan", "Caty"],
-            team2Players: ["Sharon", "Larisa"]
+            team1Players: [PlayerRef(name: "Nathan"), PlayerRef(name: "Caty")],
+            team2Players: [PlayerRef(name: "Sharon"), PlayerRef(name: "Larisa")]
         )
         var h1 = MilleBornesHand()
         h1.team1.cards100 = 6; h1.team1.cards50 = 2  // 700 miles → tripCompleted auto

@@ -73,17 +73,14 @@ struct NewPhase10Game: View {
     }
 
     private func save() {
-        for name in playerNames {
+        let playerRefs: [PlayerRef] = playerNames.enumerated().map { (i, name) in
             let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !trimmed.isEmpty && !roster.contains(where: { $0.name.lowercased() == trimmed.lowercased() }) {
-                modelContext.insert(PersonProfile(name: trimmed))
-            }
+            guard !trimmed.isEmpty else { return PlayerRef(name: "Player \(i + 1)") }
+            let profile = roster.first(where: { $0.name.lowercased() == trimmed.lowercased() })
+                ?? { let p = PersonProfile(name: trimmed); modelContext.insert(p); return p }()
+            return PlayerRef(profile: profile)
         }
-        let names = playerNames.enumerated().map { (i, name) in
-            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-            return trimmed.isEmpty ? "Player \(i + 1)" : trimmed
-        }
-        let game = Phase10Game(players: names)
+        let game = Phase10Game(players: playerRefs)
         modelContext.insert(game)
         onSave?(game.id)
         dismiss()

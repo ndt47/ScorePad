@@ -84,11 +84,15 @@ struct NewMilleBornesGame: View {
     }
 
     private func save() {
-        let allNames = team1Players + team2Players
-        for name in allNames where !roster.contains(where: { $0.name.lowercased() == name.lowercased() }) {
-            modelContext.insert(PersonProfile(name: name))
+        func ref(for name: String) -> PlayerRef {
+            let profile = roster.first(where: { $0.name.lowercased() == name.lowercased() })
+                ?? { let p = PersonProfile(name: name); modelContext.insert(p); return p }()
+            return PlayerRef(profile: profile)
         }
-        let game = MilleBornesGame(team1Players: team1Players, team2Players: team2Players)
+        let game = MilleBornesGame(
+            team1Players: team1Players.map { ref(for: $0) },
+            team2Players: team2Players.map { ref(for: $0) }
+        )
         modelContext.insert(game)
         onSave?(game.id)
         dismiss()

@@ -10,5 +10,6 @@ import Foundation
 struct Player: Codable {
     var name: String
     var position: Position
+    var profileID: UUID? = nil
 }
 

@@ -159,14 +159,13 @@ struct NewRubber: View {
     }
     
     func save() {
-        // Auto-add any new names to the shared roster
+        var linked: [Player] = []
         for player in players {
-            let name = player.name
-            if !roster.contains(where: { $0.name.lowercased() == name.lowercased() }) {
-                modelContext.insert(PersonProfile(name: name))
-            }
+            let profile = roster.first(where: { $0.name.lowercased() == player.name.lowercased() })
+                ?? { let p = PersonProfile(name: player.name); modelContext.insert(p); return p }()
+            linked.append(Player(name: player.name, position: player.position, profileID: profile.id))
         }
-        let rubber = Rubber(players: players, dealer: dealer)
+        let rubber = Rubber(players: linked, dealer: dealer)
         modelContext.insert(rubber)
         onSave?(rubber.id)
         dismiss()

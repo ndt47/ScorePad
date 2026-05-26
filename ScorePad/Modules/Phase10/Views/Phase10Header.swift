@@ -19,7 +19,7 @@ struct Phase10Header: View {
             }
             .frame(width: Phase10Game.labelColumnWidth, alignment: .top)
 
-            ForEach(game.players.indices, id: \.self) { i in
+            ForEach(game.playerRefs.indices, id: \.self) { i in
                 Divider()
                 playerColumn(for: i)
             }
@@ -43,7 +43,7 @@ struct Phase10Header: View {
                 .frame(height: 4)
 
             // Player name
-            Text(game.players[index])
+            Text(game.playerRefs[index].name)
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .lineLimit(1)

@@ -7,14 +7,33 @@ final class Phase10Game: ObservableObject, Identifiable {
     var id: UUID = UUID()
     var dateCreated: Date = Date.now
     var lastModified: Date = Date.now
-    var players: [String] = []
     var hands: [Phase10Hand] = []
 
-    init(players: [String]) {
+    // Stored as [String] for schema compatibility (original column name preserved).
+    var players: [String] = []
+    // Stores [PlayerRef] as JSON-encoded Data. nil until migration task links names to profiles.
+    var playerRefsData: Data? = nil
+
+    // Unified [PlayerRef] API. Uses ref data (with profile IDs) when available;
+    // falls back to string names wrapped in PlayerRef for pre-migration records.
+    var playerRefs: [PlayerRef] {
+        get {
+            if let data = playerRefsData,
+               let refs = try? JSONDecoder().decode([PlayerRef].self, from: data) { return refs }
+            return players.map { PlayerRef(name: $0) }
+        }
+        set {
+            players = newValue.map(\.name)
+            playerRefsData = try? JSONEncoder().encode(newValue)
+        }
+    }
+
+    init(players: [PlayerRef]) {
         self.id = UUID()
         self.dateCreated = .now
         self.lastModified = .now
-        self.players = players
+        self.players = players.map(\.name)
+        self.playerRefsData = try? JSONEncoder().encode(players)
         self.hands = []
     }
 
@@ -105,7 +124,7 @@ extension Phase10Game: Hashable {
 
 extension Phase10Game {
     static var mock: Phase10Game {
-        let game = Phase10Game(players: ["Alice", "Bob", "Charlie"])
+        let game = Phase10Game(players: [PlayerRef(name: "Alice"), PlayerRef(name: "Bob"), PlayerRef(name: "Charlie")])
         var h1 = Phase10Hand(playerCount: 3)
         h1.playerResults[0] = Phase10PlayerResult(score: 35, completedPhase: true)
         h1.playerResults[1] = Phase10PlayerResult(score: 25, completedPhase: true)

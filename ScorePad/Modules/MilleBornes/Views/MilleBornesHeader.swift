@@ -5,11 +5,11 @@ struct MilleBornesHeader: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            MilleBornesTeamHeaderView(players: game.team1Players,
+            MilleBornesTeamHeaderView(players: game.team1PlayerRefs,
                                      fallback: "Team 1",
                                      score: game.cumulativeScore(team: 1),
                                      isWinner: game.winningTeam == 1)
-            MilleBornesTeamHeaderView(players: game.team2Players,
+            MilleBornesTeamHeaderView(players: game.team2PlayerRefs,
                                      fallback: "Team 2",
                                      score: game.cumulativeScore(team: 2),
                                      isWinner: game.winningTeam == 2)
@@ -18,12 +18,12 @@ struct MilleBornesHeader: View {
 }
 
 struct MilleBornesTeamHeaderView: View {
-    var players: [String]
+    var players: [PlayerRef]
     var fallback: String
     var score: Int
     var isWinner: Bool
 
-    private var displayNames: [String] { players.isEmpty ? [fallback] : players }
+    private var displayNames: [String] { players.isEmpty ? [fallback] : players.map(\.name) }
 
     var body: some View {
         HStack(alignment: .top) {
