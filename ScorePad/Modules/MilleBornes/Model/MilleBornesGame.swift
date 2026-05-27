@@ -6,9 +6,7 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
     var id: UUID = UUID()
     var dateCreated: Date = Date.now
     var lastModified: Date = Date.now
-    @Attribute(.transformable(by: PlayerRefArrayTransformer.transformerName))
     var team1Players: [PlayerRef] = []
-    @Attribute(.transformable(by: PlayerRefArrayTransformer.transformerName))
     var team2Players: [PlayerRef] = []
     var hands: [MilleBornesHand] = []
 
