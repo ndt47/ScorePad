@@ -66,8 +66,9 @@ struct AppRootView: View {
 
             // Build a name → PersonProfile map, creating missing profiles as needed.
             var byName: [String: PersonProfile] = Dictionary(
-                uniqueKeysWithValues: try modelContext.fetch(FetchDescriptor<PersonProfile>())
-                    .map { ($0.name.lowercased(), $0) }
+                try modelContext.fetch(FetchDescriptor<PersonProfile>())
+                    .map { ($0.name.lowercased(), $0) },
+                uniquingKeysWith: { first, _ in first }
             )
             func profile(for name: String) -> PersonProfile {
                 if let existing = byName[name.lowercased()] { return existing }

@@ -21,6 +21,7 @@
 		D809D8C22FC422630081F9F9 /* PlayerRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C12FC422630081F9F9 /* PlayerRef.swift */; };
 		D809D8C52FC55BC30081F9F9 /* ScorePadMigrationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */; };
 		D809D8C72FC564010081F9F9 /* PlayerRefArrayTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C62FC564010081F9F9 /* PlayerRefArrayTransformer.swift */; };
+		D809D8C92FC6BA970081F9F9 /* SQLitePlayerMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C82FC6BA970081F9F9 /* SQLitePlayerMigration.swift */; };
 		D83E487D293D1D5900E37BCE /* NewRubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487C293D1D5900E37BCE /* NewRubber.swift */; };
 		D83E487F293D4B7600E37BCE /* Rule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487E293D4B7600E37BCE /* Rule.swift */; };
 		D83E4881293D99B800E37BCE /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E4880293D99B800E37BCE /* Utilities.swift */; };
@@ -121,6 +122,7 @@
 		D809D8C12FC422630081F9F9 /* PlayerRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRef.swift; sourceTree = "<group>"; };
 		D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadMigrationPlan.swift; sourceTree = "<group>"; };
 		D809D8C62FC564010081F9F9 /* PlayerRefArrayTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRefArrayTransformer.swift; sourceTree = "<group>"; };
+		D809D8C82FC6BA970081F9F9 /* SQLitePlayerMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLitePlayerMigration.swift; sourceTree = "<group>"; };
 		D83E487C293D1D5900E37BCE /* NewRubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRubber.swift; sourceTree = "<group>"; };
 		D83E487E293D4B7600E37BCE /* Rule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rule.swift; sourceTree = "<group>"; };
 		D83E4880293D99B800E37BCE /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -269,6 +271,7 @@
 			isa = PBXGroup;
 			children = (
 				D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */,
+				D809D8C82FC6BA970081F9F9 /* SQLitePlayerMigration.swift */,
 			);
 			path = Migration;
 			sourceTree = "<group>";
@@ -617,6 +620,7 @@
 				D8BD5A4A2935257700B86AA6 /* ScorePadApp.swift in Sources */,
 				D87E59B92FC0AD5F00C0C56F /* MilleBornesHand.swift in Sources */,
 				D8A564DC293A5A8100671E8C /* BiddingView.swift in Sources */,
+				D809D8C92FC6BA970081F9F9 /* SQLitePlayerMigration.swift in Sources */,
 				D8A564E0293A882800671E8C /* Result.swift in Sources */,
 				D83E487F293D4B7600E37BCE /* Rule.swift in Sources */,
 				D8BD5A8629357C4800B86AA6 /* Call.swift in Sources */,

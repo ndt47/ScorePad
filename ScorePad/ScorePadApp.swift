@@ -21,12 +21,18 @@ struct ScorePadApp: App {
         let schema = Schema(ScorePadSchemaV2.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
+        // Convert any legacy binary-plist [String] player columns to JSON [PlayerRef]
+        // before SwiftData opens the store. SwiftData uses `try!` internally to decode
+        // Codable attributes, so old binary-plist rows crash the app without this step.
+        SQLitePlayerMigration.migrateIfNeeded(at: config.url)
+
         // No SchemaMigrationPlan: existing stores predate versioned schemas and have no
         // version stamp, so staged migration always fails with "unknown model version".
-        // Inferred migration handles schema changes; PlayerRefArrayTransformer is registered
-        // so SwiftData routes through our transformer for player arrays, safely decoding both
-        // old binary-plist [String] data (local store + CloudKit resync) and the new format.
+        // Inferred migration handles schema changes.
         if let container = try? ModelContainer(for: schema, configurations: [config]) {
+            // Re-save migrated games so SwiftData uploads the new JSON format to CloudKit,
+            // preventing old binary-plist server records from overwriting the local data.
+            SQLitePlayerMigration.touchForCloudKitIfNeeded(in: container)
             return container
         }
 
