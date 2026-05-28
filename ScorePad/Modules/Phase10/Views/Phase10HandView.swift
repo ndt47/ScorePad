@@ -73,7 +73,7 @@ struct Phase10HandView: View {
                 Circle()
                     .fill(color)
                     .frame(width: 10, height: 10)
-                Text(game.players[i])
+                Text(game.players[i].cachedName)
             }
         }
     }

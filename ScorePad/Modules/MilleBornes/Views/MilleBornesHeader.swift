@@ -18,12 +18,12 @@ struct MilleBornesHeader: View {
 }
 
 struct MilleBornesTeamHeaderView: View {
-    var players: [String]
+    var players: [PlayerRef]
     var fallback: String
     var score: Int
     var isWinner: Bool
 
-    private var displayNames: [String] { players.isEmpty ? [fallback] : players }
+    private var displayNames: [String] { players.isEmpty ? [fallback] : players.map(\.cachedName) }
 
     var body: some View {
         HStack(alignment: .top) {

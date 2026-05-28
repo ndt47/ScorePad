@@ -32,19 +32,25 @@ extension View {
 // MARK: - PlayerPickerField
 
 /// A text field with type-ahead suggestions drawn from the shared PersonProfile roster.
-/// Drop-in replacement for TextField in game creation flows.
+/// Resolves the entered name to a PersonProfile on focus-loss or submit:
+///   - Existing name → links to the matching PersonProfile (no duplicate created)
+///   - New name      → creates and inserts a PersonProfile, then links to it
+/// The `profile` binding is the sole output; callers need not touch the roster.
 struct PlayerPickerField: View {
     let label: String
-    @Binding var text: String
+    @Binding var profile: PersonProfile?
 
-    init(_ label: String, text: Binding<String>) {
+    init(_ label: String, profile: Binding<PersonProfile?>) {
         self.label = label
-        self._text = text
+        self._profile = profile
+        self._text = State(initialValue: profile.wrappedValue?.name ?? "")
     }
 
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.playerPickerConfig) private var config
     @Query(sort: \PersonProfile.name) private var roster: [PersonProfile]
 
+    @State private var text: String
     @FocusState private var focused: Bool
     @State private var showSuggestions = false
 
@@ -61,10 +67,13 @@ struct PlayerPickerField: View {
     var body: some View {
         TextField(config.prompt.isEmpty ? label : config.prompt, text: $text)
             .focused($focused)
-            .onChange(of: text) { _, _ in
+            .onSubmit { resolveIfNeeded() }
+            .onChange(of: text) { _, newValue in
+                if profile?.name != newValue { profile = nil }
                 showSuggestions = focused && !suggestions.isEmpty
             }
             .onChange(of: focused) { _, isFocused in
+                if !isFocused { resolveIfNeeded() }
                 showSuggestions = isFocused && !suggestions.isEmpty
             }
             .popover(isPresented: $showSuggestions, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
@@ -75,25 +84,39 @@ struct PlayerPickerField: View {
     @ViewBuilder
     private var suggestionsPopover: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(suggestions) { profile in
+            ForEach(suggestions) { suggestion in
                 Button {
-                    text = profile.name
+                    text = suggestion.name
+                    profile = suggestion
                     showSuggestions = false
                     focused = false
                 } label: {
-                    Text(profile.name)
+                    Text(suggestion.name)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                if profile.id != suggestions.last?.id {
+                if suggestion.id != suggestions.last?.id {
                     Divider()
                 }
             }
         }
         .fixedSize()
         .presentationCompactAdaptation(.popover)
+    }
+
+    private func resolveIfNeeded() {
+        guard profile == nil else { return }
+        let trimmed = text.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        if let existing = roster.first(where: { $0.name.lowercased() == trimmed.lowercased() }) {
+            profile = existing
+        } else {
+            let p = PersonProfile(name: trimmed)
+            modelContext.insert(p)
+            profile = p
+        }
     }
 }

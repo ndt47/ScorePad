@@ -4,9 +4,8 @@ import SwiftData
 struct NewPhase10Game: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Query(sort: \PersonProfile.name) private var roster: [PersonProfile]
 
-    @State private var playerNames: [String] = ["", ""]
+    @State private var profiles: [PersonProfile?] = [nil, nil]
 
     var onSave: ((Phase10Game.ID) -> Void)?
 
@@ -18,18 +17,18 @@ struct NewPhase10Game: View {
         NavigationStack {
             Form {
                 Section {
-                    ForEach(playerNames.indices, id: \.self) { i in
+                    ForEach(profiles.indices, id: \.self) { i in
                         playerRow(at: i)
                     }
-                    if playerNames.count < 8 {
+                    if profiles.count < 8 {
                         Button {
-                            playerNames.append("")
+                            profiles.append(nil)
                         } label: {
                             Label("Add Player", systemImage: "person.badge.plus")
                         }
                     }
                 } header: {
-                    Text("Players (\(playerNames.count))")
+                    Text("Players (\(profiles.count))")
                 }
             }
 #if os(macOS)
@@ -59,10 +58,10 @@ struct NewPhase10Game: View {
             Circle()
                 .fill(Phase10Game.playerColor(for: i))
                 .frame(width: 12, height: 12)
-            PlayerPickerField("Player \(i + 1)", text: $playerNames[i])
-            if playerNames.count > 2 {
+            PlayerPickerField("Player \(i + 1)", profile: $profiles[i])
+            if profiles.count > 2 {
                 Button {
-                    playerNames.remove(at: i)
+                    profiles.remove(at: i)
                 } label: {
                     Image(systemName: "minus.circle.fill")
                         .foregroundColor(.red)
@@ -73,17 +72,10 @@ struct NewPhase10Game: View {
     }
 
     private func save() {
-        for name in playerNames {
-            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !trimmed.isEmpty && !roster.contains(where: { $0.name.lowercased() == trimmed.lowercased() }) {
-                modelContext.insert(PersonProfile(name: trimmed))
-            }
+        let refs: [PlayerRef] = profiles.enumerated().map { i, profile in
+            profile.map { PlayerRef(profile: $0) } ?? PlayerRef(cachedName: "Player \(i + 1)")
         }
-        let names = playerNames.enumerated().map { (i, name) in
-            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-            return trimmed.isEmpty ? "Player \(i + 1)" : trimmed
-        }
-        let game = Phase10Game(players: names)
+        let game = Phase10Game(players: refs)
         modelContext.insert(game)
         onSave?(game.id)
         dismiss()

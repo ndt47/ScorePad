@@ -7,10 +7,10 @@ final class Phase10Game: ObservableObject, Identifiable {
     var id: UUID = UUID()
     var dateCreated: Date = Date.now
     var lastModified: Date = Date.now
-    var players: [String] = []
+    var players: [PlayerRef] = []
     var hands: [Phase10Hand] = []
 
-    init(players: [String]) {
+    init(players: [PlayerRef]) {
         self.id = UUID()
         self.dateCreated = .now
         self.lastModified = .now
@@ -105,7 +105,7 @@ extension Phase10Game: Hashable {
 
 extension Phase10Game {
     static var mock: Phase10Game {
-        let game = Phase10Game(players: ["Alice", "Bob", "Charlie"])
+        let game = Phase10Game(players: [PlayerRef(cachedName: "Alice"), PlayerRef(cachedName: "Bob"), PlayerRef(cachedName: "Charlie")])
         var h1 = Phase10Hand(playerCount: 3)
         h1.playerResults[0] = Phase10PlayerResult(score: 35, completedPhase: true)
         h1.playerResults[1] = Phase10PlayerResult(score: 25, completedPhase: true)

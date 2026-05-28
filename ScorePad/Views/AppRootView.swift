@@ -54,27 +54,65 @@ struct AppRootView: View {
         }
     }
 
-    // Backfills PersonProfile records for all player names stored in existing game sessions.
-    // Runs on foreground so CloudKit-synced data from other devices is picked up after sync settles.
+    // Ensures PersonProfile records exist for every player and keeps cachedName values
+    // fresh. Runs on every foreground activation to pick up CloudKit-synced games and
+    // propagate PersonProfile renames to all linked PlayerRef records.
+    //
+    // Strategy: look up by profileID first (stable identity); fall back to cachedName
+    // only for legacy records where profileID is nil or no longer matches a profile.
     @MainActor
     private func migratePlayerProfiles() {
         do {
-            var allNames: Set<String> = []
-            let rubbers = try modelContext.fetch(FetchDescriptor<Rubber>())
-            for rubber in rubbers { for player in rubber.players { allNames.insert(player.name) } }
-            let milleGames = try modelContext.fetch(FetchDescriptor<MilleBornesGame>())
-            for game in milleGames { for name in game.team1Players + game.team2Players { allNames.insert(name) } }
+            let allProfiles  = try modelContext.fetch(FetchDescriptor<PersonProfile>())
+            let rubbers      = try modelContext.fetch(FetchDescriptor<Rubber>())
+            let milleGames   = try modelContext.fetch(FetchDescriptor<MilleBornesGame>())
             let phase10Games = try modelContext.fetch(FetchDescriptor<Phase10Game>())
-            for game in phase10Games { for name in game.players { allNames.insert(name) } }
 
-            let existing = try modelContext.fetch(FetchDescriptor<PersonProfile>())
-            let existingNames = Set(existing.map { $0.name.lowercased() })
-            var inserted = false
-            for name in allNames where !name.isEmpty && !existingNames.contains(name.lowercased()) {
-                modelContext.insert(PersonProfile(name: name))
-                inserted = true
+            var byID:   [UUID: PersonProfile] = Dictionary(allProfiles.map { ($0.id, $0) },
+                                                            uniquingKeysWith: { f, _ in f })
+            var byName: [String: PersonProfile] = Dictionary(allProfiles.map { ($0.name.lowercased(), $0) },
+                                                              uniquingKeysWith: { f, _ in f })
+
+            // Returns true if the ref was modified (needs to be written back).
+            @discardableResult
+            func resolve(_ ref: inout PlayerRef) -> Bool {
+                if let id = ref.profileID, let p = byID[id] {
+                    // Linked — refresh stale cachedName (picks up PersonProfile renames).
+                    if ref.cachedName != p.name { ref.cachedName = p.name; return true }
+                    return false
+                }
+                // profileID == nil (legacy) or no matching profile — fall back to name.
+                let key = ref.cachedName.lowercased()
+                if let p = byName[key] {
+                    ref.profileID = p.id
+                    byID[p.id] = p
+                    return true
+                }
+                let p = PersonProfile(name: ref.cachedName)
+                modelContext.insert(p)
+                byID[p.id] = p; byName[key] = p
+                ref.profileID = p.id
+                return true
             }
-            if inserted { try modelContext.save() }
+
+            for game in milleGames {
+                var t1 = game.team1Players; var t2 = game.team2Players; var changed = false
+                for i in t1.indices { if resolve(&t1[i]) { changed = true } }
+                for i in t2.indices { if resolve(&t2[i]) { changed = true } }
+                if changed { game.team1Players = t1; game.team2Players = t2 }
+            }
+            for game in phase10Games {
+                var refs = game.players; var changed = false
+                for i in refs.indices { if resolve(&refs[i]) { changed = true } }
+                if changed { game.players = refs }
+            }
+            for rubber in rubbers {
+                var players = rubber.players; var changed = false
+                for i in players.indices { if resolve(&players[i].ref) { changed = true } }
+                if changed { rubber.players = players }
+            }
+
+            try modelContext.save()
         } catch {}
     }
 

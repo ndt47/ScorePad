@@ -15,14 +15,37 @@ struct ScorePadApp: App {
     let registry = GameRegistry(modules: ScorePadApp.modules)
 
     var sharedModelContainer: ModelContainer = {
-        let modelTypes = ScorePadApp.modules.flatMap(\.modelTypes) + [PersonProfile.self]
-        let schema = Schema(modelTypes)
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        // Must be registered before any ModelContainer touches the schema.
+        PlayerRefArrayTransformer.register()
 
+        let schema = Schema(ScorePadSchemaV2.models)
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
+        // Convert any legacy binary-plist [String] player columns to JSON [PlayerRef]
+        // before SwiftData opens the store. SwiftData uses `try!` internally to decode
+        // Codable attributes, so old binary-plist rows crash the app without this step.
+        SQLitePlayerMigration.migrateIfNeeded(at: config.url)
+
+        // No SchemaMigrationPlan: existing stores predate versioned schemas and have no
+        // version stamp, so staged migration always fails with "unknown model version".
+        // Inferred migration handles schema changes.
+        if let container = try? ModelContainer(for: schema, configurations: [config]) {
+            // Re-save migrated games so SwiftData uploads the new JSON format to CloudKit,
+            // preventing old binary-plist server records from overwriting the local data.
+            SQLitePlayerMigration.touchForCloudKitIfNeeded(in: container)
+            return container
+        }
+
+        // Schema incompatible — destroy the store and start fresh.
+        // AppRootView.migratePlayerProfiles() and CloudKit sync will restore data.
+        let url = config.url
+        for suffix in ["", "-shm", "-wal"] {
+            try? FileManager.default.removeItem(atPath: url.path + suffix)
+        }
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("Could not create ModelContainer after store reset: \(error)")
         }
     }()
 

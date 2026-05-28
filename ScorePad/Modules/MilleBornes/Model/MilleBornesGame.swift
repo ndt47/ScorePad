@@ -6,11 +6,11 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
     var id: UUID = UUID()
     var dateCreated: Date = Date.now
     var lastModified: Date = Date.now
-    var team1Players: [String] = []
-    var team2Players: [String] = []
+    var team1Players: [PlayerRef] = []
+    var team2Players: [PlayerRef] = []
     var hands: [MilleBornesHand] = []
 
-    init(team1Players: [String] = [], team2Players: [String] = []) {
+    init(team1Players: [PlayerRef] = [], team2Players: [PlayerRef] = []) {
         self.id = UUID()
         self.dateCreated = .now
         self.lastModified = .now
@@ -28,12 +28,13 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
 
     required init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        id           = try c.decode(UUID.self,                forKey: .id)
-        dateCreated  = try c.decode(Date.self,                forKey: .dateCreated)
-        lastModified = try c.decode(Date.self,                forKey: .lastModified)
-        team1Players = try c.decode([String].self,            forKey: .team1Players)
-        team2Players = try c.decode([String].self,            forKey: .team2Players)
-        hands        = try c.decode([MilleBornesHand].self,   forKey: .hands)
+        id           = try c.decode(UUID.self,              forKey: .id)
+        dateCreated  = try c.decode(Date.self,              forKey: .dateCreated)
+        lastModified = try c.decode(Date.self,              forKey: .lastModified)
+        // PlayerRef.init(from:) handles both old bare-string and new keyed formats.
+        team1Players = try c.decode([PlayerRef].self,       forKey: .team1Players)
+        team2Players = try c.decode([PlayerRef].self,       forKey: .team2Players)
+        hands        = try c.decode([MilleBornesHand].self, forKey: .hands)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -79,11 +80,11 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
     var isTwoPlayerGame: Bool { team1Players.count <= 1 }
 
     var team1Label: String {
-        team1Players.isEmpty ? "Team 1" : team1Players.joined(separator: " & ")
+        team1Players.isEmpty ? "Team 1" : team1Players.map(\.cachedName).joined(separator: " & ")
     }
 
     var team2Label: String {
-        team2Players.isEmpty ? "Team 2" : team2Players.joined(separator: " & ")
+        team2Players.isEmpty ? "Team 2" : team2Players.map(\.cachedName).joined(separator: " & ")
     }
 }
 
@@ -99,8 +100,8 @@ extension MilleBornesGame: Hashable {
 extension MilleBornesGame {
     static var mock: MilleBornesGame {
         let game = MilleBornesGame(
-            team1Players: ["Nathan", "Caty"],
-            team2Players: ["Sharon", "Larisa"]
+            team1Players: [PlayerRef(cachedName: "Nathan"), PlayerRef(cachedName: "Caty")],
+            team2Players: [PlayerRef(cachedName: "Sharon"), PlayerRef(cachedName: "Larisa")]
         )
         var h1 = MilleBornesHand()
         h1.team1.cards100 = 6; h1.team1.cards50 = 2  // 700 miles → tripCompleted auto
