@@ -23,7 +23,7 @@ struct MilleBornesTeamHeaderView: View {
     var score: Int
     var isWinner: Bool
 
-    private var displayNames: [String] { players.isEmpty ? [fallback] : players.map(\.name) }
+    private var displayNames: [String] { players.isEmpty ? [fallback] : players.map(\.cachedName) }
 
     var body: some View {
         HStack(alignment: .top) {

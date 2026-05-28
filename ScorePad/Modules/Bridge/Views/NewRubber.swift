@@ -13,10 +13,10 @@ struct NewRubber: View {
     @Query(sort: \PersonProfile.name) private var roster: [PersonProfile]
 
     @State var dealer: Position = .north
-    @State var north: String = ""
-    @State var east: String = ""
-    @State var south: String = ""
-    @State var west: String = ""
+    @State var north = "";  @State private var northSelection: PersonProfile? = nil
+    @State var east  = "";  @State private var eastSelection:  PersonProfile? = nil
+    @State var south = "";  @State private var southSelection: PersonProfile? = nil
+    @State var west  = "";  @State private var westSelection:  PersonProfile? = nil
     @Environment(\.dismiss) var dismiss
     var onSave: ((Rubber.ID) -> Void)? = nil
     var onCancel: (() -> Void)? = nil
@@ -24,14 +24,14 @@ struct NewRubber: View {
     enum Action {
         case save
         case cancel
-        
+
         var label: String {
             switch self {
             case .save: return "Save"
             case .cancel: return "Cancel"
             }
         }
-        
+
         var systemImage: String {
             switch self {
             case .save: return "pencil"
@@ -48,8 +48,8 @@ struct NewRubber: View {
                         Text(Team.we.label)
                             .font(.title2)
                             .bold()
-                        PlayerPickerField(Position.north.label, text: $north)
-                        PlayerPickerField(Position.south.label, text: $south)
+                        PlayerPickerField(Position.north.label, text: $north, selection: $northSelection)
+                        PlayerPickerField(Position.south.label, text: $south, selection: $southSelection)
                     }
                     Divider()
                         .frame(height:120)
@@ -57,8 +57,8 @@ struct NewRubber: View {
                         Text(Team.they.label)
                             .font(.title2)
                             .bold()
-                        PlayerPickerField(Position.east.label, text: $east)
-                        PlayerPickerField(Position.west.label, text: $west)
+                        PlayerPickerField(Position.east.label, text: $east, selection: $eastSelection)
+                        PlayerPickerField(Position.west.label, text: $west, selection: $westSelection)
                     }
                 }
                 HStack {
@@ -135,42 +135,31 @@ struct NewRubber: View {
         .edgesIgnoringSafeArea(.all)
     }
 
-    func name(for position: Position) -> String? {
-        var string: String = ""
-        switch position {
-        case .north:
-            string = north
-        case .east:
-            string = east
-        case .south:
-            string = south
-        case .west:
-            string = west
-        }
-        string = string.trimmingCharacters(in: .whitespacesAndNewlines)
-        return string.isEmpty ? nil : string
-    }
-    
-    var players: [Player] {
-        Position.allCases.compactMap { pos in
-            guard let name = name(for: pos) else { return nil }
-            return Player(name: name, position: pos)
-        }
-    }
-    
     func save() {
-        var linked: [Player] = []
-        for player in players {
-            let profile = roster.first(where: { $0.name.lowercased() == player.name.lowercased() })
-                ?? { let p = PersonProfile(name: player.name); modelContext.insert(p); return p }()
-            linked.append(Player(ref: PlayerRef(profile: profile), position: player.position))
+        // If the user selected from the suggestion list, use the captured profile directly.
+        // If they typed a name without selecting, fall back to roster lookup / creation.
+        func makePlayer(_ name: String, _ selection: PersonProfile?, _ position: Position) -> Player? {
+            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return nil }
+            if let profile = selection { return Player(ref: PlayerRef(profile: profile), position: position) }
+            let profile = roster.first(where: { $0.name.lowercased() == trimmed.lowercased() })
+                ?? { let p = PersonProfile(name: trimmed); modelContext.insert(p); return p }()
+            return Player(ref: PlayerRef(profile: profile), position: position)
         }
+
+        let linked = [
+            makePlayer(north, northSelection, .north),
+            makePlayer(east,  eastSelection,  .east),
+            makePlayer(south, southSelection, .south),
+            makePlayer(west,  westSelection,  .west)
+        ].compactMap { $0 }
+
         let rubber = Rubber(players: linked, dealer: dealer)
         modelContext.insert(rubber)
         onSave?(rubber.id)
         dismiss()
     }
-    
+
     func cancel() {
         onCancel?()
         dismiss()

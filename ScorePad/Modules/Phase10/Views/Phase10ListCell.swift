@@ -11,7 +11,7 @@ struct Phase10ListCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text(game.players.map(\.name).joined(separator: ", "))
+                Text(game.players.map(\.cachedName).joined(separator: ", "))
                     .fontWeight(.light)
                     .font(.subheadline)
                     .lineLimit(1)
@@ -30,7 +30,7 @@ struct Phase10ListCell: View {
                         Circle()
                             .fill(Phase10Game.playerColor(for: i))
                             .frame(width: 8, height: 8)
-                        Text(game.players[i].name)
+                        Text(game.players[i].cachedName)
                             .font(.caption).fontWeight(.medium)
                             .lineLimit(1)
                         let phase = game.currentPhase(for: i)

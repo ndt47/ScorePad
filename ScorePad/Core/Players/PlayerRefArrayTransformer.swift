@@ -26,7 +26,7 @@ final class PlayerRefArrayTransformer: ValueTransformer {
     override func transformedValue(_ value: Any?) -> Any? {
         guard let refs = value as? [PlayerRef] else { return nil }
         let array = refs.map { ref -> NSDictionary in
-            var d: [String: Any] = ["name": ref.name]
+            var d: [String: Any] = ["name": ref.cachedName]  // "name" key kept for CloudKit wire-format compat
             if let id = ref.profileID { d["profileID"] = id.uuidString }
             return d as NSDictionary
         } as NSArray
@@ -52,11 +52,9 @@ final class PlayerRefArrayTransformer: ValueTransformer {
 
         return array.compactMap { element -> PlayerRef? in
             if let name = element as? String {
-                // Legacy format: plain string element
-                return PlayerRef(name: name)
+                return PlayerRef(cachedName: name)
             } else if let dict = element as? [String: Any], let name = dict["name"] as? String {
-                // Current format: dict element
-                var ref = PlayerRef(name: name)
+                var ref = PlayerRef(cachedName: name)
                 ref.profileID = (dict["profileID"] as? String).flatMap(UUID.init(uuidString:))
                 return ref
             }

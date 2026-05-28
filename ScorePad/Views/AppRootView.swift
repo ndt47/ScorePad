@@ -54,50 +54,61 @@ struct AppRootView: View {
         }
     }
 
-    // Ensures PersonProfile records exist for every player across all game types and links
-    // any unlinked PlayerRef/Player entries by name. Runs each foreground activation so
-    // CloudKit-synced games landed after the previous launch are also picked up.
+    // Ensures PersonProfile records exist for every player and keeps cachedName values
+    // fresh. Runs on every foreground activation to pick up CloudKit-synced games and
+    // propagate PersonProfile renames to all linked PlayerRef records.
+    //
+    // Strategy: look up by profileID first (stable identity); fall back to cachedName
+    // only for legacy records where profileID is nil or no longer matches a profile.
     @MainActor
     private func migratePlayerProfiles() {
         do {
-            let rubbers     = try modelContext.fetch(FetchDescriptor<Rubber>())
-            let milleGames  = try modelContext.fetch(FetchDescriptor<MilleBornesGame>())
+            let allProfiles  = try modelContext.fetch(FetchDescriptor<PersonProfile>())
+            let rubbers      = try modelContext.fetch(FetchDescriptor<Rubber>())
+            let milleGames   = try modelContext.fetch(FetchDescriptor<MilleBornesGame>())
             let phase10Games = try modelContext.fetch(FetchDescriptor<Phase10Game>())
 
-            // Build a name → PersonProfile map, creating missing profiles as needed.
-            var byName: [String: PersonProfile] = Dictionary(
-                try modelContext.fetch(FetchDescriptor<PersonProfile>())
-                    .map { ($0.name.lowercased(), $0) },
-                uniquingKeysWith: { first, _ in first }
-            )
-            func profile(for name: String) -> PersonProfile {
-                if let existing = byName[name.lowercased()] { return existing }
-                let p = PersonProfile(name: name)
+            var byID:   [UUID: PersonProfile] = Dictionary(allProfiles.map { ($0.id, $0) },
+                                                            uniquingKeysWith: { f, _ in f })
+            var byName: [String: PersonProfile] = Dictionary(allProfiles.map { ($0.name.lowercased(), $0) },
+                                                              uniquingKeysWith: { f, _ in f })
+
+            // Returns true if the ref was modified (needs to be written back).
+            @discardableResult
+            func resolve(_ ref: inout PlayerRef) -> Bool {
+                if let id = ref.profileID, let p = byID[id] {
+                    // Linked — refresh stale cachedName (picks up PersonProfile renames).
+                    if ref.cachedName != p.name { ref.cachedName = p.name; return true }
+                    return false
+                }
+                // profileID == nil (legacy) or no matching profile — fall back to name.
+                let key = ref.cachedName.lowercased()
+                if let p = byName[key] {
+                    ref.profileID = p.id
+                    byID[p.id] = p
+                    return true
+                }
+                let p = PersonProfile(name: ref.cachedName)
                 modelContext.insert(p)
-                byName[name.lowercased()] = p
-                return p
+                byID[p.id] = p; byName[key] = p
+                ref.profileID = p.id
+                return true
             }
 
-            // Ensure profiles exist for every name currently in game records.
-            for r in rubbers     { for p in r.players          { _ = profile(for: p.name) } }
-            for g in milleGames  { for r in g.team1Players + g.team2Players { _ = profile(for: r.name) } }
-            for g in phase10Games { for r in g.players         { _ = profile(for: r.name) } }
-
-            // Link any unlinked PlayerRef / Player entries.
             for game in milleGames {
                 var t1 = game.team1Players; var t2 = game.team2Players; var changed = false
-                for i in t1.indices where t1[i].profileID == nil { t1[i].profileID = profile(for: t1[i].name).id; changed = true }
-                for i in t2.indices where t2[i].profileID == nil { t2[i].profileID = profile(for: t2[i].name).id; changed = true }
+                for i in t1.indices { if resolve(&t1[i]) { changed = true } }
+                for i in t2.indices { if resolve(&t2[i]) { changed = true } }
                 if changed { game.team1Players = t1; game.team2Players = t2 }
             }
             for game in phase10Games {
                 var refs = game.players; var changed = false
-                for i in refs.indices where refs[i].profileID == nil { refs[i].profileID = profile(for: refs[i].name).id; changed = true }
+                for i in refs.indices { if resolve(&refs[i]) { changed = true } }
                 if changed { game.players = refs }
             }
             for rubber in rubbers {
                 var players = rubber.players; var changed = false
-                for i in players.indices where players[i].profileID == nil { players[i].profileID = profile(for: players[i].name).id; changed = true }
+                for i in players.indices { if resolve(&players[i].ref) { changed = true } }
                 if changed { rubber.players = players }
             }
 

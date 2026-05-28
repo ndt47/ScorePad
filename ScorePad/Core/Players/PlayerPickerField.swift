@@ -32,14 +32,19 @@ extension View {
 // MARK: - PlayerPickerField
 
 /// A text field with type-ahead suggestions drawn from the shared PersonProfile roster.
-/// Drop-in replacement for TextField in game creation flows.
+/// When the user selects from the suggestion list, `selection` is set to the chosen
+/// PersonProfile so the caller can use its `id` directly — avoiding a name-based lookup
+/// at save time. If the user types a new name without selecting a suggestion, `selection`
+/// stays nil and the caller falls back to name-based creation.
 struct PlayerPickerField: View {
     let label: String
     @Binding var text: String
+    @Binding var selection: PersonProfile?
 
-    init(_ label: String, text: Binding<String>) {
+    init(_ label: String, text: Binding<String>, selection: Binding<PersonProfile?>) {
         self.label = label
         self._text = text
+        self._selection = selection
     }
 
     @Environment(\.playerPickerConfig) private var config
@@ -61,7 +66,11 @@ struct PlayerPickerField: View {
     var body: some View {
         TextField(config.prompt.isEmpty ? label : config.prompt, text: $text)
             .focused($focused)
-            .onChange(of: text) { _, _ in
+            .onChange(of: text) { _, newValue in
+                // Clear the captured profile if the user edits after selecting.
+                // SwiftUI batches the suggestion-tap action, so both `text` and `selection`
+                // are set before onChange fires — the guard below prevents self-clearing.
+                if selection?.name != newValue { selection = nil }
                 showSuggestions = focused && !suggestions.isEmpty
             }
             .onChange(of: focused) { _, isFocused in
@@ -78,6 +87,7 @@ struct PlayerPickerField: View {
             ForEach(suggestions) { profile in
                 Button {
                     text = profile.name
+                    selection = profile   // capture identity directly — no name re-lookup needed
                     showSuggestions = false
                     focused = false
                 } label: {

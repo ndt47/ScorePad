@@ -81,7 +81,7 @@ enum SQLitePlayerMigration {
             }
             guard let names else { continue }
 
-            guard let json = try? JSONEncoder().encode(names.map { PlayerRef(name: $0) })
+            guard let json = try? JSONEncoder().encode(names.map { PlayerRef(cachedName: $0) })
             else { continue }
 
             updates.append((pk, json))

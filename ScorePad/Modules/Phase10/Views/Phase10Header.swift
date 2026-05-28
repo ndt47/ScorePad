@@ -43,7 +43,7 @@ struct Phase10Header: View {
                 .frame(height: 4)
 
             // Player name
-            Text(game.players[index].name)
+            Text(game.players[index].cachedName)
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .lineLimit(1)

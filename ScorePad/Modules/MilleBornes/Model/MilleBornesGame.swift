@@ -80,11 +80,11 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
     var isTwoPlayerGame: Bool { team1Players.count <= 1 }
 
     var team1Label: String {
-        team1Players.isEmpty ? "Team 1" : team1Players.map(\.name).joined(separator: " & ")
+        team1Players.isEmpty ? "Team 1" : team1Players.map(\.cachedName).joined(separator: " & ")
     }
 
     var team2Label: String {
-        team2Players.isEmpty ? "Team 2" : team2Players.map(\.name).joined(separator: " & ")
+        team2Players.isEmpty ? "Team 2" : team2Players.map(\.cachedName).joined(separator: " & ")
     }
 }
 
@@ -100,8 +100,8 @@ extension MilleBornesGame: Hashable {
 extension MilleBornesGame {
     static var mock: MilleBornesGame {
         let game = MilleBornesGame(
-            team1Players: [PlayerRef(name: "Nathan"), PlayerRef(name: "Caty")],
-            team2Players: [PlayerRef(name: "Sharon"), PlayerRef(name: "Larisa")]
+            team1Players: [PlayerRef(cachedName: "Nathan"), PlayerRef(cachedName: "Caty")],
+            team2Players: [PlayerRef(cachedName: "Sharon"), PlayerRef(cachedName: "Larisa")]
         )
         var h1 = MilleBornesHand()
         h1.team1.cards100 = 6; h1.team1.cards50 = 2  // 700 miles → tripCompleted auto

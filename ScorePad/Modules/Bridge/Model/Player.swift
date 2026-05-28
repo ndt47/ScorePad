@@ -4,7 +4,7 @@ struct Player: Codable {
     var ref: PlayerRef
     var position: Position
 
-    var name: String { ref.name }
+    var name: String { ref.cachedName }
     var profileID: UUID? {
         get { ref.profileID }
         set { ref.profileID = newValue }
@@ -15,9 +15,9 @@ struct Player: Codable {
         self.position = position
     }
 
-    // Convenience init for mocks and tests
+    // Internal: for mocks and tests only
     init(name: String, position: Position) {
-        self.ref = PlayerRef(name: name)
+        self.ref = PlayerRef(cachedName: name)
         self.position = position
     }
 
@@ -32,7 +32,7 @@ struct Player: Codable {
         } else {
             let name = try c.decode(String.self, forKey: .name)
             let pid = try c.decodeIfPresent(UUID.self, forKey: .profileID)
-            ref = PlayerRef(name: name)
+            ref = PlayerRef(cachedName: name)
             ref.profileID = pid
         }
     }

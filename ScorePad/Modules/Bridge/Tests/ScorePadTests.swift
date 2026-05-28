@@ -301,3 +301,88 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual(decoded.position, .north)
     }
 }
+
+// MARK: - PlayerRef
+
+final class PlayerRefTests: XCTestCase {
+
+    // MARK: Decode legacy formats
+
+    func testDecodeLegacyNameKey() throws {
+        let json = #"{"name":"Alice"}"#.data(using: .utf8)!
+        let ref = try JSONDecoder().decode(PlayerRef.self, from: json)
+        XCTAssertEqual(ref.cachedName, "Alice")
+        XCTAssertNil(ref.profileID)
+    }
+
+    func testDecodeLegacyBareString() throws {
+        let json = #""Alice""#.data(using: .utf8)!
+        let ref = try JSONDecoder().decode(PlayerRef.self, from: json)
+        XCTAssertEqual(ref.cachedName, "Alice")
+        XCTAssertNil(ref.profileID)
+    }
+
+    // MARK: Decode current format
+
+    func testDecodeCurrentFormat() throws {
+        let id = UUID()
+        let json = """
+        {"cachedName":"Alice","profileID":"\(id.uuidString)"}
+        """.data(using: .utf8)!
+        let ref = try JSONDecoder().decode(PlayerRef.self, from: json)
+        XCTAssertEqual(ref.cachedName, "Alice")
+        XCTAssertEqual(ref.profileID, id)
+    }
+
+    // MARK: Encode → decode round-trip writes cachedName, not name
+
+    func testEncodeWritesCachedNameKey() throws {
+        let ref = PlayerRef(cachedName: "Alice")
+        let data = try JSONEncoder().encode(ref)
+        let dict = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertNotNil(dict["cachedName"])
+        XCTAssertNil(dict["name"])
+    }
+
+    func testRoundTrip() throws {
+        let id = UUID()
+        // Build a ref via internal init + set profileID directly to simulate a profile-linked ref
+        var ref = PlayerRef(cachedName: "Bob")
+        ref.profileID = id
+        let data = try JSONEncoder().encode(ref)
+        let decoded = try JSONDecoder().decode(PlayerRef.self, from: data)
+        XCTAssertEqual(decoded.cachedName, "Bob")
+        XCTAssertEqual(decoded.profileID, id)
+    }
+
+    // MARK: Equatable
+
+    func testSameProfileIDDifferentCachedNameIsEqual() {
+        let id = UUID()
+        var a = PlayerRef(cachedName: "Alice")
+        a.profileID = id
+        var b = PlayerRef(cachedName: "Alicia")
+        b.profileID = id
+        XCTAssertEqual(a, b)
+    }
+
+    func testBothNilProfileIDSameCachedNameIsEqual() {
+        let a = PlayerRef(cachedName: "Alice")
+        let b = PlayerRef(cachedName: "Alice")
+        XCTAssertEqual(a, b)
+    }
+
+    func testBothNilProfileIDDifferentCachedNameIsNotEqual() {
+        let a = PlayerRef(cachedName: "Alice")
+        let b = PlayerRef(cachedName: "Bob")
+        XCTAssertNotEqual(a, b)
+    }
+
+    func testDifferentProfileIDsAreNotEqual() {
+        var a = PlayerRef(cachedName: "Alice")
+        a.profileID = UUID()
+        var b = PlayerRef(cachedName: "Alice")
+        b.profileID = UUID()
+        XCTAssertNotEqual(a, b)
+    }
+}
