@@ -22,6 +22,11 @@
 		D809D8C52FC55BC30081F9F9 /* ScorePadMigrationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */; };
 		D809D8C72FC564010081F9F9 /* PlayerRefArrayTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C62FC564010081F9F9 /* PlayerRefArrayTransformer.swift */; };
 		D809D8C92FC6BA970081F9F9 /* SQLitePlayerMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C82FC6BA970081F9F9 /* SQLitePlayerMigration.swift */; };
+		D809D8CB2FC80C2B0081F9F9 /* PlayerProfileOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8CA2FC80C2B0081F9F9 /* PlayerProfileOperations.swift */; };
+		D809D8CD2FC80C360081F9F9 /* PersonProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8CC2FC80C360081F9F9 /* PersonProfileDetailView.swift */; };
+		D809D8D12FC810CE0081F9F9 /* AliasPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8D02FC810CE0081F9F9 /* AliasPickerView.swift */; };
+		D809D8D32FC810DD0081F9F9 /* BulkMergePrimaryPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8D22FC810DD0081F9F9 /* BulkMergePrimaryPickerView.swift */; };
+		D809D8D52FC812C50081F9F9 /* PlayerProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8D42FC812C50081F9F9 /* PlayerProfileCell.swift */; };
 		D83E487D293D1D5900E37BCE /* NewRubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487C293D1D5900E37BCE /* NewRubber.swift */; };
 		D83E487F293D4B7600E37BCE /* Rule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E487E293D4B7600E37BCE /* Rule.swift */; };
 		D83E4881293D99B800E37BCE /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E4880293D99B800E37BCE /* Utilities.swift */; };
@@ -123,6 +128,11 @@
 		D809D8C42FC55BC30081F9F9 /* ScorePadMigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePadMigrationPlan.swift; sourceTree = "<group>"; };
 		D809D8C62FC564010081F9F9 /* PlayerRefArrayTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRefArrayTransformer.swift; sourceTree = "<group>"; };
 		D809D8C82FC6BA970081F9F9 /* SQLitePlayerMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLitePlayerMigration.swift; sourceTree = "<group>"; };
+		D809D8CA2FC80C2B0081F9F9 /* PlayerProfileOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfileOperations.swift; sourceTree = "<group>"; };
+		D809D8CC2FC80C360081F9F9 /* PersonProfileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonProfileDetailView.swift; sourceTree = "<group>"; };
+		D809D8D02FC810CE0081F9F9 /* AliasPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AliasPickerView.swift; sourceTree = "<group>"; };
+		D809D8D22FC810DD0081F9F9 /* BulkMergePrimaryPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkMergePrimaryPickerView.swift; sourceTree = "<group>"; };
+		D809D8D42FC812C50081F9F9 /* PlayerProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfileCell.swift; sourceTree = "<group>"; };
 		D83E487C293D1D5900E37BCE /* NewRubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRubber.swift; sourceTree = "<group>"; };
 		D83E487E293D4B7600E37BCE /* Rule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rule.swift; sourceTree = "<group>"; };
 		D83E4880293D99B800E37BCE /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -468,6 +478,11 @@
 				C2C0FC4C2B536C375CC15A2C /* PlayerPickerField.swift */,
 				D809D8C12FC422630081F9F9 /* PlayerRef.swift */,
 				D809D8C62FC564010081F9F9 /* PlayerRefArrayTransformer.swift */,
+				D809D8CA2FC80C2B0081F9F9 /* PlayerProfileOperations.swift */,
+				D809D8CC2FC80C360081F9F9 /* PersonProfileDetailView.swift */,
+				D809D8D02FC810CE0081F9F9 /* AliasPickerView.swift */,
+				D809D8D22FC810DD0081F9F9 /* BulkMergePrimaryPickerView.swift */,
+				D809D8D42FC812C50081F9F9 /* PlayerProfileCell.swift */,
 			);
 			path = Players;
 			sourceTree = "<group>";
@@ -624,11 +639,14 @@
 				D8A564E0293A882800671E8C /* Result.swift in Sources */,
 				D83E487F293D4B7600E37BCE /* Rule.swift in Sources */,
 				D8BD5A8629357C4800B86AA6 /* Call.swift in Sources */,
+				D809D8CB2FC80C2B0081F9F9 /* PlayerProfileOperations.swift in Sources */,
 				D8A564AD293910D800671E8C /* RubberHeader.swift in Sources */,
 				D8BD5A752935263000B86AA6 /* Rubber.swift in Sources */,
 				D8F882BA2FC2051000080E76 /* Phase10HandRow.swift in Sources */,
 				D8F882BC2FC2052100080E76 /* Phase10Header.swift in Sources */,
+				D809D8CD2FC80C360081F9F9 /* PersonProfileDetailView.swift in Sources */,
 				D87E59C52FC0ADA000C0C56F /* MilleBornesDetailView.swift in Sources */,
+				D809D8D52FC812C50081F9F9 /* PlayerProfileCell.swift in Sources */,
 				D8BD5A8829357C6800B86AA6 /* Score.swift in Sources */,
 				D8AD71F12B33875F000DBA88 /* Suit.swift in Sources */,
 				D8AD71ED2B338602000DBA88 /* Game.swift in Sources */,
@@ -654,6 +672,7 @@
 				D87E59C92FC0ADB400C0C56F /* MilleBornesHandRow.swift in Sources */,
 				D8F882AE2FC204D500080E76 /* Phase10Game.swift in Sources */,
 				D87E59BF2FC0AD8300C0C56F /* MilleBornesGame+GameSession.swift in Sources */,
+				D809D8D12FC810CE0081F9F9 /* AliasPickerView.swift in Sources */,
 				D87E59C32FC0AD9800C0C56F /* NewMilleBornesGame.swift in Sources */,
 				BFABDFA9D68839A336BF0E04 /* BridgeModule.swift in Sources */,
 				3E25EA68D2D9E71EA5E25B94 /* GameModule.swift in Sources */,
@@ -662,6 +681,7 @@
 				D8F882B02FC204E200080E76 /* Phase10Module.swift in Sources */,
 				3107699B06D1024F65AE54D6 /* PersonProfile.swift in Sources */,
 				3536D5198820C28BD6CA823A /* PlayerRosterView.swift in Sources */,
+				D809D8D32FC810DD0081F9F9 /* BulkMergePrimaryPickerView.swift in Sources */,
 				5F6CDD6E6B8E50434AF0175B /* PlayerPickerField.swift in Sources */,
 				E162446A7017E5884AB1DACA /* BridgeDetailView.swift in Sources */,
 				D809D8C52FC55BC30081F9F9 /* ScorePadMigrationPlan.swift in Sources */,
