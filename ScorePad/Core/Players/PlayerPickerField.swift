@@ -59,7 +59,10 @@ struct PlayerPickerField: View {
         guard !trimmed.isEmpty else { return [] }
         return Array(
             roster
-                .filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+                .filter {
+                    $0.name.localizedCaseInsensitiveContains(trimmed)
+                        || $0.aliases.contains { $0.localizedCaseInsensitiveContains(trimmed) }
+                }
                 .prefix(config.maxSuggestions)
         )
     }
@@ -111,7 +114,10 @@ struct PlayerPickerField: View {
         guard profile == nil else { return }
         let trimmed = text.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
-        if let existing = roster.first(where: { $0.name.lowercased() == trimmed.lowercased() }) {
+        if let existing = roster.first(where: {
+            $0.name.lowercased() == trimmed.lowercased()
+                || $0.aliases.contains { $0.lowercased() == trimmed.lowercased() }
+        }) {
             profile = existing
         } else {
             let p = PersonProfile(name: trimmed)
