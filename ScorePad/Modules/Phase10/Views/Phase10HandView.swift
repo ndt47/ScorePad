@@ -7,6 +7,7 @@ struct Phase10HandView: View {
     var editingHand: Phase10Hand?
 
     @State private var results: [Phase10PlayerResult] = []
+    @FocusState private var focusedField: Int?
 
     var body: some View {
         NavigationStack {
@@ -18,6 +19,17 @@ struct Phase10HandView: View {
 #if os(macOS)
             .formStyle(.grouped)
 #endif
+            .onChange(of: focusedField) { _, newValue in
+                guard newValue != nil else { return }
+#if os(iOS)
+                DispatchQueue.main.async {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.selectAll(_:)),
+                        to: nil, from: nil, for: nil
+                    )
+                }
+#endif
+            }
             .navigationTitle(editingHand == nil ? "New Hand" : "Edit Hand")
 #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -45,28 +57,29 @@ struct Phase10HandView: View {
         let phase = currentPhase(for: i)
         let color = Phase10Game.playerColor(for: i)
         Section {
-            HStack(spacing: 6) {
-                Text(Phase10Game.phaseIcon(for: phase))
-                    .font(.caption)
-                Text(Phase10Game.phaseDescription(for: phase))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+            HStack {
+                Text("Phase \(phase): \(Phase10Game.phaseDescription(for: phase))")
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Spacer()
+                if !results.isEmpty {
+                    Toggle("", isOn: $results[i].completedPhase)
+                        .labelsHidden()
+                        .tint(color)
+                }
             }
             HStack {
                 Text("Score")
                 Spacer()
                 if !results.isEmpty {
                     TextField("0", value: $results[i].score, format: .number)
+                        .focused($focusedField, equals: i)
 #if os(iOS)
                         .keyboardType(.numberPad)
 #endif
                         .multilineTextAlignment(.trailing)
                         .frame(width: 80)
                 }
-            }
-            if !results.isEmpty {
-                Toggle("Completed Phase \(phase)", isOn: $results[i].completedPhase)
-                    .tint(color)
             }
         } header: {
             HStack(spacing: 8) {
