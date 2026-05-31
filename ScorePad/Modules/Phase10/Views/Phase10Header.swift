@@ -3,7 +3,6 @@ import SwiftUI
 struct Phase10Header: View {
     @EnvironmentObject var game: Phase10Game
     @Environment(\.phase10PlayerColumnWidth) var columnWidth
-    @State private var showingDescriptions = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -52,7 +51,17 @@ struct Phase10Header: View {
                 .padding(.horizontal, 6)
                 .opacity(isEliminated ? 0.35 : 1)
 
-            // Phase label / description (tap to toggle) or winner badge
+            // Dealer badge — always reserves space so all columns stay the same height
+            Text("D")
+                .font(.caption2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 1)
+                .background(Capsule().fill(color))
+                .opacity(index == game.currentDealerIndex && !game.isFinished ? 1 : 0)
+
+            // Phase label / description (always visible, fixed 2-row height) or winner badge
             if game.hasFinished(index) && game.isFinished {
                 if isWinner {
                     WinnerBadge()
@@ -61,30 +70,22 @@ struct Phase10Header: View {
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
+                // Invisible spacer keeps height consistent with the 2-row phase display
+                Text("").font(.caption2)
             } else {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        showingDescriptions.toggle()
-                    }
-                } label: {
-                    if showingDescriptions {
-                        Text(Phase10Game.phaseDescription(for: phase))
-                            .font(.caption2)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(color)
-                    } else {
-                        Text("Phase \(phase)")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(color)
-                    }
+                let parts = Phase10Game.phaseDescriptionParts(for: phase)
+                VStack(alignment: .center, spacing: 0) {
+                    Text("Phase \(phase): \(parts.line1)")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(color)
+                    Text(parts.line2 ?? "")
+                        .font(.caption2)
+                        .foregroundColor(parts.line2 == nil ? .clear : color)
                 }
-                .buttonStyle(.plain)
+                .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 6)
-                .animation(.easeInOut(duration: 0.2), value: showingDescriptions)
             }
 
             // Cumulative score

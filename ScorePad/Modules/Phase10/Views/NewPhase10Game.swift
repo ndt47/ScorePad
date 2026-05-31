@@ -6,6 +6,7 @@ struct NewPhase10Game: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var profiles: [PersonProfile?] = [nil, nil]
+    @State private var startingDealerIndex: Int = 0
 
     var onSave: ((Phase10Game.ID) -> Void)?
 
@@ -20,6 +21,7 @@ struct NewPhase10Game: View {
                     ForEach(profiles.indices, id: \.self) { i in
                         playerRow(at: i)
                     }
+                    .onMove(perform: movePlayers)
                     if profiles.count < 8 {
                         Button {
                             profiles.append(nil)
@@ -30,7 +32,27 @@ struct NewPhase10Game: View {
                 } header: {
                     Text("Players (\(profiles.count))")
                 }
+
+                Section("Dealer") {
+                    Picker("Starting Dealer", selection: $startingDealerIndex) {
+                        ForEach(profiles.indices, id: \.self) { i in
+                            HStack(spacing: 8) {
+                                Circle()
+                                    .fill(Phase10Game.playerColor(for: i))
+                                    .frame(width: 10, height: 10)
+                                Text(profiles[i]?.name ?? "Player \(i + 1)")
+                            }
+                            .tag(i)
+                        }
+                    }
+                    Button("Randomize") {
+                        startingDealerIndex = Int.random(in: 0..<profiles.count)
+                    }
+                }
             }
+#if os(iOS)
+            .environment(\.editMode, .constant(.active))
+#endif
 #if os(macOS)
             .formStyle(.grouped)
 #endif
@@ -38,7 +60,15 @@ struct NewPhase10Game: View {
             .toolbar {
 #if os(iOS)
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Start") { save() }
+                    Button("Start") {
+                        // Resign first responder so PlayerPickerField's blur-based
+                        // resolveIfNeeded() fires before save() reads profiles.
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil
+                        )
+                        DispatchQueue.main.async { save() }
+                    }
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") { dismiss() }
@@ -71,11 +101,16 @@ struct NewPhase10Game: View {
         }
     }
 
+    private func movePlayers(from source: IndexSet, to destination: Int) {
+        profiles.move(fromOffsets: source, toOffset: destination)
+        startingDealerIndex = 0
+    }
+
     private func save() {
         let refs: [PlayerRef] = profiles.enumerated().map { i, profile in
             profile.map { PlayerRef(profile: $0) } ?? PlayerRef(cachedName: "Player \(i + 1)")
         }
-        let game = Phase10Game(players: refs)
+        let game = Phase10Game(players: refs, startingDealerIndex: startingDealerIndex)
         modelContext.insert(game)
         onSave?(game.id)
         dismiss()
