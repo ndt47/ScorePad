@@ -60,15 +60,8 @@ struct Phase10Header: View {
                 .opacity(isEliminated ? 0.35 : 1)
 
             // Dealer badge — always reserves space so all columns stay the same height
-            Text("D")
-                .font(.caption2)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .padding(.horizontal, 5)
-                .padding(.vertical, 1)
-                .background(Capsule().fill(color))
+            DealerBadge()
                 .opacity(isDealer ? 1 : 0)
-                .accessibilityLabel("Dealer")
                 .accessibilityHidden(!isDealer)
 
             // Phase number, or its description when the header is tapped, or the result once

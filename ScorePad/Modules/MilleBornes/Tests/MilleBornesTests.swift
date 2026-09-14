@@ -560,3 +560,44 @@ final class MilleBornesGameTests: XCTestCase {
         XCTAssertEqual(decoded.team2, h.team2)
     }
 }
+
+// MARK: - Dealer
+
+final class MilleBornesDealerTests: XCTestCase {
+
+    private func fourPlayerGame(startingDealer: Int = 0) -> MilleBornesGame {
+        MilleBornesGame(team1Players: [.preview("A1"), .preview("A2")],
+                        team2Players: [.preview("B1"), .preview("B2")],
+                        startingDealerIndex: startingDealer)
+    }
+
+    func testFourPlayerSeatingAlternatesTeams() {
+        XCTAssertEqual(fourPlayerGame().seatingOrder.map(\.cachedName), ["A1", "B1", "A2", "B2"])
+    }
+
+    func testTwoPlayerSeating() {
+        let game = MilleBornesGame(team1Players: [.preview("A")], team2Players: [.preview("B")])
+        XCTAssertEqual(game.seatingOrder.map(\.cachedName), ["A", "B"])
+    }
+
+    func testDealPassesToTheLeftEachHandAndWraps() {
+        let game = fourPlayerGame(startingDealer: 2)
+        XCTAssertEqual(game.currentDealer?.cachedName, "A2")
+        game.addHand(MilleBornesHand())
+        XCTAssertEqual(game.currentDealer?.cachedName, "B2")
+        game.addHand(MilleBornesHand())
+        XCTAssertEqual(game.currentDealer?.cachedName, "A1")
+    }
+
+    func testNoDealerWithoutPlayers() {
+        XCTAssertNil(MilleBornesGame().currentDealer)
+    }
+
+    func testStartingDealerSurvivesExportAndImport() throws {
+        let game = fourPlayerGame(startingDealer: 3)
+        let data = try JSONEncoder().encode(game)
+        let decoded = try JSONDecoder().decode(MilleBornesGame.self, from: data)
+        XCTAssertEqual(decoded.startingDealerIndex, 3)
+        XCTAssertEqual(decoded.currentDealer?.cachedName, "B2")
+    }
+}

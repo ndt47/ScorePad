@@ -84,6 +84,8 @@
 		D8EC09AB3058818100B068C8 /* UnoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09AA3058818100B068C8 /* UnoDetailView.swift */; };
 		D8EC09AD3058818600B068C8 /* UnoModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09AC3058818600B068C8 /* UnoModule.swift */; };
 		D8EC09AF3058818A00B068C8 /* UnoGame+GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09AE3058818A00B068C8 /* UnoGame+GameSession.swift */; };
+		D8EC09B13058898300B068C8 /* DealerBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09B03058898300B068C8 /* DealerBadge.swift */; };
+		D8EC09B33058898700B068C8 /* PlayerMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09B23058898700B068C8 /* PlayerMarker.swift */; };
 		D8F882A62FC0FA4000080E76 /* WinnerBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882A52FC0FA4000080E76 /* WinnerBadge.swift */; };
 		D8F882AC2FC204C300080E76 /* Phase10Hand.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882AB2FC204C300080E76 /* Phase10Hand.swift */; };
 		D8F882AE2FC204D500080E76 /* Phase10Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882AD2FC204D500080E76 /* Phase10Game.swift */; };
@@ -206,6 +208,8 @@
 		D8EC09AA3058818100B068C8 /* UnoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoDetailView.swift; sourceTree = "<group>"; };
 		D8EC09AC3058818600B068C8 /* UnoModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoModule.swift; sourceTree = "<group>"; };
 		D8EC09AE3058818A00B068C8 /* UnoGame+GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UnoGame+GameSession.swift"; sourceTree = "<group>"; };
+		D8EC09B03058898300B068C8 /* DealerBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealerBadge.swift; sourceTree = "<group>"; };
+		D8EC09B23058898700B068C8 /* PlayerMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerMarker.swift; sourceTree = "<group>"; };
 		D8F882A52FC0FA4000080E76 /* WinnerBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinnerBadge.swift; sourceTree = "<group>"; };
 		D8F882AB2FC204C300080E76 /* Phase10Hand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Hand.swift; sourceTree = "<group>"; };
 		D8F882AD2FC204D500080E76 /* Phase10Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Game.swift; sourceTree = "<group>"; };
@@ -535,6 +539,8 @@
 				CBFABE14CE8D44B8A64E4493 /* GameTypeGridView.swift */,
 				D83E487E293D4B7600E37BCE /* Rule.swift */,
 				D8F882A52FC0FA4000080E76 /* WinnerBadge.swift */,
+				D8EC09B03058898300B068C8 /* DealerBadge.swift */,
+				D8EC09B23058898700B068C8 /* PlayerMarker.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -716,6 +722,7 @@
 				D8EC09AD3058818600B068C8 /* UnoModule.swift in Sources */,
 				D809D8CD2FC80C360081F9F9 /* PersonProfileDetailView.swift in Sources */,
 				D87E59C52FC0ADA000C0C56F /* MilleBornesDetailView.swift in Sources */,
+				D8EC09B13058898300B068C8 /* DealerBadge.swift in Sources */,
 				D809D8D52FC812C50081F9F9 /* PlayerProfileCell.swift in Sources */,
 				D8BD5A8829357C6800B86AA6 /* Score.swift in Sources */,
 				D8AD71F12B33875F000DBA88 /* Suit.swift in Sources */,
@@ -741,6 +748,7 @@
 				D8F882A62FC0FA4000080E76 /* WinnerBadge.swift in Sources */,
 				075CD185567C31E7D7731A59 /* GameSessionList.swift in Sources */,
 				646164457F923E676C662319 /* Rubber+GameSession.swift in Sources */,
+				D8EC09B33058898700B068C8 /* PlayerMarker.swift in Sources */,
 				D87E59C92FC0ADB400C0C56F /* MilleBornesHandRow.swift in Sources */,
 				D8F882AE2FC204D500080E76 /* Phase10Game.swift in Sources */,
 				D8EC099F305880C300B068C8 /* UnoStyle.swift in Sources */,
