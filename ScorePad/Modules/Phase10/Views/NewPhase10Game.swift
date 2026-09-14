@@ -4,49 +4,63 @@ import SwiftData
 struct NewPhase10Game: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \PersonProfile.name) private var roster: [PersonProfile]
 
-    @State private var profiles: [PersonProfile?] = [nil, nil]
-    @State private var startingDealerIndex: Int = 0
+    @State private var slots: [PlayerSlot]
+    // Tracked by seat identity so the dealer stays with the same player through reordering.
+    @State private var dealerID: PlayerSlot.ID
+    @State private var saveError: String?
 
     var onSave: ((Phase10Game.ID) -> Void)?
 
     init(onSave: ((Phase10Game.ID) -> Void)? = nil) {
+        let initial = [PlayerSlot(), PlayerSlot()]
+        self._slots = State(initialValue: initial)
+        self._dealerID = State(initialValue: initial[0].id)
         self.onSave = onSave
+    }
+
+    private var problem: String? {
+        PlayerSlot.problem(with: slots, roster: roster)
     }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    ForEach(profiles.indices, id: \.self) { i in
-                        playerRow(at: i)
+                    ForEach($slots) { $slot in
+                        playerRow($slot)
                     }
-                    .onMove(perform: movePlayers)
-                    if profiles.count < 8 {
+                    .onMove { slots.move(fromOffsets: $0, toOffset: $1) }
+                    if slots.count < 8 {
                         Button {
-                            profiles.append(nil)
+                            slots.append(PlayerSlot())
                         } label: {
                             Label("Add Player", systemImage: "person.badge.plus")
                         }
                     }
                 } header: {
-                    Text("Players (\(profiles.count))")
+                    Text("Players (\(slots.count))")
+                } footer: {
+                    if let problem {
+                        Text(problem)
+                    }
                 }
 
                 Section("Dealer") {
-                    Picker("Starting Dealer", selection: $startingDealerIndex) {
-                        ForEach(profiles.indices, id: \.self) { i in
+                    Picker("Starting Dealer", selection: $dealerID) {
+                        ForEach(slots.indices, id: \.self) { i in
                             HStack(spacing: 8) {
                                 Circle()
                                     .fill(Phase10Game.playerColor(for: i))
                                     .frame(width: 10, height: 10)
-                                Text(profiles[i]?.name ?? "Player \(i + 1)")
+                                Text(slots[i].name.isEmpty ? "Player \(i + 1)" : slots[i].name)
                             }
-                            .tag(i)
+                            .tag(slots[i].id)
                         }
                     }
                     Button("Randomize") {
-                        startingDealerIndex = Int.random(in: 0..<profiles.count)
+                        dealerID = slots.randomElement()?.id ?? dealerID
                     }
                 }
             }
@@ -60,66 +74,69 @@ struct NewPhase10Game: View {
             .toolbar {
 #if os(iOS)
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Start") {
-                        // Resign first responder so PlayerPickerField's blur-based
-                        // resolveIfNeeded() fires before save() reads profiles.
-                        UIApplication.shared.sendAction(
-                            #selector(UIResponder.resignFirstResponder),
-                            to: nil, from: nil, for: nil
-                        )
-                        DispatchQueue.main.async { save() }
-                    }
+                    Button("Start") { save() }
+                        .disabled(problem != nil)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") { dismiss() }
                 }
 #else
-                ToolbarItem { Button("Start") { save() } }
+                ToolbarItem { Button("Start") { save() }.disabled(problem != nil) }
                 ToolbarItem { Button("Cancel") { dismiss() } }
 #endif
             }
+            .errorAlert($saveError)
         }
         .presentationDetents([.medium, .large])
     }
 
     @ViewBuilder
-    private func playerRow(at i: Int) -> some View {
+    private func playerRow(_ slot: Binding<PlayerSlot>) -> some View {
+        let i = slots.firstIndex { $0.id == slot.wrappedValue.id } ?? 0
         HStack(spacing: 12) {
             Circle()
                 .fill(Phase10Game.playerColor(for: i))
                 .frame(width: 12, height: 12)
-            PlayerPickerField("Player \(i + 1)", profile: $profiles[i])
-            if profiles.count > 2 {
+            PlayerPickerField("Player \(i + 1)", slot: slot)
+            if slots.count > 2 {
                 Button {
-                    profiles.remove(at: i)
+                    remove(slot.wrappedValue)
                 } label: {
                     Image(systemName: "minus.circle.fill")
                         .foregroundColor(.red)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Remove Player \(i + 1)")
             }
         }
     }
 
-    private func movePlayers(from source: IndexSet, to destination: Int) {
-        profiles.move(fromOffsets: source, toOffset: destination)
-        startingDealerIndex = 0
+    private func remove(_ slot: PlayerSlot) {
+        slots.removeAll { $0.id == slot.id }
+        if dealerID == slot.id, let first = slots.first {
+            dealerID = first.id
+        }
     }
 
     private func save() {
-        let refs: [PlayerRef] = profiles.enumerated().map { i, profile in
-            profile.map { PlayerRef(profile: $0) } ?? PlayerRef(cachedName: "Player \(i + 1)")
+        guard problem == nil else { return }
+        do {
+            let profiles = try PlayerSlot.resolve(slots, in: modelContext)
+            let dealerIndex = slots.firstIndex { $0.id == dealerID } ?? 0
+            let game = Phase10Game(players: profiles.map(PlayerRef.init(profile:)),
+                                   startingDealerIndex: dealerIndex)
+            modelContext.insert(game)
+            onSave?(game.id)
+            dismiss()
+        } catch {
+            saveError = error.localizedDescription
         }
-        let game = Phase10Game(players: refs, startingDealerIndex: startingDealerIndex)
-        modelContext.insert(game)
-        onSave?(game.id)
-        dismiss()
     }
 }
 
 struct NewPhase10Game_Previews: PreviewProvider {
     static var previews: some View {
         NewPhase10Game()
-            .modelContainer(for: Phase10Game.self, inMemory: true)
+            .modelContainer(for: [Phase10Game.self, PersonProfile.self], inMemory: true)
     }
 }

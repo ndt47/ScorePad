@@ -23,6 +23,12 @@ protocol GameModule: Identifiable where ID == String {
     var subtitle: String { get }
     var modelTypes: [any PersistentModel.Type] { get }
 
+    /// Calls `body` once per stored session with that session's players in seat order, and
+    /// writes back any refs `body` changes. `body` must not add or remove refs. Does not save.
+    /// PlayerProfileService uses this to rename, merge and count a player across every game.
+    @MainActor
+    func updatePlayerRefs(in context: ModelContext, _ body: (inout [PlayerRef]) -> Void) throws
+
     associatedtype SessionListView: View
     associatedtype DetailView: GameDetailView
 

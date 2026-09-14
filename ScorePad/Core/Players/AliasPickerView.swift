@@ -5,11 +5,13 @@ struct AliasPickerView: View {
     let primaryProfile: PersonProfile
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(GameRegistry.self) private var registry
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \PersonProfile.name) private var allProfiles: [PersonProfile]
     @State private var searchText = ""
     @State private var selectedIDs: Set<PersistentIdentifier> = []
     @State private var showConfirmation = false
+    @State private var errorMessage: String?
 
     private var candidates: [PersonProfile] {
         allProfiles.filter { $0.persistentModelID != primaryProfile.persistentModelID }
@@ -63,13 +65,19 @@ struct AliasPickerView: View {
             }
             .alert(confirmationTitle, isPresented: $showConfirmation) {
                 Button("Merge", role: .destructive) {
-                    try? mergeProfiles(selectedProfiles, into: primaryProfile, context: modelContext)
-                    dismiss()
+                    do {
+                        try PlayerProfileService(context: modelContext, modules: registry.modules)
+                            .merge(selectedProfiles, into: primaryProfile)
+                        dismiss()
+                    } catch {
+                        errorMessage = error.localizedDescription
+                    }
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text(confirmationMessage)
             }
+            .errorAlert($errorMessage)
         }
         #if os(macOS)
         .frame(minWidth: 360, minHeight: 440)

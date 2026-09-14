@@ -261,10 +261,10 @@ extension Rubber {
     static var mock: Rubber {
         Rubber(
             players: [
-                Player(name: "Caty", position: .west),
-                Player(name: "Nathan", position: .south),
-                Player(name: "Sharon", position: .east),
-                Player(name: "Larisa", position: .north)
+                Player(ref: .preview("Caty"), position: .west),
+                Player(ref: .preview("Nathan"), position: .south),
+                Player(ref: .preview("Sharon"), position: .east),
+                Player(ref: .preview("Larisa"), position: .north)
             ],
             history: [
                 .missDeal(.north),

@@ -6,12 +6,12 @@ final class Phase10GameTests: XCTestCase {
     // MARK: - Phase progression
 
     func testCurrentPhaseStartsAtOne() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         XCTAssertEqual(game.currentPhase(for: 0), 1)
     }
 
     func testCurrentPhaseAdvancesOnCompletion() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A"), PlayerRef(cachedName: "B")])
+        let game = Phase10Game(players: [.preview("A"), .preview("B")])
         var h = Phase10Hand(playerCount: 2)
         h.playerResults[0] = Phase10PlayerResult(score: 10, completedPhase: true)
         h.playerResults[1] = Phase10PlayerResult(score: 20, completedPhase: false)
@@ -21,7 +21,7 @@ final class Phase10GameTests: XCTestCase {
     }
 
     func testCurrentPhaseCapsAtTen() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         game.hands = (0..<12).map { _ in
             var h = Phase10Hand(playerCount: 1)
             h.playerResults[0].completedPhase = true
@@ -31,7 +31,7 @@ final class Phase10GameTests: XCTestCase {
     }
 
     func testPhaseAtHandIndex() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         var h1 = Phase10Hand(playerCount: 1)
         h1.playerResults[0] = Phase10PlayerResult(score: 0, completedPhase: true)
         var h2 = Phase10Hand(playerCount: 1)
@@ -44,7 +44,7 @@ final class Phase10GameTests: XCTestCase {
     // MARK: - Finish / win conditions
 
     func testNotFinishedBeforePhase10() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         game.hands = (0..<9).map { _ in
             var h = Phase10Hand(playerCount: 1)
             h.playerResults[0].completedPhase = true
@@ -55,7 +55,7 @@ final class Phase10GameTests: XCTestCase {
     }
 
     func testFinishedAfterPhase10() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         game.hands = (0..<10).map { _ in
             var h = Phase10Hand(playerCount: 1)
             h.playerResults[0].completedPhase = true
@@ -66,7 +66,7 @@ final class Phase10GameTests: XCTestCase {
     }
 
     func testWinnerTiebreakerPicksLowestScore() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A"), PlayerRef(cachedName: "B")])
+        let game = Phase10Game(players: [.preview("A"), .preview("B")])
         // Both complete all 10 phases; A scores 50 on the last hand, B only 10
         game.hands = (0..<10).map { i in
             var h = Phase10Hand(playerCount: 2)
@@ -78,7 +78,7 @@ final class Phase10GameTests: XCTestCase {
     }
 
     func testWinnerIsFirstToFinishPhase10WhenOtherHasnt() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A"), PlayerRef(cachedName: "B")])
+        let game = Phase10Game(players: [.preview("A"), .preview("B")])
         game.hands = (0..<10).map { _ in
             var h = Phase10Hand(playerCount: 2)
             h.playerResults[0].completedPhase = true
@@ -91,7 +91,7 @@ final class Phase10GameTests: XCTestCase {
     // MARK: - Scoring
 
     func testCumulativeScore() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         var h1 = Phase10Hand(playerCount: 1); h1.playerResults[0].score = 35
         var h2 = Phase10Hand(playerCount: 1); h2.playerResults[0].score = 15
         game.hands = [h1, h2]
@@ -99,7 +99,7 @@ final class Phase10GameTests: XCTestCase {
     }
 
     func testCumulativeScoreIsZeroWithNoHands() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         XCTAssertEqual(game.cumulativeScore(for: 0), 0)
     }
 
@@ -119,7 +119,7 @@ final class Phase10GameTests: XCTestCase {
     // MARK: - Add / replace hand
 
     func testAddHandUpdatesLastModified() throws {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         let before = game.lastModified
         // Ensure clock advances
         Thread.sleep(forTimeInterval: 0.01)
@@ -128,7 +128,7 @@ final class Phase10GameTests: XCTestCase {
     }
 
     func testReplaceHandPreservesOtherHands() {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "A")])
+        let game = Phase10Game(players: [.preview("A")])
         var h1 = Phase10Hand(playerCount: 1); h1.playerResults[0].score = 10
         var h2 = Phase10Hand(playerCount: 1); h2.playerResults[0].score = 20
         game.hands = [h1, h2]
@@ -139,5 +139,22 @@ final class Phase10GameTests: XCTestCase {
 
         XCTAssertEqual(game.hands[0].playerResults[0].score, 99)
         XCTAssertEqual(game.hands[1].playerResults[0].score, 20)
+    }
+}
+
+// MARK: - Dealer rotation
+
+final class Phase10DealerTests: XCTestCase {
+    func testDealerStartsAtChosenPlayer() {
+        let game = Phase10Game(players: [.preview("A"), .preview("B"), .preview("C")], startingDealerIndex: 2)
+        XCTAssertEqual(game.currentDealerIndex, 2)
+    }
+
+    func testDealerAdvancesEachHandAndWraps() {
+        let game = Phase10Game(players: [.preview("A"), .preview("B"), .preview("C")], startingDealerIndex: 2)
+        game.addHand(Phase10Hand(playerCount: 3))
+        XCTAssertEqual(game.currentDealerIndex, 0)
+        game.addHand(Phase10Hand(playerCount: 3))
+        XCTAssertEqual(game.currentDealerIndex, 1)
     }
 }

@@ -29,54 +29,94 @@ extension View {
     }
 }
 
+// MARK: - PlayerSlot
+
+/// One seat in a new-game form: the name as typed, plus the roster profile the user picked
+/// from the suggestions, if any. Nothing touches the roster until the form commits and calls
+/// `PlayerSlot.resolve`, so typos and cancelled forms never create profiles.
+struct PlayerSlot: Identifiable, Equatable {
+    let id = UUID()
+    var text = ""
+    var profile: PersonProfile?
+
+    var name: String { text.normalizedName }
+
+    /// Why these seats can't start a game yet, or nil when every seat names a different player.
+    static func problem(with slots: [PlayerSlot], roster: [PersonProfile]) -> String? {
+        if slots.contains(where: { $0.name.isEmpty }) {
+            return String(localized: "Enter a name for every player.")
+        }
+        var seen: [String: String] = [:]  // identity → name as typed
+        for slot in slots {
+            let identity = (slot.profile ?? PersonProfile.matching(slot.name, in: roster))?.id.uuidString
+                ?? slot.name.lowercased()
+            if let earlier = seen[identity] {
+                return earlier.isSameName(as: slot.name)
+                    ? String(localized: "\(slot.name) is entered more than once.")
+                    : String(localized: "\(earlier) and \(slot.name) are the same player.")
+            }
+            seen[identity] = slot.name
+        }
+        return nil
+    }
+
+    /// The profile for each seat: the picked suggestion, else the roster match for the typed
+    /// name, else a new profile inserted into `context`. Call only when committing the form.
+    @MainActor
+    static func resolve(_ slots: [PlayerSlot], in context: ModelContext) throws -> [PersonProfile] {
+        var roster = try context.fetch(FetchDescriptor<PersonProfile>())
+        return slots.map { slot in
+            if let picked = slot.profile { return picked }
+            if let existing = PersonProfile.matching(slot.name, in: roster) { return existing }
+            let created = PersonProfile(name: slot.name)
+            context.insert(created)
+            roster.append(created)
+            return created
+        }
+    }
+}
+
 // MARK: - PlayerPickerField
 
 /// A text field with type-ahead suggestions drawn from the shared PersonProfile roster.
-/// Resolves the entered name to a PersonProfile on focus-loss or submit:
-///   - Existing name → links to the matching PersonProfile (no duplicate created)
-///   - New name      → creates and inserts a PersonProfile, then links to it
-/// The `profile` binding is the sole output; callers need not touch the roster.
+/// Choosing a suggestion links the seat to that profile; typing clears the link. The slot's
+/// text is always current, so a form can save while this field still has focus.
 struct PlayerPickerField: View {
     let label: String
-    @Binding var profile: PersonProfile?
+    @Binding var slot: PlayerSlot
 
-    init(_ label: String, profile: Binding<PersonProfile?>) {
+    init(_ label: String, slot: Binding<PlayerSlot>) {
         self.label = label
-        self._profile = profile
-        self._text = State(initialValue: profile.wrappedValue?.name ?? "")
+        self._slot = slot
     }
 
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.playerPickerConfig) private var config
     @Query(sort: \PersonProfile.name) private var roster: [PersonProfile]
 
-    @State private var text: String
     @FocusState private var focused: Bool
     @State private var showSuggestions = false
 
     private var suggestions: [PersonProfile] {
-        let trimmed = text.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return [] }
+        let typed = slot.name
+        guard !typed.isEmpty else { return [] }
         return Array(
             roster
                 .filter {
-                    $0.name.localizedCaseInsensitiveContains(trimmed)
-                        || $0.aliases.contains { $0.localizedCaseInsensitiveContains(trimmed) }
+                    $0.name.localizedCaseInsensitiveContains(typed)
+                        || $0.aliases.contains { $0.localizedCaseInsensitiveContains(typed) }
                 }
                 .prefix(config.maxSuggestions)
         )
     }
 
     var body: some View {
-        TextField(config.prompt.isEmpty ? label : config.prompt, text: $text)
+        TextField(config.prompt.isEmpty ? label : config.prompt, text: $slot.text)
             .focused($focused)
-            .onSubmit { resolveIfNeeded() }
-            .onChange(of: text) { _, newValue in
-                if profile?.name != newValue { profile = nil }
+            .onChange(of: slot.text) { _, newValue in
+                if let picked = slot.profile, picked.name != newValue { slot.profile = nil }
                 showSuggestions = focused && !suggestions.isEmpty
             }
             .onChange(of: focused) { _, isFocused in
-                if !isFocused { resolveIfNeeded() }
                 showSuggestions = isFocused && !suggestions.isEmpty
             }
             .popover(isPresented: $showSuggestions, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
@@ -89,8 +129,8 @@ struct PlayerPickerField: View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(suggestions) { suggestion in
                 Button {
-                    text = suggestion.name
-                    profile = suggestion
+                    slot.text = suggestion.name
+                    slot.profile = suggestion
                     showSuggestions = false
                     focused = false
                 } label: {
@@ -108,21 +148,5 @@ struct PlayerPickerField: View {
         }
         .fixedSize()
         .presentationCompactAdaptation(.popover)
-    }
-
-    private func resolveIfNeeded() {
-        guard profile == nil else { return }
-        let trimmed = text.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return }
-        if let existing = roster.first(where: {
-            $0.name.lowercased() == trimmed.lowercased()
-                || $0.aliases.contains { $0.lowercased() == trimmed.lowercased() }
-        }) {
-            profile = existing
-        } else {
-            let p = PersonProfile(name: trimmed)
-            modelContext.insert(p)
-            profile = p
-        }
     }
 }

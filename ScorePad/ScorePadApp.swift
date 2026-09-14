@@ -7,47 +7,49 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 @main
 struct ScorePadApp: App {
     static let modules: [any GameModule] = [BridgeModule(), MilleBornesModule(), Phase10Module()]
 
+    /// Every persisted type: the shared player roster plus each registered module's models.
+    static let schema = Schema([PersonProfile.self] + modules.flatMap(\.modelTypes))
+
     let registry = GameRegistry(modules: ScorePadApp.modules)
 
     var sharedModelContainer: ModelContainer = {
-        // Must be registered before any ModelContainer touches the schema.
-        PlayerRefArrayTransformer.register()
-
-        let schema = Schema(ScorePadSchemaV2.models)
+        let schema = ScorePadApp.schema
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        // Convert any legacy binary-plist [String] player columns to JSON [PlayerRef]
-        // before SwiftData opens the store. SwiftData uses `try!` internally to decode
-        // Codable attributes, so old binary-plist rows crash the app without this step.
-        SQLitePlayerMigration.migrateIfNeeded(at: config.url)
-
-        // No SchemaMigrationPlan: existing stores predate versioned schemas and have no
-        // version stamp, so staged migration always fails with "unknown model version".
-        // Inferred migration handles schema changes.
-        if let container = try? ModelContainer(for: schema, configurations: [config]) {
-            // Re-save migrated games so SwiftData uploads the new JSON format to CloudKit,
-            // preventing old binary-plist server records from overwriting the local data.
-            SQLitePlayerMigration.touchForCloudKitIfNeeded(in: container)
-            return container
-        }
-
-        // Schema incompatible — destroy the store and start fresh.
-        // AppRootView.migratePlayerProfiles() and CloudKit sync will restore data.
-        let url = config.url
-        for suffix in ["", "-shm", "-wal"] {
-            try? FileManager.default.removeItem(atPath: url.path + suffix)
-        }
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Could not create ModelContainer after store reset: \(error)")
+            // Keep the unreadable store for inspection rather than deleting it, then start an
+            // empty one; CloudKit re-imports whatever it has already synced.
+            let logger = Logger(subsystem: "com.nathan47.ScorePad", category: "Storage")
+            logger.error("Could not open the data store: \(error, privacy: .public)")
+            ScorePadApp.moveStoreAside(at: config.url, logger: logger)
+            do {
+                return try ModelContainer(for: schema, configurations: [config])
+            } catch {
+                fatalError("Could not create an empty data store: \(error)")
+            }
         }
     }()
+
+    private static func moveStoreAside(at url: URL, logger: Logger) {
+        let stamp = Date.now.formatted(.iso8601.dateSeparator(.omitted).timeSeparator(.omitted))
+        for suffix in ["", "-shm", "-wal"] {
+            let source = URL(filePath: url.path + suffix)
+            guard FileManager.default.fileExists(atPath: source.path) else { continue }
+            let backup = URL(filePath: url.path + ".unreadable-\(stamp)" + suffix)
+            do {
+                try FileManager.default.moveItem(at: source, to: backup)
+            } catch {
+                logger.error("Could not move \(source.lastPathComponent) aside: \(error, privacy: .public)")
+            }
+        }
+    }
 
     var body: some Scene {
         WindowGroup {

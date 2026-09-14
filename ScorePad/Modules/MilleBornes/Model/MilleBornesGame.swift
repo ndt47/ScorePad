@@ -100,8 +100,8 @@ extension MilleBornesGame: Hashable {
 extension MilleBornesGame {
     static var mock: MilleBornesGame {
         let game = MilleBornesGame(
-            team1Players: [PlayerRef(cachedName: "Nathan"), PlayerRef(cachedName: "Caty")],
-            team2Players: [PlayerRef(cachedName: "Sharon"), PlayerRef(cachedName: "Larisa")]
+            team1Players: [.preview("Nathan"), .preview("Caty")],
+            team2Players: [.preview("Sharon"), .preview("Larisa")]
         )
         var h1 = MilleBornesHand()
         h1.team1.cards100 = 6; h1.team1.cards50 = 2  // 700 miles → tripCompleted auto
