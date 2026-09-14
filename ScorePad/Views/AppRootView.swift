@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import Observation
+import OSLog
 
 @Observable
 final class AppNavigationState {
@@ -48,72 +49,20 @@ struct AppRootView: View {
         .sheet(isPresented: $showingRoster) {
             PlayerRosterView()
         }
-        .task { migratePlayerProfiles() }
+        // Pick up renames synced from other devices after games were cached with the old name.
+        .task { refreshCachedNames() }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { migratePlayerProfiles() }
+            if phase == .active { refreshCachedNames() }
         }
     }
 
-    // Ensures PersonProfile records exist for every player and keeps cachedName values
-    // fresh. Runs on every foreground activation to pick up CloudKit-synced games and
-    // propagate PersonProfile renames to all linked PlayerRef records.
-    //
-    // Strategy: look up by profileID first (stable identity); fall back to cachedName
-    // only for legacy records where profileID is nil or no longer matches a profile.
-    @MainActor
-    private func migratePlayerProfiles() {
+    private func refreshCachedNames() {
         do {
-            let allProfiles  = try modelContext.fetch(FetchDescriptor<PersonProfile>())
-            let rubbers      = try modelContext.fetch(FetchDescriptor<Rubber>())
-            let milleGames   = try modelContext.fetch(FetchDescriptor<MilleBornesGame>())
-            let phase10Games = try modelContext.fetch(FetchDescriptor<Phase10Game>())
-
-            var byID:   [UUID: PersonProfile] = Dictionary(allProfiles.map { ($0.id, $0) },
-                                                            uniquingKeysWith: { f, _ in f })
-            var byName: [String: PersonProfile] = Dictionary(allProfiles.map { ($0.name.lowercased(), $0) },
-                                                              uniquingKeysWith: { f, _ in f })
-
-            // Returns true if the ref was modified (needs to be written back).
-            @discardableResult
-            func resolve(_ ref: inout PlayerRef) -> Bool {
-                if let id = ref.profileID, let p = byID[id] {
-                    // Linked — refresh stale cachedName (picks up PersonProfile renames).
-                    if ref.cachedName != p.name { ref.cachedName = p.name; return true }
-                    return false
-                }
-                // profileID == nil (legacy) or no matching profile — fall back to name.
-                let key = ref.cachedName.lowercased()
-                if let p = byName[key] {
-                    ref.profileID = p.id
-                    byID[p.id] = p
-                    return true
-                }
-                let p = PersonProfile(name: ref.cachedName)
-                modelContext.insert(p)
-                byID[p.id] = p; byName[key] = p
-                ref.profileID = p.id
-                return true
-            }
-
-            for game in milleGames {
-                var t1 = game.team1Players; var t2 = game.team2Players; var changed = false
-                for i in t1.indices { if resolve(&t1[i]) { changed = true } }
-                for i in t2.indices { if resolve(&t2[i]) { changed = true } }
-                if changed { game.team1Players = t1; game.team2Players = t2 }
-            }
-            for game in phase10Games {
-                var refs = game.players; var changed = false
-                for i in refs.indices { if resolve(&refs[i]) { changed = true } }
-                if changed { game.players = refs }
-            }
-            for rubber in rubbers {
-                var players = rubber.players; var changed = false
-                for i in players.indices { if resolve(&players[i].ref) { changed = true } }
-                if changed { rubber.players = players }
-            }
-
-            try modelContext.save()
-        } catch {}
+            try PlayerProfileService(context: modelContext, modules: registry.modules).refreshCachedNames()
+        } catch {
+            Logger(subsystem: "com.nathan47.ScorePad", category: "Players")
+                .error("Could not refresh player names: \(error, privacy: .public)")
+        }
     }
 
     private var sidebar: some View {

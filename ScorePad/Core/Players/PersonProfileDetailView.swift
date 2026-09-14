@@ -5,19 +5,36 @@ struct PersonProfileDetailView: View {
     let profile: PersonProfile
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(GameRegistry.self) private var registry
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \PersonProfile.name) private var allProfiles: [PersonProfile]
 
     @State private var draftName: String
     @FocusState private var nameFieldFocused: Bool
+    @State private var draftLastName: String
+    @FocusState private var lastNameFieldFocused: Bool
     @State private var newAlias = ""
     @FocusState private var newAliasFocused: Bool
     @State private var showAliasPicker = false
     @State private var showDeleteConfirm = false
+    @State private var gameCount = 0
+    @State private var errorMessage: String?
+    // Set once the profile is deleted; its properties must not be read after that.
+    @State private var isDeleted = false
 
     init(profile: PersonProfile) {
         self.profile = profile
         self._draftName = State(initialValue: profile.name)
+        self._draftLastName = State(initialValue: profile.lastName)
+    }
+
+    /// Whether another roster player has the same full name, so a last name would help.
+    private var sharesFullName: Bool {
+        allProfiles.contains { $0.id != profile.id && $0.fullName.isSameName(as: profile.fullName) }
+    }
+
+    private var service: PlayerProfileService {
+        PlayerProfileService(context: modelContext, modules: registry.modules)
     }
 
     private var hasOtherProfiles: Bool {
@@ -25,6 +42,14 @@ struct PersonProfileDetailView: View {
     }
 
     var body: some View {
+        if isDeleted {
+            Color.clear
+        } else {
+            form
+        }
+    }
+
+    private var form: some View {
         Form {
             Section {
                 TextField("Name", text: $draftName)
@@ -36,6 +61,19 @@ struct PersonProfileDetailView: View {
                     .onChange(of: profile.name) { _, newName in
                         if !nameFieldFocused { draftName = newName }
                     }
+                TextField("Last Name (optional)", text: $draftLastName)
+                    .focused($lastNameFieldFocused)
+                    .onSubmit { commitLastName() }
+                    .onChange(of: lastNameFieldFocused) { _, focused in
+                        if !focused { commitLastName() }
+                    }
+                    .onChange(of: profile.lastName) { _, newValue in
+                        if !lastNameFieldFocused { draftLastName = newValue }
+                    }
+            } footer: {
+                if sharesFullName {
+                    Text("Another player is also called \(profile.fullName). Add a last name to tell them apart.")
+                }
             }
 
             Section("Aliases") {
@@ -43,7 +81,7 @@ struct PersonProfileDetailView: View {
                     Text(alias)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                try? deleteAlias(alias, from: profile, context: modelContext)
+                                perform { try service.removeAlias(alias, from: profile) }
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
@@ -54,7 +92,7 @@ struct PersonProfileDetailView: View {
                     TextField("Add alias…", text: $newAlias)
                         .focused($newAliasFocused)
                         .onSubmit { addAlias() }
-                    if !newAlias.trimmingCharacters(in: .whitespaces).isEmpty {
+                    if !newAlias.normalizedName.isEmpty {
                         Button(action: addAlias) {
                             Image(systemName: "plus.circle.fill")
                                 .foregroundStyle(.tint)
@@ -74,50 +112,76 @@ struct PersonProfileDetailView: View {
                 Button("Delete Player", role: .destructive) {
                     showDeleteConfirm = true
                 }
+                .disabled(gameCount > 0)
+            } footer: {
+                if gameCount > 0 {
+                    Text("\(profile.fullName) appears in \(gameCount) game\(gameCount == 1 ? "" : "s"), so they can't be deleted. To remove this player, add them as an alias of another player.")
+                }
             }
         }
         #if os(macOS)
         .formStyle(.grouped)
         #endif
-        .navigationTitle(profile.name)
+        .navigationTitle(profile.fullName)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .sheet(isPresented: $showAliasPicker) {
+        .task { refreshGameCount() }
+        .onDisappear {
+            commitRename()
+            commitLastName()
+        }
+        .sheet(isPresented: $showAliasPicker, onDismiss: refreshGameCount) {
             AliasPickerView(primaryProfile: profile)
         }
-        .alert("Delete \(profile.name)?", isPresented: $showDeleteConfirm) {
+        .alert("Delete \(profile.fullName)?", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) {
-                modelContext.delete(profile)
-                dismiss()
+                perform {
+                    try service.delete([profile])
+                    isDeleted = true
+                    dismiss()
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This player and all their aliases will be permanently deleted.")
         }
+        .errorAlert($errorMessage)
+    }
+
+    private func refreshGameCount() {
+        perform { gameCount = try service.gameCounts()[profile.id, default: 0] }
     }
 
     private func commitRename() {
-        renameProfile(profile, to: draftName)
+        guard !isDeleted else { return }
+        perform { try service.rename(profile, to: draftName) }
         draftName = profile.name
     }
 
+    private func commitLastName() {
+        guard !isDeleted else { return }
+        perform { try service.setLastName(draftLastName, for: profile) }
+        draftLastName = profile.lastName
+    }
+
     private func addAlias() {
-        let trimmed = newAlias.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty,
-              trimmed.lowercased() != profile.name.lowercased(),
-              !profile.aliases.contains(where: { $0.lowercased() == trimmed.lowercased() }) else {
-            newAlias = ""
-            return
-        }
-        profile.aliases.append(trimmed)
+        perform { try service.addAlias(newAlias, to: profile) }
         newAlias = ""
+    }
+
+    private func perform(_ action: () throws -> Void) {
+        do {
+            try action()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }
 
 #Preview("With aliases") {
     let container = try! ModelContainer(
-        for: PersonProfile.self,
+        for: ScorePadApp.schema,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     let profile = PersonProfile(name: "Bobby")
@@ -130,11 +194,12 @@ struct PersonProfileDetailView: View {
         PersonProfileDetailView(profile: profile)
     }
     .modelContainer(container)
+    .environment(GameRegistry(modules: ScorePadApp.modules))
 }
 
 #Preview("No aliases") {
     let container = try! ModelContainer(
-        for: PersonProfile.self,
+        for: ScorePadApp.schema,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     let profile = PersonProfile(name: "Diana")
@@ -144,4 +209,5 @@ struct PersonProfileDetailView: View {
         PersonProfileDetailView(profile: profile)
     }
     .modelContainer(container)
+    .environment(GameRegistry(modules: ScorePadApp.modules))
 }

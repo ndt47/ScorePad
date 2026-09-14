@@ -6,9 +6,11 @@ struct BulkMergePrimaryPickerView: View {
     let onComplete: () -> Void
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(GameRegistry.self) private var registry
     @Environment(\.dismiss) private var dismiss
     @State private var primaryID: PersistentIdentifier?
     @State private var showConfirmation = false
+    @State private var errorMessage: String?
 
     var body: some View {
         List {
@@ -49,23 +51,29 @@ struct BulkMergePrimaryPickerView: View {
         .alert("Merge Profiles?", isPresented: $showConfirmation) {
             Button("Merge", role: .destructive) {
                 performMerge()
-                onComplete()
-                dismiss()
             }
             Button("Cancel", role: .cancel) {}
         } message: {
             if let primary = candidates.first(where: { $0.persistentModelID == primaryID }) {
                 let others = candidates.filter { $0.persistentModelID != primaryID }
-                let names = others.map { $0.name }.joined(separator: ", ")
-                Text("\(names) will become \(others.count == 1 ? "an alias" : "aliases") of \"\(primary.name)\".")
+                let names = others.map { $0.fullName }.joined(separator: ", ")
+                Text("\(names) will become \(others.count == 1 ? "an alias" : "aliases") of \"\(primary.fullName)\".")
             }
         }
+        .errorAlert($errorMessage)
     }
 
     private func performMerge() {
         guard let primaryID,
               let primary = candidates.first(where: { $0.persistentModelID == primaryID }) else { return }
         let secondaries = candidates.filter { $0.persistentModelID != primaryID }
-        try? mergeProfiles(secondaries, into: primary, context: modelContext)
+        do {
+            try PlayerProfileService(context: modelContext, modules: registry.modules)
+                .merge(secondaries, into: primary)
+            onComplete()
+            dismiss()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }

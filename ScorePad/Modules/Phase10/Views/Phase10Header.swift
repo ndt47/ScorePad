@@ -25,6 +25,12 @@ struct Phase10Header: View {
             }
         }
         .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture { showingDescriptions.toggle() }
+        .accessibilityElement(children: .contain)
+        .accessibilityAction(named: showingDescriptions ? "Show Phase Numbers" : "Show Phase Descriptions") {
+            showingDescriptions.toggle()
+        }
     }
 
     @ViewBuilder
@@ -34,6 +40,7 @@ struct Phase10Header: View {
         let score = game.cumulativeScore(for: index)
         let isWinner = game.winnerIndex == index
         let isEliminated = game.hasFinished(index) && game.isFinished && !isWinner
+        let isDealer = index == game.currentDealerIndex && !game.isFinished
 
         VStack(alignment: .center, spacing: 3) {
             // Color accent bar
@@ -52,40 +59,59 @@ struct Phase10Header: View {
                 .padding(.horizontal, 6)
                 .opacity(isEliminated ? 0.35 : 1)
 
-            // Phase label / description (tap to toggle) or winner badge
-            if game.hasFinished(index) && game.isFinished {
-                if isWinner {
-                    WinnerBadge()
-                } else {
-                    Text("Done")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+            // Dealer badge — always reserves space so all columns stay the same height
+            Text("D")
+                .font(.caption2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 1)
+                .background(Capsule().fill(color))
+                .opacity(isDealer ? 1 : 0)
+                .accessibilityLabel("Dealer")
+                .accessibilityHidden(!isDealer)
+
+            // Phase number, or its description when the header is tapped, or the result once
+            // the game is over. Every state is drawn over the same hidden two-line placeholder,
+            // so toggling or finishing never changes the header's height.
+            ZStack(alignment: .top) {
+                VStack(spacing: 0) {
+                    Text(verbatim: " ")
+                    Text(verbatim: " ")
                 }
-            } else {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        showingDescriptions.toggle()
-                    }
-                } label: {
-                    if showingDescriptions {
-                        Text(Phase10Game.phaseDescription(for: phase))
-                            .font(.caption2)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(color)
+                .hidden()
+
+                if game.hasFinished(index) && game.isFinished {
+                    if isWinner {
+                        WinnerBadge()
                     } else {
-                        Text("Phase \(phase)")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(color)
+                        Text("Done")
+                            .foregroundColor(.secondary)
                     }
+                } else {
+                    let parts = Phase10Game.phaseDescriptionParts(for: phase)
+                    Text("Phase \(phase)")
+                        .foregroundColor(color)
+                        .opacity(showingDescriptions ? 0 : 1)
+                        .accessibilityHidden(showingDescriptions)
+                    VStack(spacing: 0) {
+                        Text(parts.line1)
+                        if let line2 = parts.line2 {
+                            Text(line2)
+                        }
+                    }
+                    .foregroundColor(color)
+                    .opacity(showingDescriptions ? 1 : 0)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityHidden(!showingDescriptions)
                 }
-                .buttonStyle(.plain)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 6)
-                .animation(.easeInOut(duration: 0.2), value: showingDescriptions)
             }
+            .font(.caption)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 6)
+            .animation(.easeInOut(duration: 0.2), value: showingDescriptions)
 
             // Cumulative score
             Text(score.formatted(.number.grouping(.never)))

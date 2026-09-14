@@ -62,22 +62,33 @@ protocol GameModule {
     var name: String { get }
     var systemImage: String { get }
     var modelTypes: [any PersistentModel.Type] { get }
+    // Visit each stored session's players in seat order; write back changed refs; don't save.
+    @MainActor func updatePlayerRefs(in context: ModelContext, _ body: (inout [PlayerRef]) -> Void) throws
     func sessionListView(selectedSessionID: Binding<String?>) -> some View
     func detailView(selectedSessionID: String?) -> some View
 }
 ```
 
-Modules are registered in `ScorePadApp` — add the `@Model` types to `sharedModelContainer` and add the module instance to `GameRegistry(modules: [...])`.
+Modules are registered by adding the instance to `ScorePadApp.modules`. `ScorePadApp.schema` is built from `PersonProfile` plus every module's `modelTypes`, and `PlayerProfileService` reaches each module's players through `updatePlayerRefs` — so registration alone wires a module into storage, rename, merge and delete checks.
 
 ### Adding a New Game Module
 
 1. Create `Modules/GameName/` with the folder structure above
-2. Implement `GameModule` in `GameNameModule.swift`
-3. Add `@Model` root class; store hand data as `Codable` structs
-4. Add conformance to `GameSession` (provides `fetchDescriptor`, list cell, new-session view)
-5. Register in `ScorePadApp`
+2. Implement `GameModule` in `GameNameModule.swift`, including `updatePlayerRefs`
+3. Add `@Model` root class; store players as `[PlayerRef]` and hand data as `Codable` structs
+4. Add conformance to `GameSession` (provides `fetchDescriptor`, list cell, new-session view); the new-session view collects players with `PlayerPickerField` + `PlayerSlot`
+5. Add the module to `ScorePadApp.modules`
 
 ## Architecture
+
+### Players (`ScorePad/Core/Players/`)
+
+- `PersonProfile` (`@Model`) — one real person on the shared roster: `name` (what games show), optional `lastName`, `aliases`. Names and aliases are **not unique**; `fullName` and aliases tell same-named people apart.
+- `PlayerRef` (`Codable`) — a game seat: `profileID` (the identity) + `cachedName` (display cache, kept in sync by `PlayerProfileService`). Build a game's seats with `PlayerRef.seats(for:)`, which shows players sharing a first name with their last initial ("Bob S.").
+- `PlayerSlot` + `PlayerPickerField` — new-game seats. The field suggests roster players by full name/alias plus a "New player" row; `PlayerSlot.problem(with:roster:)` blocks Start/Save until every seat is named and is a distinct, unambiguous player; `PlayerSlot.resolve` creates profiles only on commit.
+- `PlayerProfileService` — rename and last name (both re-sync affected games' display names), aliases, merge (refused if the players shared a game), delete (refused if the player is in any game), game counts, and an ID-only `refreshCachedNames()` run on launch/foreground that only replaces names the player is known by. Every mutation saves pending edits first, checks, then applies, so a refusal never discards unsaved work.
+
+The app is pre-release: stored formats carry no backward-compatibility code.
 
 ### Shared Views (`ScorePad/Views/`)
 
@@ -133,7 +144,7 @@ Navigation: `RubberList` → `RubberView` → `AuctionView` (sheet).
 
 #### Data Model
 
-- `MilleBornesGame` (`@Model`) — root session; `team1Players: [String]`, `team2Players: [String]`, `hands: [MilleBornesHand]`
+- `MilleBornesGame` (`@Model`) — root session; `team1Players: [PlayerRef]`, `team2Players: [PlayerRef]`, `hands: [MilleBornesHand]`
   - `isTwoPlayerGame`: `team1Players.count <= 1`
   - `isFinished`: either team ≥ 5000 cumulative points
   - `cumulativeScore(team:)` / `winningTeam` are computed from hands

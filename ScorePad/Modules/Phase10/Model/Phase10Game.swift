@@ -10,12 +10,20 @@ final class Phase10Game: ObservableObject, Identifiable {
     var players: [PlayerRef] = []
     var hands: [Phase10Hand] = []
 
-    init(players: [PlayerRef]) {
+    var startingDealerIndex: Int = 0
+
+    var currentDealerIndex: Int {
+        guard !players.isEmpty else { return 0 }
+        return (startingDealerIndex + hands.count) % players.count
+    }
+
+    init(players: [PlayerRef], startingDealerIndex: Int = 0) {
         self.id = UUID()
         self.dateCreated = .now
         self.lastModified = .now
         self.players = players
         self.hands = []
+        self.startingDealerIndex = startingDealerIndex
     }
 
     // Layout constants shared across score sheet views
@@ -49,6 +57,13 @@ final class Phase10Game: ObservableObject, Identifiable {
     static func phaseIcon(for phase: Int) -> String {
         guard phase >= 1, phase <= 10 else { return "" }
         return phases[phase - 1].icon
+    }
+
+    // Splits description at " + " for fixed-height two-row display
+    static func phaseDescriptionParts(for phase: Int) -> (line1: String, line2: String?) {
+        let desc = phaseDescription(for: phase)
+        guard let plusRange = desc.range(of: " + ") else { return (desc, nil) }
+        return (String(desc[..<plusRange.lowerBound]) + " +", String(desc[plusRange.upperBound...]))
     }
 
     static func playerColor(for index: Int) -> Color {
@@ -105,7 +120,7 @@ extension Phase10Game: Hashable {
 
 extension Phase10Game {
     static var mock: Phase10Game {
-        let game = Phase10Game(players: [PlayerRef(cachedName: "Alice"), PlayerRef(cachedName: "Bob"), PlayerRef(cachedName: "Charlie")])
+        let game = Phase10Game(players: [.preview("Alice"), .preview("Bob"), .preview("Charlie")])
         var h1 = Phase10Hand(playerCount: 3)
         h1.playerResults[0] = Phase10PlayerResult(score: 35, completedPhase: true)
         h1.playerResults[1] = Phase10PlayerResult(score: 25, completedPhase: true)

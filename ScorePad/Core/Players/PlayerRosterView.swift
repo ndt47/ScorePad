@@ -5,8 +5,13 @@ private struct BulkMergeRoute: Hashable {}
 
 struct PlayerRosterView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(GameRegistry.self) private var registry
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \PersonProfile.name) private var players: [PersonProfile]
+
+    // Players who appear in saved games can't be deleted, only merged.
+    @State private var gameCounts: [UUID: Int] = [:]
+    @State private var errorMessage: String?
 
     @State private var newName = ""
     @FocusState private var newNameFocused: Bool
@@ -18,10 +23,22 @@ struct PlayerRosterView: View {
     @State private var showBulkDeleteConfirm = false
     @State private var bulkMergeCandidates: [PersonProfile] = []
 
+    private var service: PlayerProfileService {
+        PlayerProfileService(context: modelContext, modules: registry.modules)
+    }
+
+    private var selectedPlayers: [PersonProfile] {
+        players.filter { selectedIDs.contains($0.persistentModelID) }
+    }
+
+    private func isInGames(_ player: PersonProfile) -> Bool {
+        gameCounts[player.id, default: 0] > 0
+    }
+
     private var filteredPlayers: [PersonProfile] {
         guard !searchText.isEmpty else { return players }
         return players.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText)
+            $0.fullName.localizedCaseInsensitiveContains(searchText)
                 || $0.aliases.contains { $0.localizedCaseInsensitiveContains(searchText) }
         }
     }
@@ -89,14 +106,18 @@ struct PlayerRosterView: View {
             }
             .alert(bulkDeleteTitle, isPresented: $showBulkDeleteConfirm) {
                 Button("Delete", role: .destructive) {
-                    let toDelete = players.filter { selectedIDs.contains($0.persistentModelID) }
-                    for profile in toDelete { modelContext.delete(profile) }
+                    delete(selectedPlayers)
                     isEditing = false
                     selectedIDs = []
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text(bulkDeleteMessage)
+            }
+            .errorAlert($errorMessage)
+            // Recount whenever the roster changes or a pushed screen (detail, merge) pops.
+            .task(id: RefreshKey(profiles: players.map(\.id), depth: navigationPath.count)) {
+                refreshGameCounts()
             }
         }
         #if os(macOS)
@@ -133,13 +154,17 @@ struct PlayerRosterView: View {
             }
             .buttonStyle(.plain)
             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                Button(role: .destructive) { modelContext.delete(player) } label: {
-                    Label("Delete", systemImage: "trash")
+                if !isInGames(player) {
+                    Button(role: .destructive) { delete([player]) } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 }
             }
             .contextMenu {
-                Button(role: .destructive) { modelContext.delete(player) } label: {
-                    Label("Delete", systemImage: "trash")
+                if !isInGames(player) {
+                    Button(role: .destructive) { delete([player]) } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 }
             }
         }
@@ -150,6 +175,7 @@ struct PlayerRosterView: View {
             Button(role: .destructive) { showBulkDeleteConfirm = true } label: {
                 Label("Delete", systemImage: "trash")
             }
+            .disabled(selectedPlayers.contains(where: isInGames))
             Spacer()
             Button {
                 bulkMergeCandidates = players.filter { selectedIDs.contains($0.persistentModelID) }
@@ -169,27 +195,49 @@ struct PlayerRosterView: View {
     }
 
     private var bulkDeleteMessage: String {
-        let names = players.filter { selectedIDs.contains($0.persistentModelID) }.map { $0.name }
+        let names = players.filter { selectedIDs.contains($0.persistentModelID) }.map { $0.fullName }
         guard !names.isEmpty else { return "" }
         if names.count <= 3 { return names.joined(separator: ", ") + " will be permanently deleted." }
         return "\(names.prefix(2).joined(separator: ", ")), and \(names.count - 2) more will be permanently deleted."
     }
 
+    // Names needn't be unique. When the name is already taken, open the new player's page so
+    // they can be given a last name to tell them apart.
     private func addPlayer() {
-        let trimmed = newName.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return }
-        guard !players.contains(where: { $0.name.lowercased() == trimmed.lowercased() }) else {
-            newName = ""
-            return
-        }
-        modelContext.insert(PersonProfile(name: trimmed))
+        let name = newName.normalizedName
         newName = ""
+        guard !name.isEmpty else { return }
+        let sharesName = !PersonProfile.candidates(for: name, in: players).isEmpty
+        let profile = PersonProfile(name: name)
+        modelContext.insert(profile)
+        if sharesName { navigationPath.append(profile) }
     }
+
+    private func delete(_ profiles: [PersonProfile]) {
+        do {
+            try service.delete(profiles)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func refreshGameCounts() {
+        do {
+            gameCounts = try service.gameCounts()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct RefreshKey: Equatable {
+    let profiles: [UUID]
+    let depth: Int
 }
 
 #Preview {
     let container = try! ModelContainer(
-        for: PersonProfile.self,
+        for: ScorePadApp.schema,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     let profiles: [(name: String, aliases: [String])] = [
@@ -207,4 +255,5 @@ struct PlayerRosterView: View {
 
     return PlayerRosterView()
         .modelContainer(container)
+        .environment(GameRegistry(modules: ScorePadApp.modules))
 }

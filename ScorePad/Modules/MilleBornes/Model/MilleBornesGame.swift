@@ -31,7 +31,6 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         id           = try c.decode(UUID.self,              forKey: .id)
         dateCreated  = try c.decode(Date.self,              forKey: .dateCreated)
         lastModified = try c.decode(Date.self,              forKey: .lastModified)
-        // PlayerRef.init(from:) handles both old bare-string and new keyed formats.
         team1Players = try c.decode([PlayerRef].self,       forKey: .team1Players)
         team2Players = try c.decode([PlayerRef].self,       forKey: .team2Players)
         hands        = try c.decode([MilleBornesHand].self, forKey: .hands)
@@ -100,8 +99,8 @@ extension MilleBornesGame: Hashable {
 extension MilleBornesGame {
     static var mock: MilleBornesGame {
         let game = MilleBornesGame(
-            team1Players: [PlayerRef(cachedName: "Nathan"), PlayerRef(cachedName: "Caty")],
-            team2Players: [PlayerRef(cachedName: "Sharon"), PlayerRef(cachedName: "Larisa")]
+            team1Players: [.preview("Nathan"), .preview("Caty")],
+            team2Players: [.preview("Sharon"), .preview("Larisa")]
         )
         var h1 = MilleBornesHand()
         h1.team1.cards100 = 6; h1.team1.cards50 = 2  // 700 miles → tripCompleted auto

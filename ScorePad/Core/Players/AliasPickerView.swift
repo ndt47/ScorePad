@@ -5,11 +5,13 @@ struct AliasPickerView: View {
     let primaryProfile: PersonProfile
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(GameRegistry.self) private var registry
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \PersonProfile.name) private var allProfiles: [PersonProfile]
     @State private var searchText = ""
     @State private var selectedIDs: Set<PersistentIdentifier> = []
     @State private var showConfirmation = false
+    @State private var errorMessage: String?
 
     private var candidates: [PersonProfile] {
         allProfiles.filter { $0.persistentModelID != primaryProfile.persistentModelID }
@@ -18,7 +20,7 @@ struct AliasPickerView: View {
     private var filteredCandidates: [PersonProfile] {
         guard !searchText.isEmpty else { return candidates }
         return candidates.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText)
+            $0.fullName.localizedCaseInsensitiveContains(searchText)
                 || $0.aliases.contains { $0.localizedCaseInsensitiveContains(searchText) }
         }
     }
@@ -63,13 +65,19 @@ struct AliasPickerView: View {
             }
             .alert(confirmationTitle, isPresented: $showConfirmation) {
                 Button("Merge", role: .destructive) {
-                    try? mergeProfiles(selectedProfiles, into: primaryProfile, context: modelContext)
-                    dismiss()
+                    do {
+                        try PlayerProfileService(context: modelContext, modules: registry.modules)
+                            .merge(selectedProfiles, into: primaryProfile)
+                        dismiss()
+                    } catch {
+                        errorMessage = error.localizedDescription
+                    }
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text(confirmationMessage)
             }
+            .errorAlert($errorMessage)
         }
         #if os(macOS)
         .frame(minWidth: 360, minHeight: 440)
@@ -82,8 +90,8 @@ struct AliasPickerView: View {
     }
 
     private var confirmationMessage: String {
-        let names = selectedProfiles.map { $0.name }.joined(separator: ", ")
+        let names = selectedProfiles.map { $0.fullName }.joined(separator: ", ")
         let n = selectedIDs.count
-        return "\(names) will become \(n == 1 ? "an alias" : "aliases") of \"\(primaryProfile.name)\". All game records will be linked to \"\(primaryProfile.name)\"."
+        return "\(names) will become \(n == 1 ? "an alias" : "aliases") of \"\(primaryProfile.fullName)\". All game records will be linked to \"\(primaryProfile.fullName)\"."
     }
 }
