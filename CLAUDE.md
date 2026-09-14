@@ -95,7 +95,9 @@ The app is pre-release: stored formats carry no backward-compatibility code.
 ### Shared Views (`ScorePad/Views/`)
 
 - `Rule` — a styled divider (`.vertical` or `.horizontal`)
-- `WinnerBadge` — trophy + "Winner" label; `showLabel: Bool = true` for the icon-only variant used in list cells
+- `WinnerBadge` — trophy + "Winner" label for game headers; `showLabel: false` for the icon-only variant beside a team or player name
+- `DealerBadge` — the orange star marking the current dealer; every game uses it beside the dealer's name
+- `PlayerMarker` — a player's colour dot in list cells, which becomes a trophy in that colour for the winner (no separate trophy in the cell's header row)
 
 ### Bridge Module
 
@@ -148,6 +150,7 @@ Navigation: `RubberList` → `RubberView` → `AuctionView` (sheet).
 
 - `MilleBornesGame` (`@Model`) — root session; `team1Players: [PlayerRef]`, `team2Players: [PlayerRef]`, `hands: [MilleBornesHand]`
   - `isTwoPlayerGame`: `team1Players.count <= 1`
+  - `seatingOrder`: teams alternate (T1, T2, T1, T2) so partners sit opposite; `startingDealerIndex` indexes it and `currentDealer` passes one seat left per hand
   - `isFinished`: either team ≥ 5000 cumulative points
   - `cumulativeScore(team:)` / `winningTeam` are computed from hands
 - `MilleBornesHand` (`Codable`, `Identifiable`) — one hand; `team1: MilleBornesTeamScore`, `team2: MilleBornesTeamScore`

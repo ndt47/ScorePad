@@ -438,9 +438,7 @@ struct PlayerView: View {
 
             if !rubber.isFinished &&
                 rubber.currentDealer == position {
-                Image(systemName: "star.fill")
-                    .foregroundColor(.orange)
-                    .font(.caption)
+                DealerBadge()
             }
         }
     }

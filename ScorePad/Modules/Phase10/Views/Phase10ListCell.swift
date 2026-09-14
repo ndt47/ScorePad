@@ -17,9 +17,6 @@ struct Phase10ListCell: View {
                     .lineLimit(1)
                     .allowsTightening(true)
                 Spacer()
-                if game.winnerIndex != nil {
-                    WinnerBadge(showLabel: false)
-                }
             }
 
             // Up to 4 players shown; excess collapsed to "+N more"
@@ -27,9 +24,7 @@ struct Phase10ListCell: View {
             VStack(alignment: .leading, spacing: 3) {
                 ForEach(displayed.indices, id: \.self) { i in
                     HStack(spacing: 6) {
-                        Circle()
-                            .fill(Phase10Game.playerColor(for: i))
-                            .frame(width: 8, height: 8)
+                        PlayerMarker(color: Phase10Game.playerColor(for: i), isWinner: game.winnerIndex == i)
                         Text(game.players[i].cachedName)
                             .font(.caption).fontWeight(.medium)
                             .lineLimit(1)
@@ -42,11 +37,6 @@ struct Phase10ListCell: View {
                             .font(.caption)
                             .fontDesign(.monospaced)
                             .foregroundColor(selected ? .white : .secondary)
-                        if game.winnerIndex == i {
-                            Image(systemName: "trophy.fill")
-                                .font(.caption2)
-                                .foregroundColor(.yellow)
-                        }
                     }
                 }
                 if game.players.count > 4 {
@@ -67,12 +57,28 @@ struct Phase10ListCell: View {
 }
 
 struct Phase10ListCell_Previews: PreviewProvider {
+    // Bob completes all ten phases; the others don't.
+    static var finished: Phase10Game {
+        let game = Phase10Game.mock
+        game.hands = (0..<10).map { _ in
+            var hand = Phase10Hand(playerCount: 3)
+            hand.playerResults[1] = Phase10PlayerResult(score: 5, completedPhase: true)
+            hand.playerResults[0] = Phase10PlayerResult(score: 20, completedPhase: false)
+            hand.playerResults[2] = Phase10PlayerResult(score: 15, completedPhase: false)
+            return hand
+        }
+        return game
+    }
+
     static var previews: some View {
         VStack(spacing: 0) {
             Phase10ListCell(game: .mock)
                 .padding()
             Divider()
-            Phase10ListCell(game: .mock)
+            Phase10ListCell(game: finished)
+                .padding()
+            Divider()
+            Phase10ListCell(game: finished)
                 .selected(true)
                 .padding()
                 .background(Color.accentColor)

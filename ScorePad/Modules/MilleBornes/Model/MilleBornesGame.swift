@@ -9,21 +9,24 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
     var team1Players: [PlayerRef] = []
     var team2Players: [PlayerRef] = []
     var hands: [MilleBornesHand] = []
+    /// Index into `seatingOrder` of whoever dealt the first hand.
+    var startingDealerIndex: Int = 0
 
-    init(team1Players: [PlayerRef] = [], team2Players: [PlayerRef] = []) {
+    init(team1Players: [PlayerRef] = [], team2Players: [PlayerRef] = [], startingDealerIndex: Int = 0) {
         self.id = UUID()
         self.dateCreated = .now
         self.lastModified = .now
         self.team1Players = team1Players
         self.team2Players = team2Players
         self.hands = []
+        self.startingDealerIndex = startingDealerIndex
     }
 
     // SwiftData's @Model macro doesn't synthesize Codable when stored properties include
     // complex Codable types (like [MilleBornesHand]). Manual implementation is required
     // to support export/import without a separate DTO layer.
     enum CodingKeys: CodingKey {
-        case id, dateCreated, lastModified, team1Players, team2Players, hands
+        case id, dateCreated, lastModified, team1Players, team2Players, hands, startingDealerIndex
     }
 
     required init(from decoder: Decoder) throws {
@@ -34,6 +37,7 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         team1Players = try c.decode([PlayerRef].self,       forKey: .team1Players)
         team2Players = try c.decode([PlayerRef].self,       forKey: .team2Players)
         hands        = try c.decode([MilleBornesHand].self, forKey: .hands)
+        startingDealerIndex = try c.decode(Int.self,        forKey: .startingDealerIndex)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -44,6 +48,7 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         try c.encode(team1Players, forKey: .team1Players)
         try c.encode(team2Players, forKey: .team2Players)
         try c.encode(hands,        forKey: .hands)
+        try c.encode(startingDealerIndex, forKey: .startingDealerIndex)
     }
 
     var isFinished: Bool {
@@ -73,6 +78,25 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         guard let index = hands.firstIndex(where: { $0.id == hand.id }) else { return }
         hands[index] = hand
         lastModified = .now
+    }
+
+    /// Players in seating order. The teams alternate, so partners sit opposite each other:
+    /// Team 1, Team 2, Team 1, Team 2.
+    var seatingOrder: [PlayerRef] {
+        Self.seatingOrder(team1: team1Players, team2: team2Players)
+    }
+
+    static func seatingOrder<T>(team1: [T], team2: [T]) -> [T] {
+        (0..<max(team1.count, team2.count)).flatMap { seat in
+            [team1, team2].compactMap { $0.indices.contains(seat) ? $0[seat] : nil }
+        }
+    }
+
+    /// Whoever deals the current hand; the deal passes one seat to the left after every hand.
+    var currentDealer: PlayerRef? {
+        let seats = seatingOrder
+        guard !seats.isEmpty else { return nil }
+        return seats[(startingDealerIndex + hands.count) % seats.count]
     }
 
     // <= 1 (not == 1) so a game with no players yet (during creation) defaults to 2-player rules.

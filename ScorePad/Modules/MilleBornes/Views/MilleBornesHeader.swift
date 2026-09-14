@@ -4,15 +4,18 @@ struct MilleBornesHeader: View {
     @EnvironmentObject var game: MilleBornesGame
 
     var body: some View {
+        let dealer = game.isFinished ? nil : game.currentDealer
         HStack(alignment: .top, spacing: 0) {
             MilleBornesTeamHeaderView(players: game.team1Players,
                                      fallback: "Team 1",
                                      score: game.cumulativeScore(team: 1),
-                                     isWinner: game.winningTeam == 1)
+                                     isWinner: game.winningTeam == 1,
+                                     dealer: dealer)
             MilleBornesTeamHeaderView(players: game.team2Players,
                                      fallback: "Team 2",
                                      score: game.cumulativeScore(team: 2),
-                                     isWinner: game.winningTeam == 2)
+                                     isWinner: game.winningTeam == 2,
+                                     dealer: dealer)
         }
     }
 }
@@ -22,24 +25,23 @@ struct MilleBornesTeamHeaderView: View {
     var fallback: String
     var score: Int
     var isWinner: Bool
+    /// The current dealer, if the game is still going; marked beside their name.
+    var dealer: PlayerRef? = nil
 
     private var displayNames: [String] { players.isEmpty ? [fallback] : players.map(\.cachedName) }
+
+    private func isDealer(_ line: Int) -> Bool {
+        guard let dealer, players.indices.contains(line) else { return false }
+        return players[line].profileID == dealer.profileID
+    }
 
     var body: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(displayNames[0])
-                    .font(.title3)
-                    .fontWeight(.heavy)
-                    .allowsTightening(true)
-                    .lineLimit(1)
+                nameLine(displayNames[0], isDealer: isDealer(0))
                 // Always reserve space for a second name line so the header height is
                 // consistent across 2-player (1 name) and 4-player (2 names) games.
-                Text(displayNames.count > 1 ? displayNames[1] : displayNames[0])
-                    .font(.title3)
-                    .fontWeight(.heavy)
-                    .allowsTightening(true)
-                    .lineLimit(1)
+                nameLine(displayNames.count > 1 ? displayNames[1] : displayNames[0], isDealer: isDealer(1))
                     .opacity(displayNames.count > 1 ? 1 : 0)
             }
             Spacer()
@@ -55,6 +57,19 @@ struct MilleBornesTeamHeaderView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 6)
+    }
+
+    private func nameLine(_ name: String, isDealer: Bool) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Text(name)
+                .font(.title3)
+                .fontWeight(.heavy)
+                .allowsTightening(true)
+                .lineLimit(1)
+            if isDealer {
+                DealerBadge()
+            }
+        }
     }
 }
 

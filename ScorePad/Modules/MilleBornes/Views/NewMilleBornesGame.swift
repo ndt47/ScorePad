@@ -11,6 +11,8 @@ struct NewMilleBornesGame: View {
     @State private var t1p2 = PlayerSlot()
     @State private var t2p1 = PlayerSlot()
     @State private var t2p2 = PlayerSlot()
+    /// Index into the seating order (Team 1, Team 2, Team 1, Team 2) of the first dealer.
+    @State private var dealerSeat = 0
 
     var onSave: ((MilleBornesGame.ID) -> Void)?
 
@@ -23,6 +25,16 @@ struct NewMilleBornesGame: View {
 
     private var problem: String? {
         PlayerSlot.problem(with: team1 + team2, roster: roster)
+    }
+
+    /// Seats in the order the deal passes, labelled with the typed name or the seat.
+    private var seats: [String] {
+        let label = { (slot: PlayerSlot, team: Int, player: Int) in
+            slot.name.isEmpty ? String(localized: "Team \(team) · Player \(player)") : slot.name
+        }
+        let team1Labels = team1.enumerated().map { label($1, 1, $0 + 1) }
+        let team2Labels = team2.enumerated().map { label($1, 2, $0 + 1) }
+        return MilleBornesGame.seatingOrder(team1: team1Labels, team2: team2Labels)
     }
 
     var body: some View {
@@ -61,6 +73,20 @@ struct NewMilleBornesGame: View {
                         .foregroundStyle(.secondary)
                 }
 
+                HStack {
+                    Text("Dealer:")
+                    Picker("Dealer", selection: $dealerSeat) {
+                        ForEach(seats.indices, id: \.self) { Text(seats[$0]).tag($0) }
+                    }
+                    .labelsHidden()
+                    Spacer()
+                    Button {
+                        dealerSeat = Int.random(in: seats.indices)
+                    } label: {
+                        Label("Random Dealer", systemImage: "dice.fill")
+                    }
+                }
+
                 Spacer()
             }
             .textFieldStyle(.roundedBorder)
@@ -81,15 +107,19 @@ struct NewMilleBornesGame: View {
 #endif
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
         .edgesIgnoringSafeArea(.all)
+        .onChange(of: playerCount) { _, _ in
+            if !seats.indices.contains(dealerSeat) { dealerSeat = 0 }
+        }
     }
 
     private func save() {
         guard problem == nil else { return }
         let refs = PlayerRef.seats(for: PlayerSlot.resolve(team1 + team2, roster: roster, in: modelContext))
         let game = MilleBornesGame(team1Players: Array(refs.prefix(team1.count)),
-                                   team2Players: Array(refs.dropFirst(team1.count)))
+                                   team2Players: Array(refs.dropFirst(team1.count)),
+                                   startingDealerIndex: dealerSeat)
         modelContext.insert(game)
         onSave?(game.id)
         dismiss()

@@ -96,7 +96,7 @@ struct UnoRaceSheet: View {
                     .fontWeight(.semibold)
                     .lineLimit(1)
                 if i == game.currentDealerIndex && !game.isFinished {
-                    UnoDealerBadge(playerIndex: i)
+                    DealerBadge()
                 }
                 if game.isWinner(i) {
                     WinnerBadge(showLabel: false)
@@ -178,21 +178,6 @@ struct UnoProgressBar: View {
     }
 }
 
-/// The "D" capsule marking the current dealer.
-struct UnoDealerBadge: View {
-    let playerIndex: Int
-
-    var body: some View {
-        Text("D")
-            .font(.caption2.bold())
-            .foregroundStyle(UnoStyle.textColor(onPlayer: playerIndex))
-            .padding(.horizontal, 5)
-            .padding(.vertical, 1)
-            .background(Capsule().fill(UnoStyle.playerColor(for: playerIndex)))
-            .accessibilityLabel("Dealer")
-    }
-}
-
 // MARK: - Points against: ledger grid
 
 struct UnoLedgerSheet: View {
@@ -262,7 +247,7 @@ struct UnoLedgerSheet: View {
                 .padding(.horizontal, 6)
             // Reserve the badge's space in every column so all columns stay the same height.
             ZStack {
-                UnoDealerBadge(playerIndex: i)
+                DealerBadge()
                     .opacity(i == game.currentDealerIndex && !game.isFinished ? 1 : 0)
                     .accessibilityHidden(!(i == game.currentDealerIndex && !game.isFinished))
                 if game.isWinner(i) {

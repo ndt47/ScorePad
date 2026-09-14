@@ -25,18 +25,13 @@ struct UnoListCell: View {
                         .foregroundStyle(selected ? Color.white : Color.purple)
                 }
                 Spacer()
-                if game.isFinished {
-                    WinnerBadge(showLabel: false)
-                }
             }
 
             // Up to 4 players shown; the rest collapse to "+N more"
             VStack(alignment: .leading, spacing: 3) {
                 ForEach(game.players.indices.prefix(4), id: \.self) { i in
                     HStack(spacing: 6) {
-                        Circle()
-                            .fill(UnoStyle.playerColor(for: i))
-                            .frame(width: 8, height: 8)
+                        PlayerMarker(color: UnoStyle.playerColor(for: i), isWinner: game.isWinner(i))
                         Text(game.players[i].cachedName)
                             .font(.caption).fontWeight(.medium)
                             .lineLimit(1)
@@ -45,11 +40,6 @@ struct UnoListCell: View {
                             .font(.caption)
                             .monospacedDigit()
                             .foregroundColor(selected ? .white : .secondary)
-                        if game.isWinner(i) {
-                            Image(systemName: "trophy.fill")
-                                .font(.caption2)
-                                .foregroundColor(.yellow)
-                        }
                     }
                 }
                 if game.players.count > 4 {
@@ -70,11 +60,16 @@ struct UnoListCell: View {
 }
 
 #Preview {
-    VStack(spacing: 0) {
+    let finished = UnoGame.mock
+    finished.targetScore = 300  // Alice's 405 ends it
+    return VStack(spacing: 0) {
         UnoListCell(game: .mock)
             .padding()
         Divider()
-        UnoListCell(game: .mock)
+        UnoListCell(game: finished)
+            .padding()
+        Divider()
+        UnoListCell(game: finished)
             .selected(true)
             .padding()
             .background(Color.accentColor)
