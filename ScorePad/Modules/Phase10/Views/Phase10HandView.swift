@@ -58,12 +58,12 @@ struct Phase10HandView: View {
         let color = Phase10Game.playerColor(for: i)
         Section {
             HStack {
-                (Text("Phase \(phase)").bold() + Text(": \(Phase10Game.phaseDescription(for: phase))"))
+                Text("\(Text("Phase \(phase)").bold()): \(Phase10Game.phaseDescription(for: phase))")
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 Spacer()
                 if !results.isEmpty {
-                    Toggle("", isOn: $results[i].completedPhase)
+                    Toggle("Completed Phase \(phase)", isOn: $results[i].completedPhase)
                         .labelsHidden()
                         .tint(color)
                 }
@@ -72,7 +72,9 @@ struct Phase10HandView: View {
                 Text("Score")
                 Spacer()
                 if !results.isEmpty {
-                    TextField("0", value: $results[i].score, format: .number)
+                    // Text binding rather than value/format, which only commits on focus loss and
+                    // would drop the last score typed if Save is tapped while the field is active.
+                    TextField("0", text: scoreText(for: i))
                         .focused($focusedField, equals: i)
 #if os(iOS)
                         .keyboardType(.numberPad)
@@ -98,6 +100,13 @@ struct Phase10HandView: View {
             return game.phase(for: playerIndex, atHandIndex: handIndex)
         }
         return game.currentPhase(for: playerIndex)
+    }
+
+    private func scoreText(for playerIndex: Int) -> Binding<String> {
+        Binding(
+            get: { results[playerIndex].score == 0 ? "" : String(results[playerIndex].score) },
+            set: { results[playerIndex].score = Int($0.filter { $0.isASCII && $0.isNumber }) ?? 0 }
+        )
     }
 
     private func loadResults() {

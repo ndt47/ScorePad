@@ -25,8 +25,10 @@ struct Phase10Header: View {
             }
         }
         .padding(.vertical, 8)
-        .onTapGesture {
-            self.showingDescriptions.toggle()
+        .contentShape(Rectangle())
+        .onTapGesture { showingDescriptions.toggle() }
+        .accessibilityAction(named: showingDescriptions ? "Show Phase Numbers" : "Show Phase Descriptions") {
+            showingDescriptions.toggle()
         }
     }
 
@@ -65,42 +67,44 @@ struct Phase10Header: View {
                 .background(Capsule().fill(color))
                 .opacity(index == game.currentDealerIndex && !game.isFinished ? 1 : 0)
 
-            // Phase label / description (tap to toggle) or winner badge
-            if game.hasFinished(index) && game.isFinished {
-                if isWinner {
-                    WinnerBadge()
-                } else {
-                    Text("Done")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+            // Phase number, or its description when the header is tapped, or the result once
+            // the game is over. Every state is drawn over the same hidden two-line placeholder,
+            // so toggling or finishing never changes the header's height.
+            ZStack(alignment: .top) {
+                VStack(spacing: 0) {
+                    Text(verbatim: " ")
+                    Text(verbatim: " ")
                 }
-                // Invisible spacer keeps height consistent with the 2-row phase display
-                Text("").font(.caption)
+                .hidden()
 
-            } else {
-                let parts = Phase10Game.phaseDescriptionParts(for: phase)
-                // ZStack keeps a constant layout size; opacity crossfades between states
-                ZStack {
-                    VStack(spacing: 0) {
-                        Text("Phase \(phase)").foregroundColor(color)
-                        Text(" ").opacity(0)
+                if game.hasFinished(index) && game.isFinished {
+                    if isWinner {
+                        WinnerBadge()
+                    } else {
+                        Text("Done")
+                            .foregroundColor(.secondary)
                     }
-                    .opacity(showingDescriptions ? 0 : 1)
-
+                } else {
+                    let parts = Phase10Game.phaseDescriptionParts(for: phase)
+                    Text("Phase \(phase)")
+                        .foregroundColor(color)
+                        .opacity(showingDescriptions ? 0 : 1)
                     VStack(spacing: 0) {
-                        Text(parts.line1).foregroundColor(color)
-                        Text(parts.line2 ?? " ")
-                            .foregroundColor(parts.line2 != nil ? color : .clear)
+                        Text(parts.line1)
+                        if let line2 = parts.line2 {
+                            Text(line2)
+                        }
                     }
+                    .foregroundColor(color)
                     .opacity(showingDescriptions ? 1 : 0)
                 }
-                .font(.caption)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 6)
-                .animation(.easeInOut(duration: 0.2), value: showingDescriptions)
             }
-
+            .font(.caption)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 6)
+            .animation(.easeInOut(duration: 0.2), value: showingDescriptions)
 
             // Cumulative score
             Text(score.formatted(.number.grouping(.never)))
