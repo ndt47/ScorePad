@@ -40,9 +40,10 @@ enum UnoStyle {
         }
     }
 
-    /// The four-colour ring drawn around wild cards.
-    static var wildRing: [Color] {
-        [color(for: .red), color(for: .yellow), color(for: .green), color(for: .blue), color(for: .red)]
+    /// The four-colour ring drawn around wild cards, in the colours of the deck face in play.
+    static func wildRing(darkSide: Bool) -> [Color] {
+        let faces: [UnoCard.Color] = darkSide ? [.pink, .teal, .orange, .purple] : [.red, .yellow, .green, .blue]
+        return (faces + [faces[0]]).map(color(for:))
     }
 }
 

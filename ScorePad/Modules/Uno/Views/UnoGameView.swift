@@ -206,6 +206,12 @@ struct UnoLedgerSheet: View {
         ScrollView([.horizontal, .vertical]) {
             LazyVStack(spacing: 0, pinnedViews: .sectionHeaders) {
                 Section {
+                    if game.hands.isEmpty {
+                        Text("No hands yet. Tap + to record the first one.")
+                            .foregroundStyle(.secondary)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                     ForEach(game.hands.indices.reversed(), id: \.self) { n in
                         Button {
                             onSelectHand(game.hands[n])
@@ -292,7 +298,10 @@ struct UnoLedgerSheet: View {
                     if i == hand.wentOutIndex {
                         Text("Out")
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(UnoStyle.playerColor(for: i))
+                            .foregroundStyle(UnoStyle.textColor(onPlayer: i))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(UnoStyle.playerColor(for: i)))
                     } else {
                         Text(hand.pointsLeft(for: i).formatted(.number.grouping(.never)))
                             .font(.subheadline)

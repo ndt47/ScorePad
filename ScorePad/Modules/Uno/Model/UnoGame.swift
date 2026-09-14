@@ -55,7 +55,8 @@ final class UnoGame: ObservableObject, Identifiable {
     }
 
     /// Once the game is over: the players with the highest total (winner collects) or the
-    /// lowest (points against). More than one when they tie.
+    /// lowest (points against). More than one when they tie. Judged on final totals, so if an
+    /// edit to an early hand means the target was reached sooner, later hands still count.
     var winnerIndices: [Int] {
         guard isFinished else { return [] }
         let totals = players.indices.map { cumulativeScore(for: $0) }
@@ -68,13 +69,13 @@ final class UnoGame: ObservableObject, Identifiable {
     }
 
     func addHand(_ hand: UnoHand) {
-        hands.append(hand)
+        hands.append(hand.normalized())
         lastModified = .now
     }
 
     func replaceHand(_ hand: UnoHand) {
         guard let index = hands.firstIndex(where: { $0.id == hand.id }) else { return }
-        hands[index] = hand
+        hands[index] = hand.normalized()
         lastModified = .now
     }
 }
