@@ -87,8 +87,7 @@ struct NewMilleBornesGame: View {
 
     private func save() {
         guard problem == nil else { return }
-        let refs = PlayerSlot.resolve(team1 + team2, roster: roster, in: modelContext)
-            .map(PlayerRef.init(profile:))
+        let refs = PlayerRef.seats(for: PlayerSlot.resolve(team1 + team2, roster: roster, in: modelContext))
         let game = MilleBornesGame(team1Players: Array(refs.prefix(team1.count)),
                                    team2Players: Array(refs.dropFirst(team1.count)))
         modelContext.insert(game)

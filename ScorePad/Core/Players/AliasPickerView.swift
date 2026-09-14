@@ -90,8 +90,8 @@ struct AliasPickerView: View {
     }
 
     private var confirmationMessage: String {
-        let names = selectedProfiles.map { $0.name }.joined(separator: ", ")
+        let names = selectedProfiles.map { $0.fullName }.joined(separator: ", ")
         let n = selectedIDs.count
-        return "\(names) will become \(n == 1 ? "an alias" : "aliases") of \"\(primaryProfile.name)\". All game records will be linked to \"\(primaryProfile.name)\"."
+        return "\(names) will become \(n == 1 ? "an alias" : "aliases") of \"\(primaryProfile.fullName)\". All game records will be linked to \"\(primaryProfile.fullName)\"."
     }
 }

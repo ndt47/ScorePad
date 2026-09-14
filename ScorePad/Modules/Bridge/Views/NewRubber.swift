@@ -153,7 +153,7 @@ struct NewRubber: View {
     func save() {
         guard problem == nil else { return }
         let profiles = PlayerSlot.resolve(seats.map(\.slot), roster: roster, in: modelContext)
-        let players = zip(profiles, seats).map { Player(ref: PlayerRef(profile: $0), position: $1.position) }
+        let players = zip(PlayerRef.seats(for: profiles), seats).map { Player(ref: $0, position: $1.position) }
         let rubber = Rubber(players: players, dealer: dealer)
         modelContext.insert(rubber)
         onSave?(rubber.id)

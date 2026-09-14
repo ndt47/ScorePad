@@ -21,6 +21,28 @@ struct PlayerRef: Codable, Hashable {
     func refers(to profile: PersonProfile) -> Bool {
         profileID == profile.id
     }
+
+    /// Refs for one game's seats, in order. Players who share a first name are shown with their
+    /// last initial ("Bob S.", "Bob J.") so the game can tell them apart.
+    static func seats(for profiles: [PersonProfile]) -> [PlayerRef] {
+        profiles.map { PlayerRef(profileID: $0.id, cachedName: displayName(for: $0, among: profiles)) }
+    }
+
+    /// `profile`'s name as shown in a game alongside `others`.
+    static func displayName(for profile: PersonProfile, among others: [PersonProfile]) -> String {
+        let sharesName = others.contains { $0.id != profile.id && $0.name.isSameName(as: profile.name) }
+        guard sharesName, let initial = profile.lastName.normalizedName.first else { return profile.name }
+        return "\(profile.name) \(initial)."
+    }
+
+    /// The name part of a cached display name, without a disambiguating " S." initial.
+    var cachedBaseName: String {
+        let parts = cachedName.split(separator: " ")
+        if parts.count > 1, let last = parts.last, last.count == 2, last.hasSuffix(".") {
+            return parts.dropLast().joined(separator: " ")
+        }
+        return cachedName
+    }
 }
 
 extension PlayerRef {

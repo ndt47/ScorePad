@@ -142,16 +142,7 @@ struct PlayerPickerField: View {
     @State private var showSuggestions = false
 
     private var suggestions: [PersonProfile] {
-        let typed = slot.name
-        guard !typed.isEmpty else { return [] }
-        return Array(
-            roster
-                .filter {
-                    $0.fullName.localizedCaseInsensitiveContains(typed)
-                        || $0.aliases.contains { $0.localizedCaseInsensitiveContains(typed) }
-                }
-                .prefix(config.maxSuggestions)
-        )
+        PersonProfile.suggestions(for: slot.name, in: roster, limit: config.maxSuggestions)
     }
 
     var body: some View {
@@ -161,10 +152,10 @@ struct PlayerPickerField: View {
                 // Any edit other than the one a pick just made returns the seat to automatic.
                 if case .existing(let picked) = slot.choice, picked.fullName == newValue { return }
                 slot.choice = .automatic
-                showSuggestions = focused && !suggestions.isEmpty
+                showSuggestions = focused && !slot.name.isEmpty
             }
             .onChange(of: focused) { _, isFocused in
-                showSuggestions = isFocused && !suggestions.isEmpty
+                showSuggestions = isFocused && !slot.name.isEmpty
             }
             .popover(isPresented: $showSuggestions, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
                 suggestionsPopover

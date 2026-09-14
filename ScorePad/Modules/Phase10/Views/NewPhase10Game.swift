@@ -131,7 +131,7 @@ struct NewPhase10Game: View {
         guard problem == nil else { return }
         let profiles = PlayerSlot.resolve(slots, roster: roster, in: modelContext)
         let dealerIndex = slots.firstIndex { $0.id == dealerID } ?? 0
-        let game = Phase10Game(players: profiles.map(PlayerRef.init(profile:)),
+        let game = Phase10Game(players: PlayerRef.seats(for: profiles),
                                startingDealerIndex: dealerIndex)
         modelContext.insert(game)
         onSave?(game.id)

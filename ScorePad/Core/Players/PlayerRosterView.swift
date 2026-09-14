@@ -195,18 +195,22 @@ struct PlayerRosterView: View {
     }
 
     private var bulkDeleteMessage: String {
-        let names = players.filter { selectedIDs.contains($0.persistentModelID) }.map { $0.name }
+        let names = players.filter { selectedIDs.contains($0.persistentModelID) }.map { $0.fullName }
         guard !names.isEmpty else { return "" }
         if names.count <= 3 { return names.joined(separator: ", ") + " will be permanently deleted." }
         return "\(names.prefix(2).joined(separator: ", ")), and \(names.count - 2) more will be permanently deleted."
     }
 
-    // Names needn't be unique; a new player who shares a name gets a last name on their page.
+    // Names needn't be unique. When the name is already taken, open the new player's page so
+    // they can be given a last name to tell them apart.
     private func addPlayer() {
         let name = newName.normalizedName
         newName = ""
         guard !name.isEmpty else { return }
-        modelContext.insert(PersonProfile(name: name))
+        let sharesName = !PersonProfile.candidates(for: name, in: players).isEmpty
+        let profile = PersonProfile(name: name)
+        modelContext.insert(profile)
+        if sharesName { navigationPath.append(profile) }
     }
 
     private func delete(_ profiles: [PersonProfile]) {

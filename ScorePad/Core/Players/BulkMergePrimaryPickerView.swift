@@ -56,8 +56,8 @@ struct BulkMergePrimaryPickerView: View {
         } message: {
             if let primary = candidates.first(where: { $0.persistentModelID == primaryID }) {
                 let others = candidates.filter { $0.persistentModelID != primaryID }
-                let names = others.map { $0.name }.joined(separator: ", ")
-                Text("\(names) will become \(others.count == 1 ? "an alias" : "aliases") of \"\(primary.name)\".")
+                let names = others.map { $0.fullName }.joined(separator: ", ")
+                Text("\(names) will become \(others.count == 1 ? "an alias" : "aliases") of \"\(primary.fullName)\".")
             }
         }
         .errorAlert($errorMessage)

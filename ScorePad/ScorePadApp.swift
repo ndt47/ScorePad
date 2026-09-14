@@ -33,9 +33,12 @@ struct ScorePadApp: App {
                 return try ModelContainer(for: schema, configurations: [config])
             } catch {
                 // An empty store failing too means the problem isn't the data (e.g. an invalid
-                // schema). Put the original files back so a fixed build can still open them.
+                // schema), so restore the original files for a fixed build to open. Clear what the
+                // empty store created first, or SQLite could replay a stray -wal into them.
+                for file in ScorePadApp.storeFiles(at: config.url) {
+                    try? FileManager.default.removeItem(at: file)
+                }
                 for (original, backup) in moved {
-                    try? FileManager.default.removeItem(at: original)
                     try? FileManager.default.moveItem(at: backup, to: original)
                 }
                 fatalError("Could not create an empty data store: \(error)")
@@ -47,24 +50,25 @@ struct ScorePadApp: App {
     /// (original, backup) pairs that were moved.
     private static func moveStoreAside(at url: URL, logger: Logger) -> [(URL, URL)] {
         let stamp = Date.now.formatted(.iso8601.dateSeparator(.omitted).timeSeparator(.omitted))
-        let directory = url.deletingLastPathComponent()
-        let baseName = url.lastPathComponent
-        // SQLite side files, plus the directory SwiftData keeps external data in.
-        let names = ["", "-shm", "-wal"].map { baseName + $0 }
-            + [".\(url.deletingPathExtension().lastPathComponent)_SUPPORT"]
         var moved: [(URL, URL)] = []
-        for name in names {
-            let original = directory.appending(path: name)
-            guard FileManager.default.fileExists(atPath: original.path) else { continue }
-            let backup = directory.appending(path: "\(name).unreadable-\(stamp)")
+        for original in storeFiles(at: url) where FileManager.default.fileExists(atPath: original.path) {
+            let backup = original.deletingLastPathComponent()
+                .appending(path: "\(original.lastPathComponent).unreadable-\(stamp)")
             do {
                 try FileManager.default.moveItem(at: original, to: backup)
                 moved.append((original, backup))
             } catch {
-                logger.error("Could not move \(name, privacy: .public) aside: \(error, privacy: .public)")
+                logger.error("Could not move \(original.lastPathComponent, privacy: .public) aside: \(error, privacy: .public)")
             }
         }
         return moved
+    }
+
+    /// The store file, its SQLite side files, and the directory SwiftData keeps external data in.
+    private static func storeFiles(at url: URL) -> [URL] {
+        let directory = url.deletingLastPathComponent()
+        return ["", "-shm", "-wal"].map { directory.appending(path: url.lastPathComponent + $0) }
+            + [directory.appending(path: ".\(url.deletingPathExtension().lastPathComponent)_SUPPORT")]
     }
 
     var body: some Scene {

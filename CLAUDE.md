@@ -84,9 +84,9 @@ Modules are registered by adding the instance to `ScorePadApp.modules`. `ScorePa
 ### Players (`ScorePad/Core/Players/`)
 
 - `PersonProfile` (`@Model`) — one real person on the shared roster: `name` (what games show), optional `lastName`, `aliases`. Names and aliases are **not unique**; `fullName` and aliases tell same-named people apart.
-- `PlayerRef` (`Codable`) — a game seat: `profileID` (the identity) + `cachedName` (display cache, kept in sync by `PlayerProfileService`).
+- `PlayerRef` (`Codable`) — a game seat: `profileID` (the identity) + `cachedName` (display cache, kept in sync by `PlayerProfileService`). Build a game's seats with `PlayerRef.seats(for:)`, which shows players sharing a first name with their last initial ("Bob S.").
 - `PlayerSlot` + `PlayerPickerField` — new-game seats. The field suggests roster players by full name/alias plus a "New player" row; `PlayerSlot.problem(with:roster:)` blocks Start/Save until every seat is named and is a distinct, unambiguous player; `PlayerSlot.resolve` creates profiles only on commit.
-- `PlayerProfileService` — rename (updates every game's `cachedName`), last name, aliases, merge (refused if the players shared a game), delete (refused if the player is in any game), game counts, and an ID-only `refreshCachedNames()` run on launch/foreground. Every mutation saves pending edits first, checks, then applies, so a refusal never discards unsaved work.
+- `PlayerProfileService` — rename and last name (both re-sync affected games' display names), aliases, merge (refused if the players shared a game), delete (refused if the player is in any game), game counts, and an ID-only `refreshCachedNames()` run on launch/foreground that only replaces names the player is known by. Every mutation saves pending edits first, checks, then applies, so a refusal never discards unsaved work.
 
 The app is pre-release: stored formats carry no backward-compatibility code.
 

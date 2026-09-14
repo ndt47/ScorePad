@@ -37,6 +37,21 @@ final class PersonProfile {
     static func candidates(for name: String, in roster: [PersonProfile]) -> [PersonProfile] {
         roster.filter { $0.answers(to: name) }
     }
+
+    /// Type-ahead suggestions for `typed`. Every player the name could mean comes first and is
+    /// never cut, so an ambiguous name always lists its candidates; partial matches on a name
+    /// or alias fill the rest, up to `limit`.
+    static func suggestions(for typed: String, in roster: [PersonProfile], limit: Int) -> [PersonProfile] {
+        let typed = typed.normalizedName
+        guard !typed.isEmpty else { return [] }
+        let exact = candidates(for: typed, in: roster)
+        let partial = roster.filter { profile in
+            !exact.contains(profile)
+                && (profile.fullName.localizedCaseInsensitiveContains(typed)
+                    || profile.aliases.contains { $0.localizedCaseInsensitiveContains(typed) })
+        }
+        return exact + partial.prefix(max(0, limit - exact.count))
+    }
 }
 
 extension String {

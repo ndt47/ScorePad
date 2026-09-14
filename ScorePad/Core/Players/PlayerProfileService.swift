@@ -55,17 +55,17 @@ struct PlayerProfileService {
                 profile.aliases.append(oldName)
             }
             profile.name = name
-            try updateRefs { ref in
-                if ref.refers(to: profile) { ref.cachedName = name }
-            }
+            try resyncDisplayNames(inGamesWith: [profile.id])
         }
     }
 
+    /// Sets the last name, which games use to tell apart players who share a first name.
     func setLastName(_ lastName: String, for profile: PersonProfile) throws {
         let lastName = lastName.normalizedName
         guard lastName != profile.lastName else { return }
         try perform {
             profile.lastName = lastName
+            try resyncDisplayNames(inGamesWith: [profile.id])
         }
     }
 
@@ -96,12 +96,18 @@ struct PlayerProfileService {
                 for name in [secondary.name] + secondary.aliases where !primary.answers(to: name) {
                     primary.aliases.append(name)
                 }
+                if primary.lastName.isEmpty { primary.lastName = secondary.lastName }
             }
             let secondaryIDs = Set(secondaries.map(\.id))
-            try updateRefs { ref in
-                if secondaryIDs.contains(ref.profileID) { ref = PlayerRef(profile: primary) }
+            for module in modules {
+                try module.updatePlayerRefs(in: context) { refs in
+                    for i in refs.indices where secondaryIDs.contains(refs[i].profileID) {
+                        refs[i].profileID = primary.id
+                    }
+                }
             }
             secondaries.forEach(context.delete)
+            try resyncDisplayNames(inGamesWith: [primary.id])
         }
     }
 
@@ -110,26 +116,42 @@ struct PlayerProfileService {
         try perform(check: {
             let counts = try gameCounts()
             if let used = profiles.first(where: { counts[$0.id, default: 0] > 0 }) {
-                throw PlayerProfileError.playerInUse(name: used.name, games: counts[used.id, default: 0])
+                throw PlayerProfileError.playerInUse(name: used.fullName, games: counts[used.id, default: 0])
             }
         }) {
             profiles.forEach(context.delete)
         }
     }
 
-    /// Brings every game's cached display names up to date with the roster, by profile ID only.
-    /// Catches renames that raced a game created on another device. Never creates or relinks
-    /// profiles: a seat whose profile isn't on this device keeps its cached name.
+    /// Brings every game's display names up to date with the roster, by profile ID only.
+    /// Catches renames that raced a game created on another device. A seat is only rewritten
+    /// when its current name is one the player is known by, so a device still holding an
+    /// out-of-date profile never undoes a newer rename synced from elsewhere. Never creates
+    /// or relinks profiles.
     func refreshCachedNames() throws {
-        let names = Dictionary(try context.fetch(FetchDescriptor<PersonProfile>()).map { ($0.id, $0.name) },
-                               uniquingKeysWith: { first, _ in first })
-        try updateRefs { ref in
-            if let name = names[ref.profileID], name != ref.cachedName { ref.cachedName = name }
-        }
+        try resyncDisplayNames(onlyKnownNames: true)
         if context.hasChanges { try context.save() }
     }
 
     // MARK: - Helpers
+
+    /// Recomputes display names for each game containing any of `ids` (all games when nil).
+    /// Seats whose profile isn't on this device keep their cached name.
+    private func resyncDisplayNames(inGamesWith ids: Set<UUID>? = nil, onlyKnownNames: Bool = false) throws {
+        let byID = Dictionary(try context.fetch(FetchDescriptor<PersonProfile>()).map { ($0.id, $0) },
+                              uniquingKeysWith: { first, _ in first })
+        for module in modules {
+            try module.updatePlayerRefs(in: context) { refs in
+                if let ids, !refs.contains(where: { ids.contains($0.profileID) }) { return }
+                let seated = refs.compactMap { byID[$0.profileID] }
+                for i in refs.indices {
+                    guard let profile = byID[refs[i].profileID] else { continue }
+                    if onlyKnownNames && !profile.answers(to: refs[i].cachedBaseName) { continue }
+                    refs[i].cachedName = PlayerRef.displayName(for: profile, among: seated)
+                }
+            }
+        }
+    }
 
     private func requireNeverPlayedTogether(_ profiles: [PersonProfile]) throws {
         var clash: (PersonProfile, PersonProfile)?
@@ -138,21 +160,13 @@ struct PlayerProfileService {
             let present = profiles.filter { ids.contains($0.id) }
             if present.count > 1 { clash = (present[0], present[1]) }
         }
-        if let (a, b) = clash { throw PlayerProfileError.playedTogether(first: a.name, second: b.name) }
+        if let (a, b) = clash { throw PlayerProfileError.playedTogether(first: a.fullName, second: b.fullName) }
     }
 
     /// Calls `body` with the set of profile IDs seated in each saved game. Changes nothing.
     private func forEachGame(_ body: (Set<UUID>) -> Void) throws {
         for module in modules {
             try module.updatePlayerRefs(in: context) { refs in body(Set(refs.map(\.profileID))) }
-        }
-    }
-
-    private func updateRefs(_ update: (inout PlayerRef) -> Void) throws {
-        for module in modules {
-            try module.updatePlayerRefs(in: context) { refs in
-                for i in refs.indices { update(&refs[i]) }
-            }
         }
     }
 

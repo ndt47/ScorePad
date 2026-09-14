@@ -27,6 +27,31 @@ final class PersonProfileMatchingTests: XCTestCase {
         XCTAssertEqual(PersonProfile.candidates(for: "Bob Jones", in: [bobSmith, bobJones, robert]), [bobJones])
     }
 
+    func testSuggestionsListEveryExactMatchBeforePartialOnes() {
+        let partials = ["Eddie", "Edgar", "Edith", "Edmund", "Edward"].map { PersonProfile(name: $0) }
+        let fred = PersonProfile(name: "Fred")
+        fred.aliases = ["Ed"]
+        let ted = PersonProfile(name: "Ted")
+        ted.aliases = ["Ed"]
+        let suggestions = PersonProfile.suggestions(for: "ed", in: partials + [fred, ted], limit: 5)
+        XCTAssertEqual(Array(suggestions.prefix(2)), [fred, ted])
+        XCTAssertEqual(suggestions.count, 5)
+    }
+
+    func testExactMatchesAreNeverCut() {
+        let bobs = (1...7).map { PersonProfile(name: "Bob", lastName: "\($0)") }
+        XCTAssertEqual(PersonProfile.suggestions(for: "Bob", in: bobs, limit: 5).count, 7)
+    }
+
+    func testSeatsGiveSameNamedPlayersTheirInitial() {
+        let bobSmith = PersonProfile(name: "Bob", lastName: "Smith")
+        let bobJones = PersonProfile(name: "Bob", lastName: "Jones")
+        let alice = PersonProfile(name: "Alice", lastName: "Liddell")
+        XCTAssertEqual(PlayerRef.seats(for: [bobSmith, alice, bobJones]).map(\.cachedName),
+                       ["Bob S.", "Alice", "Bob J."])
+        XCTAssertEqual(PlayerRef.seats(for: [bobSmith, alice])[0].cachedBaseName, "Bob")
+    }
+
     func testFullNameFallsBackToName() {
         XCTAssertEqual(PersonProfile(name: "Alice").fullName, "Alice")
         XCTAssertEqual(PersonProfile(name: "Alice", lastName: " Liddell ").fullName, "Alice Liddell")
@@ -200,6 +225,14 @@ final class PlayerProfileServiceTests: XCTestCase {
         XCTAssertEqual(phase10.players[0].cachedName, "Alice")
     }
 
+    func testLastNameTellsApartSameNamedPlayersInAGame() throws {
+        try service.rename(dan, to: "Carol")
+        XCTAssertEqual(rubber.players.map(\.name), ["Alice", "Bob", "Carol", "Carol"])
+        try service.setLastName("Smith", for: carol)
+        try service.setLastName("Jones", for: dan)
+        XCTAssertEqual(rubber.players.map(\.name), ["Alice", "Bob", "Carol S.", "Carol J."])
+    }
+
     func testGameCountsChangeNothing() throws {
         _ = try service.gameCounts()
         XCTAssertFalse(context.hasChanges)
@@ -220,17 +253,29 @@ final class PlayerProfileServiceTests: XCTestCase {
     func testPlayersWhoSharedAGameCannotBeMerged() throws {
         XCTAssertThrowsError(try service.merge([bob], into: alice)) { error in
             XCTAssertEqual(error as? PlayerProfileError, .playedTogether(first: "Alice", second: "Bob"))
+            XCTAssertEqual(error.localizedDescription,
+                           "Alice and Bob played in the same game, so they can't be the same player.")
         }
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<PersonProfile>()), 4)
         XCTAssertEqual(alice.aliases, [])
     }
 
-    func testRefreshCachedNamesByID() throws {
+    func testRefreshReplacesANameThePlayerIsKnownBy() throws {
+        alice.aliases = ["Ally"]  // e.g. her old name before a rename synced from another device
         var refs = phase10.players
-        refs[0].cachedName = "Stale"
+        refs[0].cachedName = "Ally"
         phase10.players = refs
         try service.refreshCachedNames()
         XCTAssertEqual(phase10.players[0].cachedName, "Alice")
+    }
+
+    func testRefreshLeavesANameThisDeviceDoesNotKnow() throws {
+        // A newer name synced from another device before the renamed profile arrived.
+        var refs = phase10.players
+        refs[0].cachedName = "Alicia"
+        phase10.players = refs
+        try service.refreshCachedNames()
+        XCTAssertEqual(phase10.players[0].cachedName, "Alicia")
     }
 
     func testMergeMovesSeatsAndNamesToPrimary() throws {
@@ -238,11 +283,13 @@ final class PlayerProfileServiceTests: XCTestCase {
         let erin = PersonProfile(name: "Erin")
         context.insert(erin)
         bob.aliases = ["Bobby"]
+        bob.lastName = "Builder"
         let bobID = bob.id
 
         try service.merge([bob], into: erin)
 
         XCTAssertEqual(Set(erin.aliases), ["Bob", "Bobby"])
+        XCTAssertEqual(erin.lastName, "Builder")
         XCTAssertEqual(rubber.players[1].ref, PlayerRef(profile: erin))
         XCTAssertEqual(mille.team2Players, [PlayerRef(profile: erin)])
         let remaining = try context.fetch(FetchDescriptor<PersonProfile>()).map(\.id)
