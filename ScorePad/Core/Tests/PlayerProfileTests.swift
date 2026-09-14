@@ -339,3 +339,17 @@ func makeInMemoryContainer() throws -> ModelContainer {
         configurations: ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
     )
 }
+
+// MARK: - Two new players with one name
+
+final class PlayerSlotNewPlayerTests: XCTestCase {
+    func testAnExplicitNewPlayerIsSomeoneElseEvenWithTheSameNewName() {
+        var first = PlayerSlot()
+        first.text = "Sam"
+        var second = PlayerSlot()
+        second.text = "Sam"
+        XCTAssertNotNil(PlayerSlot.problem(with: [first, second], roster: []), "same name, no choice: one person twice")
+        second.choice = .new
+        XCTAssertNil(PlayerSlot.problem(with: [first, second], roster: []))
+    }
+}

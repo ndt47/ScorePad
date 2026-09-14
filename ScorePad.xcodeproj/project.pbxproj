@@ -17,7 +17,10 @@
 		646164457F923E676C662319 /* Rubber+GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164221463F4D12E152C8248C /* Rubber+GameSession.swift */; };
 		89C8D3474CD246207BC01F50 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577F26937136697E2CCDD87F /* GameSession.swift */; };
 		8F9D9AA78DE59FAA3B53557C /* GameTypeGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFABE14CE8D44B8A64E4493 /* GameTypeGridView.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E102 /* PlayerProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E101 /* PlayerProfileTests.swift */; };
+		B7F34723D471C0DCF63BDDAC /* UnoGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621BDEDDE45AE4BF0F0A74A7 /* UnoGame.swift */; };
 		BFABDFA9D68839A336BF0E04 /* BridgeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F26B7B2B6F0658516DE8308 /* BridgeModule.swift */; };
+		D222FD7F4D7AD985F244BED9 /* UnoEdition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3016F1CA430C48F5C201FBD /* UnoEdition.swift */; };
 		D809D8C22FC422630081F9F9 /* PlayerRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8C12FC422630081F9F9 /* PlayerRef.swift */; };
 		D809D8CB2FC80C2B0081F9F9 /* PlayerProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8CA2FC80C2B0081F9F9 /* PlayerProfileService.swift */; };
 		D809D8CD2FC80C360081F9F9 /* PersonProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D809D8CC2FC80C360081F9F9 /* PersonProfileDetailView.swift */; };
@@ -72,6 +75,15 @@
 		D8BD5A8C29357D5200B86AA6 /* AuctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */; };
 		D8BD5A9029358E6A00B86AA6 /* RubberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */; };
 		D8C374452B33471C00566574 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D8C374442B33471C00566574 /* Localizable.xcstrings */; };
+		D8EC099F305880C300B068C8 /* UnoStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC099E305880C300B068C8 /* UnoStyle.swift */; };
+		D8EC09A1305880E600B068C8 /* NewUnoGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09A0305880E600B068C8 /* NewUnoGame.swift */; };
+		D8EC09A33058812A00B068C8 /* UnoCardPad.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09A23058812A00B068C8 /* UnoCardPad.swift */; };
+		D8EC09A53058814800B068C8 /* UnoHandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09A43058814800B068C8 /* UnoHandView.swift */; };
+		D8EC09A73058817100B068C8 /* UnoGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09A63058817100B068C8 /* UnoGameView.swift */; };
+		D8EC09A93058817F00B068C8 /* UnoListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09A83058817F00B068C8 /* UnoListCell.swift */; };
+		D8EC09AB3058818100B068C8 /* UnoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09AA3058818100B068C8 /* UnoDetailView.swift */; };
+		D8EC09AD3058818600B068C8 /* UnoModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09AC3058818600B068C8 /* UnoModule.swift */; };
+		D8EC09AF3058818A00B068C8 /* UnoGame+GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EC09AE3058818A00B068C8 /* UnoGame+GameSession.swift */; };
 		D8F882A62FC0FA4000080E76 /* WinnerBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882A52FC0FA4000080E76 /* WinnerBadge.swift */; };
 		D8F882AC2FC204C300080E76 /* Phase10Hand.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882AB2FC204C300080E76 /* Phase10Hand.swift */; };
 		D8F882AE2FC204D500080E76 /* Phase10Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882AD2FC204D500080E76 /* Phase10Game.swift */; };
@@ -85,9 +97,11 @@
 		D8F882BE2FC2052E00080E76 /* Phase10HandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882BD2FC2052E00080E76 /* Phase10HandView.swift */; };
 		D8F882C02FC2053500080E76 /* Phase10GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882BF2FC2053500080E76 /* Phase10GameView.swift */; };
 		D8F882C22FC2055400080E76 /* Phase10Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F882C12FC2055400080E76 /* Phase10Tests.swift */; };
-		A1B2C3D4E5F6A7B8C9D0E102 /* PlayerProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E101 /* PlayerProfileTests.swift */; };
 		E162446A7017E5884AB1DACA /* BridgeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55AB158FD0B6DB4806C88A7 /* BridgeDetailView.swift */; };
+		E3C500E7902C5F047A7455E6 /* UnoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8E6751EEAA70A360773B65 /* UnoTests.swift */; };
+		E4D535C16286119F5346529F /* UnoHand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38D14CAFA12DAEA2413CE18B /* UnoHand.swift */; };
 		F224B550A166BBF9CE2D3F04 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DA112EF0467C87E9AADDD0 /* AppRootView.swift */; };
+		5205D1C2B85FF05F1EAE507B /* UnoHandEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 117EC5CFFE5C541876D4ACAD /* UnoHandEntry.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,16 +124,21 @@
 /* Begin PBXFileReference section */
 		164221463F4D12E152C8248C /* Rubber+GameSession.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Rubber+GameSession.swift"; sourceTree = "<group>"; };
 		21891776AA838985AF8DFA36 /* GameModule.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameModule.swift; sourceTree = "<group>"; };
+		38D14CAFA12DAEA2413CE18B /* UnoHand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoHand.swift; sourceTree = "<group>"; };
 		395F5F3F6DB3281B6D02FB9F /* GameSessionList.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameSessionList.swift; sourceTree = "<group>"; };
 		3DE9CA93782367AFD6DDA59F /* GameRegistry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameRegistry.swift; sourceTree = "<group>"; };
 		3F26B7B2B6F0658516DE8308 /* BridgeModule.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeModule.swift; sourceTree = "<group>"; };
+		3F8E6751EEAA70A360773B65 /* UnoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoTests.swift; sourceTree = "<group>"; };
 		43B512ABC9B578813611C975 /* PersonProfile.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PersonProfile.swift; sourceTree = "<group>"; };
 		4D14627AF2357E38A8144038 /* PlayerRosterView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlayerRosterView.swift; sourceTree = "<group>"; };
 		577F26937136697E2CCDD87F /* GameSession.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
 		5860E19F776269FFEAA2582D /* ScorePad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScorePad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		621BDEDDE45AE4BF0F0A74A7 /* UnoGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoGame.swift; sourceTree = "<group>"; };
 		6B8ADCE9877276C0720BE124 /* ScorePadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScorePadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		92DA112EF0467C87E9AADDD0 /* AppRootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E101 /* PlayerProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfileTests.swift; sourceTree = "<group>"; };
 		A55AB158FD0B6DB4806C88A7 /* BridgeDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeDetailView.swift; sourceTree = "<group>"; };
+		B3016F1CA430C48F5C201FBD /* UnoEdition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoEdition.swift; sourceTree = "<group>"; };
 		C2C0FC4C2B536C375CC15A2C /* PlayerPickerField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlayerPickerField.swift; sourceTree = "<group>"; };
 		CBFABE14CE8D44B8A64E4493 /* GameTypeGridView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GameTypeGridView.swift; sourceTree = "<group>"; };
 		D809D8C12FC422630081F9F9 /* PlayerRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRef.swift; sourceTree = "<group>"; };
@@ -178,6 +197,15 @@
 		D8BD5A8B29357D5200B86AA6 /* AuctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuctionTests.swift; sourceTree = "<group>"; };
 		D8BD5A8F29358E6A00B86AA6 /* RubberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RubberView.swift; sourceTree = "<group>"; };
 		D8C374442B33471C00566574 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		D8EC099E305880C300B068C8 /* UnoStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoStyle.swift; sourceTree = "<group>"; };
+		D8EC09A0305880E600B068C8 /* NewUnoGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewUnoGame.swift; sourceTree = "<group>"; };
+		D8EC09A23058812A00B068C8 /* UnoCardPad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoCardPad.swift; sourceTree = "<group>"; };
+		D8EC09A43058814800B068C8 /* UnoHandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoHandView.swift; sourceTree = "<group>"; };
+		D8EC09A63058817100B068C8 /* UnoGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoGameView.swift; sourceTree = "<group>"; };
+		D8EC09A83058817F00B068C8 /* UnoListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoListCell.swift; sourceTree = "<group>"; };
+		D8EC09AA3058818100B068C8 /* UnoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoDetailView.swift; sourceTree = "<group>"; };
+		D8EC09AC3058818600B068C8 /* UnoModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoModule.swift; sourceTree = "<group>"; };
+		D8EC09AE3058818A00B068C8 /* UnoGame+GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UnoGame+GameSession.swift"; sourceTree = "<group>"; };
 		D8F882A52FC0FA4000080E76 /* WinnerBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinnerBadge.swift; sourceTree = "<group>"; };
 		D8F882AB2FC204C300080E76 /* Phase10Hand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Hand.swift; sourceTree = "<group>"; };
 		D8F882AD2FC204D500080E76 /* Phase10Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Game.swift; sourceTree = "<group>"; };
@@ -191,9 +219,9 @@
 		D8F882BD2FC2052E00080E76 /* Phase10HandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10HandView.swift; sourceTree = "<group>"; };
 		D8F882BF2FC2053500080E76 /* Phase10GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10GameView.swift; sourceTree = "<group>"; };
 		D8F882C12FC2055400080E76 /* Phase10Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Tests.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6A7B8C9D0E101 /* PlayerProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfileTests.swift; sourceTree = "<group>"; };
 		DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesTests.swift; sourceTree = "<group>"; };
 		FECD2D71AE9FB07BBCD42C32 /* ScorePadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScorePadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		117EC5CFFE5C541876D4ACAD /* UnoHandEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoHandEntry.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -250,12 +278,32 @@
 			path = Bridge;
 			sourceTree = "<group>";
 		};
+		60FE354C6CE96054EE1438FF /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				B3016F1CA430C48F5C201FBD /* UnoEdition.swift */,
+				38D14CAFA12DAEA2413CE18B /* UnoHand.swift */,
+				621BDEDDE45AE4BF0F0A74A7 /* UnoGame.swift */,
+				117EC5CFFE5C541876D4ACAD /* UnoHandEntry.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		6A2E4D9B14121533380B7958 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				3F8E6751EEAA70A360773B65 /* UnoTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		786F0B8EA944A241AF21A916 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
 				554E8C72B1A9D9D8991F5217 /* Bridge */,
 				D87E59B32FC0AD4800C0C56F /* MilleBornes */,
 				D8F882A72FC204AE00080E76 /* Phase10 */,
+				D5820D1E617F7107374B11B1 /* Uno */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -279,6 +327,18 @@
 				A1B2C3D4E5F6A7B8C9D0E101 /* PlayerProfileTests.swift */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		D5820D1E617F7107374B11B1 /* Uno */ = {
+			isa = PBXGroup;
+			children = (
+				60FE354C6CE96054EE1438FF /* Model */,
+				6A2E4D9B14121533380B7958 /* Tests */,
+				D8EC099D3058809700B068C8 /* Views */,
+				D8EC09AC3058818600B068C8 /* UnoModule.swift */,
+				D8EC09AE3058818A00B068C8 /* UnoGame+GameSession.swift */,
+			);
+			path = Uno;
 			sourceTree = "<group>";
 		};
 		D87E59B32FC0AD4800C0C56F /* MilleBornes */ = {
@@ -370,6 +430,20 @@
 				D8BD5A672935257900B86AA6 /* ScorePadUITestsLaunchTests.swift */,
 			);
 			path = ScorePadUITests;
+			sourceTree = "<group>";
+		};
+		D8EC099D3058809700B068C8 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D8EC099E305880C300B068C8 /* UnoStyle.swift */,
+				D8EC09A0305880E600B068C8 /* NewUnoGame.swift */,
+				D8EC09A23058812A00B068C8 /* UnoCardPad.swift */,
+				D8EC09A43058814800B068C8 /* UnoHandView.swift */,
+				D8EC09A63058817100B068C8 /* UnoGameView.swift */,
+				D8EC09A83058817F00B068C8 /* UnoListCell.swift */,
+				D8EC09AA3058818100B068C8 /* UnoDetailView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		D8F882A12FC0DD0400080E76 /* Tests */ = {
@@ -616,7 +690,9 @@
 				D8F882B62FC2050000080E76 /* Phase10ListCell.swift in Sources */,
 				D8F882AC2FC204C300080E76 /* Phase10Hand.swift in Sources */,
 				D8F882C02FC2053500080E76 /* Phase10GameView.swift in Sources */,
+				D8EC09A93058817F00B068C8 /* UnoListCell.swift in Sources */,
 				D8F882B22FC204E800080E76 /* Phase10Game+GameSession.swift in Sources */,
+				D8EC09AB3058818100B068C8 /* UnoDetailView.swift in Sources */,
 				D8BD5A8A29357CA200B86AA6 /* Position.swift in Sources */,
 				D87E59BB2FC0AD7100C0C56F /* MilleBornesGame.swift in Sources */,
 				D809D8C22FC422630081F9F9 /* PlayerRef.swift in Sources */,
@@ -637,6 +713,7 @@
 				D8BD5A752935263000B86AA6 /* Rubber.swift in Sources */,
 				D8F882BA2FC2051000080E76 /* Phase10HandRow.swift in Sources */,
 				D8F882BC2FC2052100080E76 /* Phase10Header.swift in Sources */,
+				D8EC09AD3058818600B068C8 /* UnoModule.swift in Sources */,
 				D809D8CD2FC80C360081F9F9 /* PersonProfileDetailView.swift in Sources */,
 				D87E59C52FC0ADA000C0C56F /* MilleBornesDetailView.swift in Sources */,
 				D809D8D52FC812C50081F9F9 /* PlayerProfileCell.swift in Sources */,
@@ -646,9 +723,11 @@
 				D8A564D729394D8F00671E8C /* AuctionView.swift in Sources */,
 				D8AD71F32B33878D000DBA88 /* Bid.swift in Sources */,
 				D8A564D929394E8100671E8C /* EnvironmentValues.swift in Sources */,
+				D8EC09A1305880E600B068C8 /* NewUnoGame.swift in Sources */,
 				D8F882BE2FC2052E00080E76 /* Phase10HandView.swift in Sources */,
 				D83E4886293EC1B700E37BCE /* RubberListCell.swift in Sources */,
 				D8AD71EF2B338678000DBA88 /* AuctionResult.swift in Sources */,
+				D8EC09AF3058818A00B068C8 /* UnoGame+GameSession.swift in Sources */,
 				D8A564A32936E25300671E8C /* Auction.swift in Sources */,
 				D87E59C72FC0ADA800C0C56F /* MilleBornesHeader.swift in Sources */,
 				D87E59CB2FC0ADCA00C0C56F /* MilleBornesHandView.swift in Sources */,
@@ -664,14 +743,18 @@
 				646164457F923E676C662319 /* Rubber+GameSession.swift in Sources */,
 				D87E59C92FC0ADB400C0C56F /* MilleBornesHandRow.swift in Sources */,
 				D8F882AE2FC204D500080E76 /* Phase10Game.swift in Sources */,
+				D8EC099F305880C300B068C8 /* UnoStyle.swift in Sources */,
 				D87E59BF2FC0AD8300C0C56F /* MilleBornesGame+GameSession.swift in Sources */,
+				D8EC09A73058817100B068C8 /* UnoGameView.swift in Sources */,
 				D809D8D12FC810CE0081F9F9 /* AliasPickerView.swift in Sources */,
 				D87E59C32FC0AD9800C0C56F /* NewMilleBornesGame.swift in Sources */,
 				BFABDFA9D68839A336BF0E04 /* BridgeModule.swift in Sources */,
+				D8EC09A53058814800B068C8 /* UnoHandView.swift in Sources */,
 				3E25EA68D2D9E71EA5E25B94 /* GameModule.swift in Sources */,
 				D87E59B72FC0AD5E00C0C56F /* MilleBornesTeamScore.swift in Sources */,
 				0D8462DC4E87F1EE8A868E10 /* GameRegistry.swift in Sources */,
 				D8F882B02FC204E200080E76 /* Phase10Module.swift in Sources */,
+				D8EC09A33058812A00B068C8 /* UnoCardPad.swift in Sources */,
 				3107699B06D1024F65AE54D6 /* PersonProfile.swift in Sources */,
 				3536D5198820C28BD6CA823A /* PlayerRosterView.swift in Sources */,
 				D809D8D32FC810DD0081F9F9 /* BulkMergePrimaryPickerView.swift in Sources */,
@@ -680,6 +763,10 @@
 				F224B550A166BBF9CE2D3F04 /* AppRootView.swift in Sources */,
 				D87E59BD2FC0AD7B00C0C56F /* MilleBornesModule.swift in Sources */,
 				8F9D9AA78DE59FAA3B53557C /* GameTypeGridView.swift in Sources */,
+				D222FD7F4D7AD985F244BED9 /* UnoEdition.swift in Sources */,
+				E4D535C16286119F5346529F /* UnoHand.swift in Sources */,
+				B7F34723D471C0DCF63BDDAC /* UnoGame.swift in Sources */,
+				5205D1C2B85FF05F1EAE507B /* UnoHandEntry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -695,6 +782,7 @@
 				A1B2C3D4E5F6A7B8C9D0E102 /* PlayerProfileTests.swift in Sources */,
 				D87E59B12FBA8D7900C0C56F /* CallTests.swift in Sources */,
 				D8A564A52936EB7700671E8C /* ContractTests.swift in Sources */,
+				E3C500E7902C5F047A7455E6 /* UnoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
