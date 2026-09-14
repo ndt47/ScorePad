@@ -233,3 +233,153 @@ final class UnoStorageTests: XCTestCase {
         XCTAssertEqual(fetched.cumulativeScore(for: 2), 45)
     }
 }
+
+// MARK: - Hand entry
+
+final class UnoHandEntryTests: XCTestCase {
+    private let names = ["Alice", "Bob", "Cara"]
+
+    private func card(_ id: String, _ edition: UnoEdition = .flip, _ side: UnoSide) -> UnoCard {
+        edition.cards(side: side).first { $0.id == id }!
+    }
+
+    func testNeedsSomeoneWhoWentOut() {
+        let entry = UnoHandEntry(edition: .classic, playerNames: names)
+        XCTAssertEqual(entry.problem, "Choose who went out.")
+        XCTAssertNil(entry.makeHand())
+    }
+
+    func testEveryOpponentNeedsPoints() {
+        var entry = UnoHandEntry(edition: .classic, playerNames: names)
+        entry.wentOut = 0
+        entry.setTyped(12, for: 1)
+        XCTAssertEqual(entry.problem, "Enter the points left in Cara’s hand.")
+        entry.setTyped(30, for: 2)
+        XCTAssertNil(entry.problem)
+        XCTAssertEqual(entry.total, 42)
+    }
+
+    func testClassicAllowsATypedZeroButFlipDoesNot() {
+        var classic = UnoHandEntry(edition: .classic, playerNames: names)
+        classic.wentOut = 0
+        classic.setTyped(0, for: 1)
+        classic.setTyped(5, for: 2)
+        XCTAssertNil(classic.problem)
+
+        var flip = UnoHandEntry(edition: .flip, playerNames: names)
+        flip.wentOut = 0
+        flip.setTyped(0, for: 1)
+        flip.setTyped(5, for: 2)
+        XCTAssertEqual(flip.problem, "Bob can’t have 0 points: Uno Flip has no zero cards.")
+    }
+
+    func testChangingTheSideAfterCountingAsksForARecount() {
+        var entry = UnoHandEntry(edition: .flip, playerNames: names)
+        entry.wentOut = 0
+        entry.setCounted([card("draw1", .flip, .light), card("n7", .flip, .light)], for: 1)
+        entry.setTyped(9, for: 2)
+        XCTAssertEqual(entry.points(for: 1), 17)
+        XCTAssertNil(entry.problem)
+
+        entry.side = .dark
+        XCTAssertTrue(entry.isStale(1))
+        XCTAssertFalse(entry.isStale(2), "typed values carry no side")
+        XCTAssertEqual(entry.problem, "Count Bob’s cards again: they were counted on the light side.")
+        XCTAssertEqual(entry.cardsToRecount(for: 1), [], "a count on the other side can't be reused")
+
+        entry.setCounted([card("wildColor", .flip, .dark)], for: 1)
+        XCTAssertFalse(entry.isStale(1))
+        XCTAssertEqual(entry.points(for: 1), 60)
+        XCTAssertNil(entry.problem)
+    }
+
+    func testRecountReopensWithTheEarlierCardsOnTheSameSide() {
+        var entry = UnoHandEntry(edition: .flip, playerNames: names)
+        let cards = [card("skip", .flip, .light), card("n3", .flip, .light)]
+        entry.setCounted(cards, for: 1)
+        XCTAssertEqual(entry.cardsToRecount(for: 1), cards)
+    }
+
+    func testClassicCountsAreNeverStale() {
+        var entry = UnoHandEntry(edition: .classic, playerNames: names)
+        entry.setCounted([card("wild4", .classic, .light)], for: 1)
+        entry.side = .dark
+        XCTAssertFalse(entry.isStale(1))
+        XCTAssertEqual(entry.countingSide, .light)
+    }
+
+    func testTypingReplacesACount() {
+        var entry = UnoHandEntry(edition: .flip, playerNames: names)
+        entry.setCounted([card("skip", .flip, .light)], for: 1)
+        entry.setTyped(25, for: 1)
+        XCTAssertNil(entry.counts[1])
+        XCTAssertEqual(entry.points(for: 1), 25)
+    }
+
+    func testSwitchingWhoWentOutBringsBackTheirRowBlank() {
+        var entry = UnoHandEntry(edition: .classic, playerNames: names)
+        entry.wentOut = 0
+        entry.setTyped(10, for: 1)
+        entry.setTyped(20, for: 2)
+        entry.wentOut = 1
+        XCTAssertEqual(entry.opponents, [0, 2])
+        XCTAssertEqual(entry.problem, "Enter the points left in Alice’s hand.")
+        XCTAssertEqual(entry.total, 20)
+    }
+
+    func testMakeHandSavesBlanksAsZeroOnlyForWhoeverWentOut() throws {
+        var entry = UnoHandEntry(edition: .flip, playerNames: names)
+        entry.wentOut = 2
+        entry.side = .dark
+        entry.setTyped(40, for: 0)
+        entry.setTyped(8, for: 1)
+        let hand = try XCTUnwrap(entry.makeHand())
+        XCTAssertEqual(hand.wentOutIndex, 2)
+        XCTAssertEqual(hand.side, .dark)
+        XCTAssertEqual(hand.pointsLeft, [40, 8, 0])
+    }
+
+    func testClassicHandsAlwaysSaveTheLightSide() throws {
+        var entry = UnoHandEntry(edition: .classic, playerNames: names)
+        entry.wentOut = 0
+        entry.side = .dark
+        entry.setTyped(1, for: 1)
+        entry.setTyped(2, for: 2)
+        XCTAssertEqual(try XCTUnwrap(entry.makeHand()).side, .light)
+    }
+
+    func testEditingStartsFromTheSavedHandAndKeepsItsID() throws {
+        var saved = UnoHand(playerCount: 3, wentOutIndex: 1, side: .dark)
+        saved.pointsLeft = [30, 0, 45]
+        var entry = UnoHandEntry(editing: saved, edition: .flip, playerNames: names)
+        XCTAssertEqual(entry.wentOut, 1)
+        XCTAssertEqual(entry.side, .dark)
+        XCTAssertEqual(entry.points(for: 0), 30)
+        XCTAssertNil(entry.points(for: 1))
+        entry.setTyped(35, for: 0)
+        let edited = try XCTUnwrap(entry.makeHand(updating: saved))
+        XCTAssertEqual(edited.id, saved.id)
+        XCTAssertEqual(edited.pointsLeft, [35, 0, 45])
+    }
+}
+
+// MARK: - Mutation-testing gaps
+
+final class UnoGapTests: XCTestCase {
+    func testOnlyFlipHasTwoSides() {
+        XCTAssertFalse(UnoEdition.classic.hasSides)
+        XCTAssertTrue(UnoEdition.flip.hasSides)
+    }
+
+    func testAddingAndEditingAHandUpdatesLastPlayed() throws {
+        let game = UnoGame(players: [.preview("A"), .preview("B")])
+        let created = game.lastModified
+        Thread.sleep(forTimeInterval: 0.01)
+        game.addHand(UnoHand(playerCount: 2))
+        let added = game.lastModified
+        XCTAssertGreaterThan(added, created)
+        Thread.sleep(forTimeInterval: 0.01)
+        game.replaceHand(game.hands[0])
+        XCTAssertGreaterThan(game.lastModified, added)
+    }
+}

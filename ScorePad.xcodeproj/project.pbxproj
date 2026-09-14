@@ -101,6 +101,7 @@
 		E3C500E7902C5F047A7455E6 /* UnoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8E6751EEAA70A360773B65 /* UnoTests.swift */; };
 		E4D535C16286119F5346529F /* UnoHand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38D14CAFA12DAEA2413CE18B /* UnoHand.swift */; };
 		F224B550A166BBF9CE2D3F04 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DA112EF0467C87E9AADDD0 /* AppRootView.swift */; };
+		5205D1C2B85FF05F1EAE507B /* UnoHandEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 117EC5CFFE5C541876D4ACAD /* UnoHandEntry.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -220,6 +221,7 @@
 		D8F882C12FC2055400080E76 /* Phase10Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase10Tests.swift; sourceTree = "<group>"; };
 		DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesTests.swift; sourceTree = "<group>"; };
 		FECD2D71AE9FB07BBCD42C32 /* ScorePadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScorePadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		117EC5CFFE5C541876D4ACAD /* UnoHandEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoHandEntry.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -282,6 +284,7 @@
 				B3016F1CA430C48F5C201FBD /* UnoEdition.swift */,
 				38D14CAFA12DAEA2413CE18B /* UnoHand.swift */,
 				621BDEDDE45AE4BF0F0A74A7 /* UnoGame.swift */,
+				117EC5CFFE5C541876D4ACAD /* UnoHandEntry.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -763,6 +766,7 @@
 				D222FD7F4D7AD985F244BED9 /* UnoEdition.swift in Sources */,
 				E4D535C16286119F5346529F /* UnoHand.swift in Sources */,
 				B7F34723D471C0DCF63BDDAC /* UnoGame.swift in Sources */,
+				5205D1C2B85FF05F1EAE507B /* UnoHandEntry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
