@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-ScorePad is a multi-game scoring app for iOS and macOS, built with SwiftUI and SwiftData. It supports multiple board/card games via a modular plug-in architecture. Current modules: **Bridge** and **Mille Bornes**.
+ScorePad is a multi-game scoring app for iOS and macOS, built with SwiftUI and SwiftData. It supports multiple board/card games via a modular plug-in architecture. Current modules: **Bridge**, **Mille Bornes**, **Phase 10** and **Uno** (Classic and Flip).
 
 ## Tools
 
@@ -40,12 +40,14 @@ ScorePad/
     │   ├── Model/               # Rubber, Auction, Contract, Score, etc.
     │   ├── Views/               # RubberView, AuctionView, RubberListCell, etc.
     │   └── Tests/               # AuctionTests, ContractTests, ScoreTests, etc.
-    └── MilleBornes/
-        ├── MilleBornesModule.swift
-        ├── MilleBornesGame+GameSession.swift
-        ├── Model/               # MilleBornesGame, MilleBornesHand, MilleBornesTeamScore
-        ├── Views/               # MilleBornesGameView, MilleBornesHandView, MilleBornesListCell, etc.
-        └── Tests/               # MilleBornesTests
+    ├── MilleBornes/
+    │   ├── MilleBornesModule.swift
+    │   ├── MilleBornesGame+GameSession.swift
+    │   ├── Model/               # MilleBornesGame, MilleBornesHand, MilleBornesTeamScore
+    │   ├── Views/               # MilleBornesGameView, MilleBornesHandView, MilleBornesListCell, etc.
+    │   └── Tests/               # MilleBornesTests
+    ├── Phase10/                 # same layout
+    └── Uno/                     # same layout; design in docs/design/uno.md
 ```
 
 Tests live **inside each module's `Tests/` folder**, co-located with the source.
@@ -176,6 +178,17 @@ Mile limits: **2-player** max 700 (1000 with called extension); **4-player** max
 `@EnvironmentObject var game: MilleBornesGame` flows through the view hierarchy. Environment keys:
 - `\.isTwoPlayerGame` — read by `TeamScoreEditor`, `MilleBornesHandRow`, `TeamScoreColumn`
 - `\.presentHand: (MilleBornesHand) -> Void` — tapping a hand row in `MilleBornesGameView` opens `MilleBornesHandView` in edit mode
+
+### Uno Module
+
+Design record: `docs/design/uno.md` (mockups: `docs/design/uno-mockups.html`).
+
+- `UnoGame` (`@Model`) — `players: [PlayerRef]`, `edition` (`.classic` / `.flip`), `scoring` (`.winnerCollects` / `.pointsAgainst`), `targetScore` (default 500), `startingDealerIndex`, `hands: [UnoHand]`
+  - `score(for:in:)` / `cumulativeScore(for:)`: winner collects — whoever went out scores the hand's total; points against — each player scores their own points left
+  - `isFinished`: anyone reaches `targetScore`; `winnerIndices`: highest (winner collects) or lowest (points against) total, several on a tie
+- `UnoHand` (`Codable`) — `wentOutIndex`, `side` (Flip only), `pointsLeft: [Int]` per player (0 for whoever went out). Hands store points, not cards.
+- Card values are data: `UnoEdition.cards(side:) -> [UnoCard]`. Flip hands are counted by the side face up when the hand ended. The Card Pad (`UnoCardPad`) draws its keys from the same table, so a new edition is one more table.
+- Views: `UnoHandView` (Quick Total per opponent, each with a Count button opening `UnoCardPad`); `UnoGameView` picks `UnoRaceSheet` (winner collects) or `UnoLedgerSheet` (points against).
 
 ## Key Design Decisions
 

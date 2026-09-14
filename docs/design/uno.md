@@ -1,6 +1,6 @@
 # Uno module — design
 
-Status: **agreed, not started** (decisions made 2026-09-14). Interactive mockups: [`uno-mockups.html`](uno-mockups.html) — open it in a browser; the hand-entry mockups are live.
+Status: **v1 implemented** (decisions made 2026-09-14; built on branch `modules/uno`). Interactive mockups: [`uno-mockups.html`](uno-mockups.html) — open it in a browser; the hand-entry mockups are live.
 
 ## Scope for v1
 
@@ -71,7 +71,7 @@ enum UnoSide: String, Codable { case light, dark }
         // winnerCollects: sum of handValue over hands the player went out in
         // pointsAgainst:  sum of the player's own pointsLeft
     var isFinished: Bool                 // anyone's cumulative score ≥ targetScore
-    var winnerIndex: Int?                // highest score (winnerCollects) or lowest (pointsAgainst)
+    var winnerIndices: [Int]             // highest score (winnerCollects) or lowest (pointsAgainst); several on a tie
 }
 
 struct UnoHand: Codable, Identifiable, Equatable {
@@ -145,5 +145,7 @@ Players, the edition badge ("Flip"), each player's total, and a trophy on the wi
 
 ## Open questions
 
-- **Ties** at the end of a game: two players reaching the target in the same hand with equal scores. The proposal is to show both as winners.
-- Whether a finished game should allow further hands (playing past the target). The proposal is no, matching Phase 10.
+Both were built as proposed; confirm or change:
+
+- **Ties** at the end of a game: players tied on the best total are all shown as winners (`UnoGame.winnerIndices`).
+- **Finished games** take no more hands: Add Hand is disabled, matching Phase 10. Existing hands can still be edited.
