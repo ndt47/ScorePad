@@ -58,7 +58,7 @@ struct Phase10HandView: View {
         let color = Phase10Game.playerColor(for: i)
         Section {
             HStack {
-                Text("Phase \(phase): \(Phase10Game.phaseDescription(for: phase))")
+                (Text("Phase \(phase)").bold() + Text(": \(Phase10Game.phaseDescription(for: phase))"))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 Spacer()

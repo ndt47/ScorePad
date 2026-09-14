@@ -3,6 +3,7 @@ import SwiftUI
 struct Phase10Header: View {
     @EnvironmentObject var game: Phase10Game
     @Environment(\.phase10PlayerColumnWidth) var columnWidth
+    @State private var showingDescriptions = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -24,6 +25,9 @@ struct Phase10Header: View {
             }
         }
         .padding(.vertical, 8)
+        .onTapGesture {
+            self.showingDescriptions.toggle()
+        }
     }
 
     @ViewBuilder
@@ -61,32 +65,42 @@ struct Phase10Header: View {
                 .background(Capsule().fill(color))
                 .opacity(index == game.currentDealerIndex && !game.isFinished ? 1 : 0)
 
-            // Phase label / description (always visible, fixed 2-row height) or winner badge
+            // Phase label / description (tap to toggle) or winner badge
             if game.hasFinished(index) && game.isFinished {
                 if isWinner {
                     WinnerBadge()
                 } else {
                     Text("Done")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 // Invisible spacer keeps height consistent with the 2-row phase display
-                Text("").font(.caption2)
+                Text("").font(.caption)
+
             } else {
                 let parts = Phase10Game.phaseDescriptionParts(for: phase)
-                VStack(alignment: .center, spacing: 0) {
-                    Text("Phase \(phase): \(parts.line1)")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(color)
-                    Text(parts.line2 ?? "")
-                        .font(.caption2)
-                        .foregroundColor(parts.line2 == nil ? .clear : color)
+                // ZStack keeps a constant layout size; opacity crossfades between states
+                ZStack {
+                    VStack(spacing: 0) {
+                        Text("Phase \(phase)").foregroundColor(color)
+                        Text(" ").opacity(0)
+                    }
+                    .opacity(showingDescriptions ? 0 : 1)
+
+                    VStack(spacing: 0) {
+                        Text(parts.line1).foregroundColor(color)
+                        Text(parts.line2 ?? " ")
+                            .foregroundColor(parts.line2 != nil ? color : .clear)
+                    }
+                    .opacity(showingDescriptions ? 1 : 0)
                 }
+                .font(.caption)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 6)
+                .animation(.easeInOut(duration: 0.2), value: showingDescriptions)
             }
+
 
             // Cumulative score
             Text(score.formatted(.number.grouping(.never)))
