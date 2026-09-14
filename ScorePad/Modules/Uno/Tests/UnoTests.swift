@@ -141,3 +141,27 @@ final class UnoCardTests: XCTestCase {
         }
     }
 }
+
+// MARK: - Player roster integration
+
+@MainActor
+final class UnoPlayerRosterTests: XCTestCase {
+    func testRosterOperationsReachUnoGames() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let alice = PersonProfile(name: "Alice")
+        let bob = PersonProfile(name: "Bob")
+        context.insert(alice)
+        context.insert(bob)
+        let game = UnoGame(players: PlayerRef.seats(for: [alice, bob]))
+        context.insert(game)
+        try context.save()
+        let service = PlayerProfileService(context: context, modules: ScorePadApp.modules)
+
+        XCTAssertEqual(try service.gameCounts()[alice.id], 1)
+        XCTAssertThrowsError(try service.delete([alice]))
+
+        try service.rename(alice, to: "Alicia")
+        XCTAssertEqual(game.players.map(\.cachedName), ["Alicia", "Bob"])
+    }
+}

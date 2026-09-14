@@ -11,7 +11,7 @@ import OSLog
 
 @main
 struct ScorePadApp: App {
-    static let modules: [any GameModule] = [BridgeModule(), MilleBornesModule(), Phase10Module()]
+    static let modules: [any GameModule] = [BridgeModule(), MilleBornesModule(), Phase10Module(), UnoModule()]
 
     /// Every persisted type: the shared player roster plus each registered module's models.
     static let schema = Schema([PersonProfile.self] + modules.flatMap(\.modelTypes))
