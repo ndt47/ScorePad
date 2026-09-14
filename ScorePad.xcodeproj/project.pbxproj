@@ -88,6 +88,10 @@
 		A1B2C3D4E5F6A7B8C9D0E102 /* PlayerProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E101 /* PlayerProfileTests.swift */; };
 		E162446A7017E5884AB1DACA /* BridgeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55AB158FD0B6DB4806C88A7 /* BridgeDetailView.swift */; };
 		F224B550A166BBF9CE2D3F04 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DA112EF0467C87E9AADDD0 /* AppRootView.swift */; };
+		D222FD7F4D7AD985F244BED9 /* UnoEdition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3016F1CA430C48F5C201FBD /* UnoEdition.swift */; };
+		E4D535C16286119F5346529F /* UnoHand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38D14CAFA12DAEA2413CE18B /* UnoHand.swift */; };
+		B7F34723D471C0DCF63BDDAC /* UnoGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621BDEDDE45AE4BF0F0A74A7 /* UnoGame.swift */; };
+		E3C500E7902C5F047A7455E6 /* UnoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8E6751EEAA70A360773B65 /* UnoTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -194,6 +198,10 @@
 		A1B2C3D4E5F6A7B8C9D0E101 /* PlayerProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfileTests.swift; sourceTree = "<group>"; };
 		DBD267D6CD30483389CD74B1 /* MilleBornesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilleBornesTests.swift; sourceTree = "<group>"; };
 		FECD2D71AE9FB07BBCD42C32 /* ScorePadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScorePadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3016F1CA430C48F5C201FBD /* UnoEdition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoEdition.swift; sourceTree = "<group>"; };
+		38D14CAFA12DAEA2413CE18B /* UnoHand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoHand.swift; sourceTree = "<group>"; };
+		621BDEDDE45AE4BF0F0A74A7 /* UnoGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoGame.swift; sourceTree = "<group>"; };
+		3F8E6751EEAA70A360773B65 /* UnoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnoTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,6 +264,7 @@
 				554E8C72B1A9D9D8991F5217 /* Bridge */,
 				D87E59B32FC0AD4800C0C56F /* MilleBornes */,
 				D8F882A72FC204AE00080E76 /* Phase10 */,
+				D5820D1E617F7107374B11B1 /* Uno */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -481,6 +490,33 @@
 			path = Players;
 			sourceTree = "<group>";
 		};
+		D5820D1E617F7107374B11B1 /* Uno */ = {
+			isa = PBXGroup;
+			children = (
+				60FE354C6CE96054EE1438FF /* Model */,
+				6A2E4D9B14121533380B7958 /* Tests */,
+			);
+			path = Uno;
+			sourceTree = "<group>";
+		};
+		60FE354C6CE96054EE1438FF /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				B3016F1CA430C48F5C201FBD /* UnoEdition.swift */,
+				38D14CAFA12DAEA2413CE18B /* UnoHand.swift */,
+				621BDEDDE45AE4BF0F0A74A7 /* UnoGame.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		6A2E4D9B14121533380B7958 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				3F8E6751EEAA70A360773B65 /* UnoTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -680,6 +716,9 @@
 				F224B550A166BBF9CE2D3F04 /* AppRootView.swift in Sources */,
 				D87E59BD2FC0AD7B00C0C56F /* MilleBornesModule.swift in Sources */,
 				8F9D9AA78DE59FAA3B53557C /* GameTypeGridView.swift in Sources */,
+				D222FD7F4D7AD985F244BED9 /* UnoEdition.swift in Sources */,
+				E4D535C16286119F5346529F /* UnoHand.swift in Sources */,
+				B7F34723D471C0DCF63BDDAC /* UnoGame.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -695,6 +734,7 @@
 				A1B2C3D4E5F6A7B8C9D0E102 /* PlayerProfileTests.swift in Sources */,
 				D87E59B12FBA8D7900C0C56F /* CallTests.swift in Sources */,
 				D8A564A52936EB7700671E8C /* ContractTests.swift in Sources */,
+				E3C500E7902C5F047A7455E6 /* UnoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
