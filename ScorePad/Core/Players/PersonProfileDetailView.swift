@@ -11,6 +11,8 @@ struct PersonProfileDetailView: View {
 
     @State private var draftName: String
     @FocusState private var nameFieldFocused: Bool
+    @State private var draftLastName: String
+    @FocusState private var lastNameFieldFocused: Bool
     @State private var newAlias = ""
     @FocusState private var newAliasFocused: Bool
     @State private var showAliasPicker = false
@@ -23,6 +25,12 @@ struct PersonProfileDetailView: View {
     init(profile: PersonProfile) {
         self.profile = profile
         self._draftName = State(initialValue: profile.name)
+        self._draftLastName = State(initialValue: profile.lastName)
+    }
+
+    /// Whether another roster player has the same full name, so a last name would help.
+    private var sharesFullName: Bool {
+        allProfiles.contains { $0.id != profile.id && $0.fullName.isSameName(as: profile.fullName) }
     }
 
     private var service: PlayerProfileService {
@@ -53,6 +61,19 @@ struct PersonProfileDetailView: View {
                     .onChange(of: profile.name) { _, newName in
                         if !nameFieldFocused { draftName = newName }
                     }
+                TextField("Last Name (optional)", text: $draftLastName)
+                    .focused($lastNameFieldFocused)
+                    .onSubmit { commitLastName() }
+                    .onChange(of: lastNameFieldFocused) { _, focused in
+                        if !focused { commitLastName() }
+                    }
+                    .onChange(of: profile.lastName) { _, newValue in
+                        if !lastNameFieldFocused { draftLastName = newValue }
+                    }
+            } footer: {
+                if sharesFullName {
+                    Text("Another player is also called \(profile.fullName). Add a last name to tell them apart.")
+                }
             }
 
             Section("Aliases") {
@@ -94,23 +115,26 @@ struct PersonProfileDetailView: View {
                 .disabled(gameCount > 0)
             } footer: {
                 if gameCount > 0 {
-                    Text("\(profile.name) appears in \(gameCount) game\(gameCount == 1 ? "" : "s"), so they can't be deleted. To remove this player, add them as an alias of another player.")
+                    Text("\(profile.fullName) appears in \(gameCount) game\(gameCount == 1 ? "" : "s"), so they can't be deleted. To remove this player, add them as an alias of another player.")
                 }
             }
         }
         #if os(macOS)
         .formStyle(.grouped)
         #endif
-        .navigationTitle(profile.name)
+        .navigationTitle(profile.fullName)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .task { refreshGameCount() }
-        .onDisappear { commitRename() }
+        .onDisappear {
+            commitRename()
+            commitLastName()
+        }
         .sheet(isPresented: $showAliasPicker, onDismiss: refreshGameCount) {
             AliasPickerView(primaryProfile: profile)
         }
-        .alert("Delete \(profile.name)?", isPresented: $showDeleteConfirm) {
+        .alert("Delete \(profile.fullName)?", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) {
                 perform {
                     try service.delete([profile])
@@ -133,6 +157,12 @@ struct PersonProfileDetailView: View {
         guard !isDeleted else { return }
         perform { try service.rename(profile, to: draftName) }
         draftName = profile.name
+    }
+
+    private func commitLastName() {
+        guard !isDeleted else { return }
+        perform { try service.setLastName(draftLastName, for: profile) }
+        draftLastName = profile.lastName
     }
 
     private func addAlias() {

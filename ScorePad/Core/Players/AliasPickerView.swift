@@ -20,7 +20,7 @@ struct AliasPickerView: View {
     private var filteredCandidates: [PersonProfile] {
         guard !searchText.isEmpty else { return candidates }
         return candidates.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText)
+            $0.fullName.localizedCaseInsensitiveContains(searchText)
                 || $0.aliases.contains { $0.localizedCaseInsensitiveContains(searchText) }
         }
     }

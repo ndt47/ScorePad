@@ -17,7 +17,6 @@ struct NewRubber: View {
     @State private var east  = PlayerSlot()
     @State private var south = PlayerSlot()
     @State private var west  = PlayerSlot()
-    @State private var saveError: String?
     @Environment(\.dismiss) var dismiss
     var onSave: ((Rubber.ID) -> Void)? = nil
     var onCancel: (() -> Void)? = nil
@@ -138,7 +137,6 @@ struct NewRubber: View {
                 }
                 #endif
             }
-            .errorAlert($saveError)
         }
         .presentationDetents([.medium])
         .edgesIgnoringSafeArea(.all)
@@ -154,16 +152,12 @@ struct NewRubber: View {
 
     func save() {
         guard problem == nil else { return }
-        do {
-            let profiles = try PlayerSlot.resolve(seats.map(\.slot), in: modelContext)
-            let players = zip(profiles, seats).map { Player(ref: PlayerRef(profile: $0), position: $1.position) }
-            let rubber = Rubber(players: players, dealer: dealer)
-            modelContext.insert(rubber)
-            onSave?(rubber.id)
-            dismiss()
-        } catch {
-            saveError = error.localizedDescription
-        }
+        let profiles = PlayerSlot.resolve(seats.map(\.slot), roster: roster, in: modelContext)
+        let players = zip(profiles, seats).map { Player(ref: PlayerRef(profile: $0), position: $1.position) }
+        let rubber = Rubber(players: players, dealer: dealer)
+        modelContext.insert(rubber)
+        onSave?(rubber.id)
+        dismiss()
     }
 
     func cancel() {

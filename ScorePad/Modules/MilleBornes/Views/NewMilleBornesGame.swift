@@ -11,7 +11,6 @@ struct NewMilleBornesGame: View {
     @State private var t1p2 = PlayerSlot()
     @State private var t2p1 = PlayerSlot()
     @State private var t2p2 = PlayerSlot()
-    @State private var saveError: String?
 
     var onSave: ((MilleBornesGame.ID) -> Void)?
 
@@ -81,7 +80,6 @@ struct NewMilleBornesGame: View {
                 ToolbarItem { Button("Cancel") { dismiss() } }
 #endif
             }
-            .errorAlert($saveError)
         }
         .presentationDetents([.medium])
         .edgesIgnoringSafeArea(.all)
@@ -89,16 +87,13 @@ struct NewMilleBornesGame: View {
 
     private func save() {
         guard problem == nil else { return }
-        do {
-            let refs = try PlayerSlot.resolve(team1 + team2, in: modelContext).map(PlayerRef.init(profile:))
-            let game = MilleBornesGame(team1Players: Array(refs.prefix(team1.count)),
-                                       team2Players: Array(refs.dropFirst(team1.count)))
-            modelContext.insert(game)
-            onSave?(game.id)
-            dismiss()
-        } catch {
-            saveError = error.localizedDescription
-        }
+        let refs = PlayerSlot.resolve(team1 + team2, roster: roster, in: modelContext)
+            .map(PlayerRef.init(profile:))
+        let game = MilleBornesGame(team1Players: Array(refs.prefix(team1.count)),
+                                   team2Players: Array(refs.dropFirst(team1.count)))
+        modelContext.insert(game)
+        onSave?(game.id)
+        dismiss()
     }
 }
 

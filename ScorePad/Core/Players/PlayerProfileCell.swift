@@ -9,7 +9,7 @@ struct PlayerProfileCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
             Spacer(minLength: 0)
-            Text(profile.name)
+            Text(profile.fullName)
             Text(profile.aliases.joined(separator: ", "))
                 .font(.caption)
                 .foregroundStyle(.secondary)

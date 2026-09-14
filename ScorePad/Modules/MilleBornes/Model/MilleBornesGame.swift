@@ -31,7 +31,6 @@ final class MilleBornesGame: ObservableObject, Identifiable, Codable {
         id           = try c.decode(UUID.self,              forKey: .id)
         dateCreated  = try c.decode(Date.self,              forKey: .dateCreated)
         lastModified = try c.decode(Date.self,              forKey: .lastModified)
-        // PlayerRef.init(from:) handles both old bare-string and new keyed formats.
         team1Players = try c.decode([PlayerRef].self,       forKey: .team1Players)
         team2Players = try c.decode([PlayerRef].self,       forKey: .team2Players)
         hands        = try c.decode([MilleBornesHand].self, forKey: .hands)

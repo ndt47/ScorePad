@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import Observation
+import OSLog
 
 @Observable
 final class AppNavigationState {
@@ -19,6 +20,8 @@ final class AppNavigationState {
 
 struct AppRootView: View {
     @Environment(GameRegistry.self) private var registry
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var navState = AppNavigationState()
     @State private var showingRoster = false
 
@@ -45,6 +48,20 @@ struct AppRootView: View {
         }
         .sheet(isPresented: $showingRoster) {
             PlayerRosterView()
+        }
+        // Pick up renames synced from other devices after games were cached with the old name.
+        .task { refreshCachedNames() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { refreshCachedNames() }
+        }
+    }
+
+    private func refreshCachedNames() {
+        do {
+            try PlayerProfileService(context: modelContext, modules: registry.modules).refreshCachedNames()
+        } catch {
+            Logger(subsystem: "com.nathan47.ScorePad", category: "Players")
+                .error("Could not refresh player names: \(error, privacy: .public)")
         }
     }
 

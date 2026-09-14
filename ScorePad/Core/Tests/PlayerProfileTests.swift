@@ -7,24 +7,29 @@ import SwiftData
 final class PersonProfileMatchingTests: XCTestCase {
     func testMatchesNameIgnoringCaseAndSurroundingSpace() {
         let alice = PersonProfile(name: "Alice")
-        XCTAssertTrue(PersonProfile.matching("  alice ", in: [alice]) === alice)
+        XCTAssertEqual(PersonProfile.candidates(for: "  alice ", in: [alice]), [alice])
     }
 
-    func testMatchesAlias() {
-        let bob = PersonProfile(name: "Bobby")
-        bob.aliases = ["Bob"]
-        XCTAssertTrue(PersonProfile.matching("bob", in: [bob]) === bob)
+    func testMatchesFullNameAndAlias() {
+        let bob = PersonProfile(name: "Bob", lastName: "Smith")
+        bob.aliases = ["Bobby"]
+        XCTAssertEqual(PersonProfile.candidates(for: "bob smith", in: [bob]), [bob])
+        XCTAssertEqual(PersonProfile.candidates(for: "Bobby", in: [bob]), [bob])
     }
 
-    func testExactNameBeatsAnotherPlayersAlias() {
-        let alice = PersonProfile(name: "Alice")
-        alice.aliases = ["Zed"]
-        let zed = PersonProfile(name: "Zed")
-        XCTAssertTrue(PersonProfile.matching("Zed", in: [alice, zed]) === zed)
+    func testSharedNameMatchesEveryone() {
+        let bobSmith = PersonProfile(name: "Bob", lastName: "Smith")
+        let bobJones = PersonProfile(name: "Bob", lastName: "Jones")
+        let robert = PersonProfile(name: "Robert")
+        robert.aliases = ["Bob"]
+        XCTAssertEqual(PersonProfile.candidates(for: "Bob", in: [bobSmith, bobJones, robert]),
+                       [bobSmith, bobJones, robert])
+        XCTAssertEqual(PersonProfile.candidates(for: "Bob Jones", in: [bobSmith, bobJones, robert]), [bobJones])
     }
 
-    func testNoMatch() {
-        XCTAssertNil(PersonProfile.matching("Carol", in: [PersonProfile(name: "Alice")]))
+    func testFullNameFallsBackToName() {
+        XCTAssertEqual(PersonProfile(name: "Alice").fullName, "Alice")
+        XCTAssertEqual(PersonProfile(name: "Alice", lastName: " Liddell ").fullName, "Alice Liddell")
     }
 }
 
@@ -39,15 +44,16 @@ final class PlayerSlotTests: XCTestCase {
         container = try makeInMemoryContainer()
     }
 
-    private func slot(_ text: String, picked: PersonProfile? = nil) -> PlayerSlot {
+    private func slot(_ text: String, _ choice: PlayerSlot.Choice = .automatic) -> PlayerSlot {
         var slot = PlayerSlot()
         slot.text = text
-        slot.profile = picked
+        slot.choice = choice
         return slot
     }
 
     func testEverySeatNeedsAName() {
-        XCTAssertNotNil(PlayerSlot.problem(with: [slot("Alice"), slot("  ")], roster: []))
+        XCTAssertEqual(PlayerSlot.problem(with: [slot("Alice"), slot("  ")], roster: []),
+                       "Enter a name for every player.")
     }
 
     func testSameNameTwiceIsAProblem() {
@@ -65,25 +71,54 @@ final class PlayerSlotTests: XCTestCase {
         XCTAssertNil(PlayerSlot.problem(with: [slot("Alice"), slot("Bob")], roster: []))
     }
 
-    func testResolveUsesPickedThenMatchedThenCreates() throws {
-        let alice = PersonProfile(name: "Alice")
-        let bob = PersonProfile(name: "Bob")
-        context.insert(alice)
-        context.insert(bob)
+    func testAmbiguousNameMustBeChosen() {
+        let bobSmith = PersonProfile(name: "Bob", lastName: "Smith")
+        let bobJones = PersonProfile(name: "Bob", lastName: "Jones")
+        let roster = [bobSmith, bobJones]
 
-        let resolved = try PlayerSlot.resolve([slot("Alice", picked: alice), slot("BOB"), slot(" Carol ")],
-                                              in: context)
-
-        XCTAssertTrue(resolved[0] === alice)
-        XCTAssertTrue(resolved[1] === bob)
-        XCTAssertEqual(resolved[2].name, "Carol")
-        XCTAssertEqual(try context.fetchCount(FetchDescriptor<PersonProfile>()), 3)
+        XCTAssertEqual(slot("Bob").resolution(in: roster), .ambiguous(roster))
+        XCTAssertNotNil(PlayerSlot.problem(with: [slot("Bob")], roster: roster))
+        XCTAssertNil(PlayerSlot.problem(with: [slot("Bob Jones", .existing(bobJones))], roster: roster))
     }
 
-    func testResolveCreatesNothingForKnownPlayers() throws {
-        context.insert(PersonProfile(name: "Alice"))
-        _ = try PlayerSlot.resolve([slot("alice")], in: context)
-        XCTAssertEqual(try context.fetchCount(FetchDescriptor<PersonProfile>()), 1)
+    func testTwoSameNamedPlayersCanShareAGame() {
+        let bobSmith = PersonProfile(name: "Bob", lastName: "Smith")
+        let bobJones = PersonProfile(name: "Bob", lastName: "Jones")
+        let roster = [bobSmith, bobJones]
+        let slots = [slot("Bob Smith", .existing(bobSmith)), slot("Bob Jones", .existing(bobJones))]
+        XCTAssertNil(PlayerSlot.problem(with: slots, roster: roster))
+    }
+
+    func testExplicitNewPlayerIgnoresNameMatch() {
+        let bob = PersonProfile(name: "Bob")
+        XCTAssertEqual(slot("Bob").resolution(in: [bob]), .existing(bob))
+        XCTAssertEqual(slot("Bob", .new).resolution(in: [bob]), .new)
+        XCTAssertNil(PlayerSlot.problem(with: [slot("Bob"), slot("Bob", .new)], roster: [bob]))
+    }
+
+    func testDeletedPickFallsBackToNameMatch() {
+        let bob = PersonProfile(name: "Bob")
+        let gone = PersonProfile(name: "Bob")
+        XCTAssertEqual(slot("Bob", .existing(gone)).resolution(in: [bob]), .existing(bob))
+    }
+
+    func testResolveUsesChosenThenMatchedThenCreates() throws {
+        let alice = PersonProfile(name: "Alice")
+        let bobSmith = PersonProfile(name: "Bob", lastName: "Smith")
+        let bobJones = PersonProfile(name: "Bob", lastName: "Jones")
+        [alice, bobSmith, bobJones].forEach(context.insert)
+        let roster = [alice, bobSmith, bobJones]
+
+        let resolved = PlayerSlot.resolve(
+            [slot("ALICE"), slot("Bob Jones", .existing(bobJones)), slot("Bob", .new), slot(" Carol ")],
+            roster: roster, in: context)
+
+        XCTAssertTrue(resolved[0] === alice)
+        XCTAssertTrue(resolved[1] === bobJones)
+        XCTAssertEqual(resolved[2].name, "Bob")
+        XCTAssertFalse(roster.contains(resolved[2]))
+        XCTAssertEqual(resolved[3].name, "Carol")
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<PersonProfile>()), 5)
     }
 }
 
@@ -152,29 +187,67 @@ final class PlayerProfileServiceTests: XCTestCase {
         XCTAssertEqual(alice.aliases, [])
     }
 
-    func testRenameToAnotherPlayersNameIsRefused() {
-        XCTAssertThrowsError(try service.rename(alice, to: "bob")) { error in
-            XCTAssertEqual(error as? PlayerProfileError, .nameInUse(requested: "bob", owner: "Bob"))
-        }
-        XCTAssertEqual(alice.name, "Alice")
+    func testNamesAndAliasesNeedNotBeUnique() throws {
+        try service.rename(alice, to: "Bob")
+        try service.addAlias("Bob", to: carol)
+        XCTAssertEqual(alice.name, "Bob")
+        XCTAssertEqual(carol.aliases, ["Bob"])
     }
 
-    func testAliasThatIsAnotherPlayersNameIsRefused() {
-        XCTAssertThrowsError(try service.addAlias("Bob", to: alice))
+    func testLastNameDoesNotChangeGameNames() throws {
+        try service.setLastName(" Liddell ", for: alice)
+        XCTAssertEqual(alice.fullName, "Alice Liddell")
+        XCTAssertEqual(phase10.players[0].cachedName, "Alice")
+    }
+
+    func testGameCountsChangeNothing() throws {
+        _ = try service.gameCounts()
+        XCTAssertFalse(context.hasChanges)
+    }
+
+    func testRefusedOperationKeepsUnsavedWork() throws {
+        let unsaved = Phase10Game(players: [PlayerRef(profile: dan)])
+        context.insert(unsaved)
+        let unsavedID = unsaved.id
+
+        XCTAssertThrowsError(try service.merge([bob], into: alice))  // they played together
+
+        let fresh = ModelContext(container)
+        let games = try fresh.fetch(FetchDescriptor<Phase10Game>())
+        XCTAssertTrue(games.contains { $0.id == unsavedID })
+    }
+
+    func testPlayersWhoSharedAGameCannotBeMerged() throws {
+        XCTAssertThrowsError(try service.merge([bob], into: alice)) { error in
+            XCTAssertEqual(error as? PlayerProfileError, .playedTogether(first: "Alice", second: "Bob"))
+        }
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<PersonProfile>()), 4)
         XCTAssertEqual(alice.aliases, [])
     }
 
+    func testRefreshCachedNamesByID() throws {
+        var refs = phase10.players
+        refs[0].cachedName = "Stale"
+        phase10.players = refs
+        try service.refreshCachedNames()
+        XCTAssertEqual(phase10.players[0].cachedName, "Alice")
+    }
+
     func testMergeMovesSeatsAndNamesToPrimary() throws {
+        // Erin never played with Bob, so she can absorb him.
+        let erin = PersonProfile(name: "Erin")
+        context.insert(erin)
         bob.aliases = ["Bobby"]
         let bobID = bob.id
 
-        try service.merge([bob], into: carol)
+        try service.merge([bob], into: erin)
 
-        XCTAssertEqual(Set(carol.aliases), ["Bob", "Bobby"])
-        XCTAssertEqual(rubber.players[1].ref, PlayerRef(profile: carol))
-        XCTAssertEqual(mille.team2Players, [PlayerRef(profile: carol)])
+        XCTAssertEqual(Set(erin.aliases), ["Bob", "Bobby"])
+        XCTAssertEqual(rubber.players[1].ref, PlayerRef(profile: erin))
+        XCTAssertEqual(mille.team2Players, [PlayerRef(profile: erin)])
         let remaining = try context.fetch(FetchDescriptor<PersonProfile>()).map(\.id)
         XCTAssertFalse(remaining.contains(bobID))
+        XCTAssertEqual(remaining.count, 4)
     }
 
     func testDeletingAPlayerInGamesIsRefused() throws {

@@ -38,7 +38,7 @@ struct PlayerRosterView: View {
     private var filteredPlayers: [PersonProfile] {
         guard !searchText.isEmpty else { return players }
         return players.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText)
+            $0.fullName.localizedCaseInsensitiveContains(searchText)
                 || $0.aliases.contains { $0.localizedCaseInsensitiveContains(searchText) }
         }
     }
@@ -201,16 +201,11 @@ struct PlayerRosterView: View {
         return "\(names.prefix(2).joined(separator: ", ")), and \(names.count - 2) more will be permanently deleted."
     }
 
+    // Names needn't be unique; a new player who shares a name gets a last name on their page.
     private func addPlayer() {
         let name = newName.normalizedName
         newName = ""
         guard !name.isEmpty else { return }
-        if let existing = PersonProfile.matching(name, in: players) {
-            errorMessage = existing.name.isSameName(as: name)
-                ? "\(existing.name) is already on the roster."
-                : "\(name) is already an alias of \(existing.name)."
-            return
-        }
         modelContext.insert(PersonProfile(name: name))
     }
 

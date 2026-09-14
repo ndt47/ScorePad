@@ -28,27 +28,43 @@ struct ScorePadApp: App {
             // empty one; CloudKit re-imports whatever it has already synced.
             let logger = Logger(subsystem: "com.nathan47.ScorePad", category: "Storage")
             logger.error("Could not open the data store: \(error, privacy: .public)")
-            ScorePadApp.moveStoreAside(at: config.url, logger: logger)
+            let moved = ScorePadApp.moveStoreAside(at: config.url, logger: logger)
             do {
                 return try ModelContainer(for: schema, configurations: [config])
             } catch {
+                // An empty store failing too means the problem isn't the data (e.g. an invalid
+                // schema). Put the original files back so a fixed build can still open them.
+                for (original, backup) in moved {
+                    try? FileManager.default.removeItem(at: original)
+                    try? FileManager.default.moveItem(at: backup, to: original)
+                }
                 fatalError("Could not create an empty data store: \(error)")
             }
         }
     }()
 
-    private static func moveStoreAside(at url: URL, logger: Logger) {
+    /// Renames the store's files with an ".unreadable-<timestamp>" suffix and returns the
+    /// (original, backup) pairs that were moved.
+    private static func moveStoreAside(at url: URL, logger: Logger) -> [(URL, URL)] {
         let stamp = Date.now.formatted(.iso8601.dateSeparator(.omitted).timeSeparator(.omitted))
-        for suffix in ["", "-shm", "-wal"] {
-            let source = URL(filePath: url.path + suffix)
-            guard FileManager.default.fileExists(atPath: source.path) else { continue }
-            let backup = URL(filePath: url.path + ".unreadable-\(stamp)" + suffix)
+        let directory = url.deletingLastPathComponent()
+        let baseName = url.lastPathComponent
+        // SQLite side files, plus the directory SwiftData keeps external data in.
+        let names = ["", "-shm", "-wal"].map { baseName + $0 }
+            + [".\(url.deletingPathExtension().lastPathComponent)_SUPPORT"]
+        var moved: [(URL, URL)] = []
+        for name in names {
+            let original = directory.appending(path: name)
+            guard FileManager.default.fileExists(atPath: original.path) else { continue }
+            let backup = directory.appending(path: "\(name).unreadable-\(stamp)")
             do {
-                try FileManager.default.moveItem(at: source, to: backup)
+                try FileManager.default.moveItem(at: original, to: backup)
+                moved.append((original, backup))
             } catch {
-                logger.error("Could not move \(source.lastPathComponent) aside: \(error, privacy: .public)")
+                logger.error("Could not move \(name, privacy: .public) aside: \(error, privacy: .public)")
             }
         }
+        return moved
     }
 
     var body: some Scene {

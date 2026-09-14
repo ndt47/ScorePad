@@ -31,25 +31,67 @@ extension View {
 
 // MARK: - PlayerSlot
 
-/// One seat in a new-game form: the name as typed, plus the roster profile the user picked
-/// from the suggestions, if any. Nothing touches the roster until the form commits and calls
+/// One seat in a new-game form: the name as typed, plus what the user chose from the
+/// suggestions. Nothing touches the roster until the form commits and calls
 /// `PlayerSlot.resolve`, so typos and cancelled forms never create profiles.
 struct PlayerSlot: Identifiable, Equatable {
+    enum Choice: Equatable {
+        /// Use the typed name: the one roster player it matches, or a new player if none.
+        case automatic
+        /// This roster player, picked from the suggestions.
+        case existing(PersonProfile)
+        /// A new player, even though the name may match someone already on the roster.
+        case new
+    }
+
+    /// Who the seat refers to, given the current roster.
+    enum Resolution: Equatable {
+        case empty
+        case existing(PersonProfile)
+        case new
+        /// The typed name matches several players; the user must pick one.
+        case ambiguous([PersonProfile])
+    }
+
     let id = UUID()
     var text = ""
-    var profile: PersonProfile?
+    var choice = Choice.automatic
 
     var name: String { text.normalizedName }
 
-    /// Why these seats can't start a game yet, or nil when every seat names a different player.
-    static func problem(with slots: [PlayerSlot], roster: [PersonProfile]) -> String? {
-        if slots.contains(where: { $0.name.isEmpty }) {
-            return String(localized: "Enter a name for every player.")
+    func resolution(in roster: [PersonProfile]) -> Resolution {
+        guard !name.isEmpty else { return .empty }
+        switch choice {
+        case .existing(let picked) where roster.contains(where: { $0.id == picked.id }):
+            return .existing(picked)
+        case .new:
+            return .new
+        case .existing, .automatic:
+            let candidates = PersonProfile.candidates(for: name, in: roster)
+            switch candidates.count {
+            case 0: return .new
+            case 1: return .existing(candidates[0])
+            default: return .ambiguous(candidates)
+            }
         }
+    }
+
+    /// Why these seats can't start a game yet, or nil when every seat is a distinct player.
+    static func problem(with slots: [PlayerSlot], roster: [PersonProfile]) -> String? {
         var seen: [String: String] = [:]  // identity → name as typed
         for slot in slots {
-            let identity = (slot.profile ?? PersonProfile.matching(slot.name, in: roster))?.id.uuidString
-                ?? slot.name.lowercased()
+            let identity: String
+            switch slot.resolution(in: roster) {
+            case .empty:
+                return String(localized: "Enter a name for every player.")
+            case .ambiguous:
+                return String(localized: "More than one player is called \(slot.name). Choose one from the suggestions.")
+            case .existing(let profile):
+                identity = profile.id.uuidString
+            case .new:
+                // An explicit "new player" is its own person; the same typed name twice is not.
+                identity = slot.choice == .new ? slot.id.uuidString : "new:" + slot.name.nameKey
+            }
             if let earlier = seen[identity] {
                 return earlier.isSameName(as: slot.name)
                     ? String(localized: "\(slot.name) is entered more than once.")
@@ -60,27 +102,30 @@ struct PlayerSlot: Identifiable, Equatable {
         return nil
     }
 
-    /// The profile for each seat: the picked suggestion, else the roster match for the typed
-    /// name, else a new profile inserted into `context`. Call only when committing the form.
+    /// The profile for each seat, inserting a new profile into `context` for each new player.
+    /// Call only once `problem(with:roster:)` is nil, with the same roster, so both agree on
+    /// every identity.
     @MainActor
-    static func resolve(_ slots: [PlayerSlot], in context: ModelContext) throws -> [PersonProfile] {
-        var roster = try context.fetch(FetchDescriptor<PersonProfile>())
+    static func resolve(_ slots: [PlayerSlot], roster: [PersonProfile], in context: ModelContext) -> [PersonProfile] {
+        var created: [String: PersonProfile] = [:]
         return slots.map { slot in
-            if let picked = slot.profile { return picked }
-            if let existing = PersonProfile.matching(slot.name, in: roster) { return existing }
-            let created = PersonProfile(name: slot.name)
-            context.insert(created)
-            roster.append(created)
-            return created
+            if case .existing(let profile) = slot.resolution(in: roster) { return profile }
+            let key = slot.choice == .new ? slot.id.uuidString : slot.name.nameKey
+            if let made = created[key] { return made }
+            let profile = PersonProfile(name: slot.name)
+            context.insert(profile)
+            created[key] = profile
+            return profile
         }
     }
 }
 
 // MARK: - PlayerPickerField
 
-/// A text field with type-ahead suggestions drawn from the shared PersonProfile roster.
-/// Choosing a suggestion links the seat to that profile; typing clears the link. The slot's
-/// text is always current, so a form can save while this field still has focus.
+/// A text field with type-ahead suggestions from the shared roster. Suggestions show full
+/// names and aliases so same-named players can be told apart, plus a "New player" row for
+/// someone not on the roster yet. The slot's text is always current, so a form can save while
+/// this field still has focus.
 struct PlayerPickerField: View {
     let label: String
     @Binding var slot: PlayerSlot
@@ -102,7 +147,7 @@ struct PlayerPickerField: View {
         return Array(
             roster
                 .filter {
-                    $0.name.localizedCaseInsensitiveContains(typed)
+                    $0.fullName.localizedCaseInsensitiveContains(typed)
                         || $0.aliases.contains { $0.localizedCaseInsensitiveContains(typed) }
                 }
                 .prefix(config.maxSuggestions)
@@ -113,7 +158,9 @@ struct PlayerPickerField: View {
         TextField(config.prompt.isEmpty ? label : config.prompt, text: $slot.text)
             .focused($focused)
             .onChange(of: slot.text) { _, newValue in
-                if let picked = slot.profile, picked.name != newValue { slot.profile = nil }
+                // Any edit other than the one a pick just made returns the seat to automatic.
+                if case .existing(let picked) = slot.choice, picked.fullName == newValue { return }
+                slot.choice = .automatic
                 showSuggestions = focused && !suggestions.isEmpty
             }
             .onChange(of: focused) { _, isFocused in
@@ -128,25 +175,45 @@ struct PlayerPickerField: View {
     private var suggestionsPopover: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(suggestions) { suggestion in
-                Button {
-                    slot.text = suggestion.name
-                    slot.profile = suggestion
-                    showSuggestions = false
-                    focused = false
+                suggestionRow {
+                    slot.text = suggestion.fullName
+                    slot.choice = .existing(suggestion)
                 } label: {
-                    Text(suggestion.name)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .contentShape(Rectangle())
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(suggestion.fullName)
+                        if !suggestion.aliases.isEmpty {
+                            Text(suggestion.aliases.joined(separator: ", "))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                .buttonStyle(.plain)
-                if suggestion.id != suggestions.last?.id {
-                    Divider()
-                }
+                Divider()
+            }
+            suggestionRow {
+                slot.choice = .new
+            } label: {
+                Label("New player “\(slot.name)”", systemImage: "person.badge.plus")
+                    .foregroundStyle(.tint)
             }
         }
         .fixedSize()
         .presentationCompactAdaptation(.popover)
+    }
+
+    private func suggestionRow(_ action: @escaping () -> Void,
+                               @ViewBuilder label: () -> some View) -> some View {
+        Button {
+            action()
+            showSuggestions = false
+            focused = false
+        } label: {
+            label()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }

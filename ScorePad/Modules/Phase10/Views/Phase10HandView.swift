@@ -63,7 +63,7 @@ struct Phase10HandView: View {
                     .minimumScaleFactor(0.8)
                 Spacer()
                 if !results.isEmpty {
-                    Toggle("Completed Phase \(phase)", isOn: $results[i].completedPhase)
+                    Toggle("\(game.players[i].cachedName) completed Phase \(phase)", isOn: $results[i].completedPhase)
                         .labelsHidden()
                         .tint(color)
                 }
@@ -76,6 +76,7 @@ struct Phase10HandView: View {
                     // would drop the last score typed if Save is tapped while the field is active.
                     TextField("0", text: scoreText(for: i))
                         .focused($focusedField, equals: i)
+                        .accessibilityLabel("\(game.players[i].cachedName) score")
 #if os(iOS)
                         .keyboardType(.numberPad)
 #endif
@@ -104,8 +105,8 @@ struct Phase10HandView: View {
 
     private func scoreText(for playerIndex: Int) -> Binding<String> {
         Binding(
-            get: { results[playerIndex].score == 0 ? "" : String(results[playerIndex].score) },
-            set: { results[playerIndex].score = Int($0.filter { $0.isASCII && $0.isNumber }) ?? 0 }
+            get: { String(results[playerIndex].score) },
+            set: { results[playerIndex].score = Int(String($0.filter { $0.isASCII && $0.isNumber }.prefix(6))) ?? 0 }
         )
     }
 

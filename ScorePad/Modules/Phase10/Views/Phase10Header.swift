@@ -27,6 +27,7 @@ struct Phase10Header: View {
         .padding(.vertical, 8)
         .contentShape(Rectangle())
         .onTapGesture { showingDescriptions.toggle() }
+        .accessibilityElement(children: .contain)
         .accessibilityAction(named: showingDescriptions ? "Show Phase Numbers" : "Show Phase Descriptions") {
             showingDescriptions.toggle()
         }
@@ -39,6 +40,7 @@ struct Phase10Header: View {
         let score = game.cumulativeScore(for: index)
         let isWinner = game.winnerIndex == index
         let isEliminated = game.hasFinished(index) && game.isFinished && !isWinner
+        let isDealer = index == game.currentDealerIndex && !game.isFinished
 
         VStack(alignment: .center, spacing: 3) {
             // Color accent bar
@@ -65,7 +67,9 @@ struct Phase10Header: View {
                 .padding(.horizontal, 5)
                 .padding(.vertical, 1)
                 .background(Capsule().fill(color))
-                .opacity(index == game.currentDealerIndex && !game.isFinished ? 1 : 0)
+                .opacity(isDealer ? 1 : 0)
+                .accessibilityLabel("Dealer")
+                .accessibilityHidden(!isDealer)
 
             // Phase number, or its description when the header is tapped, or the result once
             // the game is over. Every state is drawn over the same hidden two-line placeholder,
@@ -89,6 +93,7 @@ struct Phase10Header: View {
                     Text("Phase \(phase)")
                         .foregroundColor(color)
                         .opacity(showingDescriptions ? 0 : 1)
+                        .accessibilityHidden(showingDescriptions)
                     VStack(spacing: 0) {
                         Text(parts.line1)
                         if let line2 = parts.line2 {
@@ -97,6 +102,8 @@ struct Phase10Header: View {
                     }
                     .foregroundColor(color)
                     .opacity(showingDescriptions ? 1 : 0)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityHidden(!showingDescriptions)
                 }
             }
             .font(.caption)

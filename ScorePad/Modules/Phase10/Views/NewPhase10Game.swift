@@ -9,7 +9,6 @@ struct NewPhase10Game: View {
     @State private var slots: [PlayerSlot]
     // Tracked by seat identity so the dealer stays with the same player through reordering.
     @State private var dealerID: PlayerSlot.ID
-    @State private var saveError: String?
 
     var onSave: ((Phase10Game.ID) -> Void)?
 
@@ -28,8 +27,8 @@ struct NewPhase10Game: View {
         NavigationStack {
             Form {
                 Section {
-                    ForEach($slots) { $slot in
-                        playerRow($slot)
+                    ForEach(slots) { slot in
+                        playerRow(binding(for: slot.id))
                     }
                     .onMove { slots.move(fromOffsets: $0, toOffset: $1) }
                     if slots.count < 8 {
@@ -85,7 +84,6 @@ struct NewPhase10Game: View {
                 ToolbarItem { Button("Cancel") { dismiss() } }
 #endif
             }
-            .errorAlert($saveError)
         }
         .presentationDetents([.medium, .large])
     }
@@ -111,6 +109,17 @@ struct NewPhase10Game: View {
         }
     }
 
+    // Looks the seat up by id on every access, so a row being torn down after its seat was
+    // removed (e.g. a focused field resigning) never writes through a stale index.
+    private func binding(for id: PlayerSlot.ID) -> Binding<PlayerSlot> {
+        Binding(
+            get: { slots.first { $0.id == id } ?? PlayerSlot() },
+            set: { newValue in
+                if let i = slots.firstIndex(where: { $0.id == id }) { slots[i] = newValue }
+            }
+        )
+    }
+
     private func remove(_ slot: PlayerSlot) {
         slots.removeAll { $0.id == slot.id }
         if dealerID == slot.id, let first = slots.first {
@@ -120,17 +129,13 @@ struct NewPhase10Game: View {
 
     private func save() {
         guard problem == nil else { return }
-        do {
-            let profiles = try PlayerSlot.resolve(slots, in: modelContext)
-            let dealerIndex = slots.firstIndex { $0.id == dealerID } ?? 0
-            let game = Phase10Game(players: profiles.map(PlayerRef.init(profile:)),
-                                   startingDealerIndex: dealerIndex)
-            modelContext.insert(game)
-            onSave?(game.id)
-            dismiss()
-        } catch {
-            saveError = error.localizedDescription
-        }
+        let profiles = PlayerSlot.resolve(slots, roster: roster, in: modelContext)
+        let dealerIndex = slots.firstIndex { $0.id == dealerID } ?? 0
+        let game = Phase10Game(players: profiles.map(PlayerRef.init(profile:)),
+                               startingDealerIndex: dealerIndex)
+        modelContext.insert(game)
+        onSave?(game.id)
+        dismiss()
     }
 }
 
