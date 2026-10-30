@@ -37,7 +37,8 @@ struct AppRootView: View {
             if let module = selectedModule {
                 module.makeSessionListView(selectedSessionID: $nav.selectedSessionID)
             } else {
-                GameTypeGridView { navState.selectedModuleID = $0 }
+                // The detail column shows the game grid; don't show it twice side by side.
+                ContentUnavailableView("Choose a Game", systemImage: "square.grid.2x2")
             }
         } detail: {
             if let module = selectedModule {
